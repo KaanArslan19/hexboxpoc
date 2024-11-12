@@ -59,7 +59,7 @@ const initialValues = {
   logo: null,
   /*   backgroundImage: null,
    */
-  totalSupply: 0,
+  totalSupply: "",
 };
 
 interface Props {
@@ -80,12 +80,12 @@ export default function CampaignForm(props: Props) {
     const projectData: NewCampaignInfo = {
       title: values.title,
       description: values.description,
-      fundAmount: Number(values.fundAmount),
+      fundAmount: Number(values.fundAmount),  
       logo: values.logo!,
       /*       backgroundImage: values.backgroundImage!,
-       */
+       */ 
       // hexboxAddress: values.hexboxAddress,
-      totalSupply: 0,
+      totalSupply: Number(values.totalSupply),
     };
     try {
       await onSubmit(projectData);
@@ -262,7 +262,7 @@ export default function CampaignForm(props: Props) {
               />
             </div>
           )}
-
+          
           {/*
           {currentStep === 2 && (
             <div>

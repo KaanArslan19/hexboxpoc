@@ -4,14 +4,18 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/utils/auth";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createToken } from "@/app/utils/createToken";
+import { createWallet } from "@/app/utils/createWallet";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
-    // const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions)
 
-    // if (!session) {
-    //     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    if (!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const creatorWalletAddress = session.user?.name;
+    console.log(creatorWalletAddress);
 
     const formData = await req.formData();
     if (!formData) {
@@ -33,22 +37,15 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     let campaign = {
       title: campaignEntries.title,
       description: campaignEntries.description,
-      fund_amount: Number(campaignEntries.fund_amount),
       hexboxAddress: "",
       logo: logoFileName,
       timestamp: Date.now(),
       status: true,
-      totalSupply: 0,
       tokenUUID: "",
+      fund_amount: campaignEntries.fund_amount,
     };
-
-    // Create campaign/hexbox wallet here
-    // const createdWallet = await createWallet()
-    // campaign.hexboxAddress = createdWallet.address
-
-    // Create token
-    const tokenUUID = await createToken(campaign.title as string, Number(campaignEntries.totalSupply), campaign.fund_amount as number);
-    campaign.tokenUUID = tokenUUID as string;
+    console.log(campaignEntries.total_supply);
+    const totalTokenSupply = Number(campaignEntries.total_supply);
 
     // Create campaign in DB
     const mdbClient = client;
@@ -56,8 +53,18 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const result = await db.collection("campaigns").insertOne(campaign);
 
     console.log(result);
+    const campaignId = result.insertedId.toString();
 
-    return NextResponse.json("created");
+    // Create token
+    const tokenUUID = await createToken(campaign.title as string, totalTokenSupply, Number(campaign.fund_amount), creatorWalletAddress as string);
+    campaign.tokenUUID = tokenUUID as string;
+    console.log(totalTokenSupply, campaign.fund_amount);
+
+    // Create campaign/hexbox wallet here
+    const createdWallet = await createWallet(campaign.tokenUUID, campaignId)
+    campaign.hexboxAddress = createdWallet as string;
+
+    return NextResponse.json({ campaignId });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: e }, { status: 500 });
