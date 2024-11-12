@@ -80,17 +80,12 @@ export default function CampaignForm(props: Props) {
     const projectData: NewCampaignInfo = {
       title: values.title,
       description: values.description,
-      fundAmount: Number(values.fundAmount),  
+      fundAmount: Number(values.fundAmount),
       logo: values.logo!,
       /*       backgroundImage: values.backgroundImage!,
-<<<<<<< Updated upstream
-       */ 
+       */
       // hexboxAddress: values.hexboxAddress,
       totalSupply: 0,
-=======
-       */
-      hexboxAddress: values.hexboxAddress,
->>>>>>> Stashed changes
     };
     try {
       await onSubmit(projectData);
@@ -267,7 +262,7 @@ export default function CampaignForm(props: Props) {
               />
             </div>
           )}
-          
+
           {/*
           {currentStep === 2 && (
             <div>
