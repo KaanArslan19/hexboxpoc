@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "customFont_outline_light";
+  src: url("/fonts/made_tommy_fonts/outline_light.otf");
+}
+
+@font-face {
+  font-family: "customFont_extrabold";
+  src: url("/fonts/made_tommy_fonts/extrabold.otf");
+}
+
+@font-face {
+  font-family: "customFont_outline_bold";
+  src: url("/fonts/made_tommy_fonts/outline_bold.otf");
+}
+
+@font-face {
+  font-family: "customFont_outline_regular";
+  src: url("/fonts/made_tommy_fonts/outline_regular.otf");
+}
+
+@font-face {
+  font-family: "customFont_outline_extrabold";
+  src: url("/fonts/made_tommy_fonts/outline_extrabold.otf");
+}
+
+@font-face {
+  font-family: "customFont_outline_medium";
+  src: url("/fonts/made_tommy_fonts/outline_medium.otf");
+}
+
+@font-face {
+  font-family: "customFont_regular";
+  src: url("/fonts/made_tommy_fonts/regular.otf");
+}
+
+@font-face {
+  font-family: "customFont_thin";
+  src: url("/fonts/made_tommy_fonts/thin.otf");
+}
+
+@font-face {
+  font-family: "customFont_outline_thin";
+  src: url("/fonts/made_tommy_fonts/outline_thin.otf");
+}
+
+@font-face {
+  font-family: "customFont_medium";
+  src: url("/fonts/made_tommy_fonts/medium.otf");
+}
+
+@font-face {
+  font-family: "customFont_outline_black";
+  src: url("/fonts/made_tommy_fonts/outline_black.otf");
+}
+
+@font-face {
+  font-family: "customFont_black";
+  src: url("/fonts/made_tommy_fonts/black.otf");
+}
+
+@font-face {
+  font-family: "customFont_light";
+  src: url("/fonts/made_tommy_fonts/light.otf");
+}
+
+@font-face {
+  font-family: "customFont_bold";
+  src: url("/fonts/made_tommy_fonts/bold.otf");
+}
+
+* {
+  color: black;
+}
+
+ul,
+h1,
+h2,
+h3,
+h4,
+p,
+button,
+li,
+a,
+input,
+svg,
+path,
+Link {
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+span,
+a,
+button {
+  font-family: customFont_regular;
+}
+
+p {
+  font-family: customFont_thin;
+}
