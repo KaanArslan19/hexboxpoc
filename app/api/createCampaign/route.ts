@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/utils/auth";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
-import { createToken } from "@/app/utils/createToken";
-import { createWallet } from "@/app/utils/createWallet";
+import { createToken } from "@/app/utils/poc_utils/createToken";
+import { createWallet } from "@/app/utils/poc_utils/createWallet";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -41,7 +41,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       logo: logoFileName,
       timestamp: Date.now(),
       status: true,
-      tokenUUID: "",
+      token_address: "",
       fund_amount: campaignEntries.fund_amount,
     };
     console.log(campaignEntries.total_supply);
@@ -56,12 +56,11 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const campaignId = result.insertedId.toString();
 
     // Create token
-    const tokenUUID = await createToken(campaign.title as string, totalTokenSupply, Number(campaign.fund_amount), creatorWalletAddress as string);
-    campaign.tokenUUID = tokenUUID as string;
-    console.log(totalTokenSupply, campaign.fund_amount);
+    const tokenId = await createToken(campaign.title as string, totalTokenSupply, Number(campaign.fund_amount), creatorWalletAddress as string);
+    campaign.token_address = tokenId as string;
 
     // Create campaign/hexbox wallet here
-    const createdWallet = await createWallet(campaign.tokenUUID, campaignId)
+    const createdWallet = await createWallet(tokenId as string)
     campaign.hexboxAddress = createdWallet as string;
 
     return NextResponse.json({ campaignId });
