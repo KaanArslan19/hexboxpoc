@@ -20,10 +20,29 @@ export interface CampaignListProps {
     description: string;
     fund_amount: number;
     logo: string;
+    one_liner: string;
+    location: string;
+    deadline: number;
+    social_links: SocialLinks;
     background_image: string;
     hexbox_address: string;
     status: boolean;
   }[];
+}
+export interface CampaignDetailsProps {
+  _id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  fund_amount: number;
+  logo: string;
+  one_liner: string;
+  location: string;
+  deadline: number;
+  social_links: SocialLinks;
+  background_image: string;
+  hexbox_address: string;
+  status: boolean;
 }
 enum Status {
   Active = "Active",
@@ -34,32 +53,28 @@ enum Status {
 export interface CampaignItemProps {
   id: string;
   userId: string;
+  one_liner: string;
   title: string;
-  description: string;
   fundAmount: number;
   logo: string;
-  backgroundImage: string;
-  hexboxAddress: string;
   status?: Status;
 }
 interface SocialLinks {
   discord?: string;
-  telegram: string;
+  telegram?: string;
   website?: string;
   linkedIn?: string;
 }
 export interface NewCampaignInfo {
   title: string;
   description: string;
-  oneLiner?: string;
-  location?: string;
-  deadline?: string;
-  social_links?: SocialLinks;
+  one_liner: string;
+  location: string;
+  deadline: number;
+  social_links: SocialLinks;
   fundAmount: number;
   logo: File;
-  // hexboxAddress: string;
-  /*   backgroundImage: File;
-   */
+
   totalSupply: number;
 }
 

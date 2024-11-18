@@ -105,3 +105,34 @@ button {
 p {
   font-family: customFont_thin;
 }
+/* react-slick */
+/* styles/story-slider.css */
+
+.story-slider .slick-dots {
+  bottom: 20px;
+  display: flex !important;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+.story-slider .slick-dots li {
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.story-slider .slick-dots li button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  background-color: #002d5d25;
+}
+
+.story-slider .slick-dots li.slick-active button {
+  background-color: #002d5d;
+  transform: scale(1.35);
+}
+
+.story-slider .slick-dots li button:before {
+  display: none;
+}

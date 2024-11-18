@@ -22,10 +22,7 @@ export default async function CampaignsPage() {
         </div>
 
         <p className="mx-auto text-lg lg:text-xl">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum
-          dolorem nobis quibusdam deserunt temporibus neque, quo et delectus
-          ullam quos, iste recusandae distinctio repellat! At labore excepturi
-          est saepe laudantium.
+          Explore the projects that get funded by our precious community!
         </p>
       </div>
       <CampaignList listings={campaigns} />

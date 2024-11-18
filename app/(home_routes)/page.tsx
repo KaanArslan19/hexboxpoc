@@ -6,7 +6,6 @@ export default async function Home() {
   const campaigns = await fetchCampaigns(10, 0);
   return (
     <main className="py-4 space-y-4">
-      <About />
       <div className="max-w-2xl lg:max-w-6xl mx-auto ">
         <div className="text-center mt-16   ">
           <h1 className="text-4xl lg:text-4xl font-customFont_bold mb-4 tracking-tight  ">
