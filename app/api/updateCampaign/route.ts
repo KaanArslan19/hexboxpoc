@@ -54,7 +54,7 @@ export const PUT = async (req: NextRequest, res: NextResponse) => {
         console.log(campaignDetails)
 
         const mdbClient = client;
-        const db = mdbClient.db("hexbox_main");
+        const db = mdbClient.db("hexbox_poc");
         const campaignIdObj = new ObjectId(campaignId as string)
         const result = await db.collection("campaigns").updateOne({ _id: campaignIdObj}, { $set: campaignDetails });
 

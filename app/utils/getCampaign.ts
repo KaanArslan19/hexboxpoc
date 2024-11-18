@@ -8,7 +8,7 @@ export async function getCampaign(campaignId: string) {
       return null;
     }
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_main");
+    const db = mdbClient.db("hexbox_poc");
     const campaign = await db
       .collection("campaigns")
       .findOne({ _id: new ObjectId(campaignId) });

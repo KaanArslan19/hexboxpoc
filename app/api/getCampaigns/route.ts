@@ -8,7 +8,7 @@ import { auditProposal } from "@/app/utils/poc_utils/auditProposal";
 export const GET = async (req: NextRequest) => {
   try {
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_main");
+    const db = mdbClient.db("hexbox_poc");
 
     // const tokenId = await createToken("Test Token", 10000, 1000000, "4ypD7kxRj9DLF3PMxsY3qvp8YdNhAHZRnN3fyVDh5CFX")
     // console.log(tokenId);
@@ -21,8 +21,8 @@ export const GET = async (req: NextRequest) => {
     // console.log(buySomeTokens);
     // const voteProp = await voteProposal("8pwsPPVQuAPHVsz2xHXqUgKMHqy376senkBcHrFbnmHr", "6735f42c48dfe32ab5c7e155", true)
     // console.log(voteProp);
-    const auditProp = await auditProposal("0x0000000000000000000000000000000000000000", "6735f42c48dfe32ab5c7e155", true)
-    console.log(auditProp);
+    // const auditProp = await auditProposal("0x0000000000000000000000000000000000000000", "6735f42c48dfe32ab5c7e155", true)
+    // console.log(auditProp);
 
     // Parse query parameters for limit and skip
     const limit = parseInt(req.nextUrl.searchParams.get("limit") || "10");

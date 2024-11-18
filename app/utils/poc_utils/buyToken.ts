@@ -40,13 +40,17 @@ export const buyToken = async (user: string, token_address: string, amount: numb
             // Update existing holder
             updateOperation = {
                 $set: { available_supply: tokenDetails.available_supply },
-                $inc: { "holders.$[holder].balance": amount }
+                $inc: { "holders.$[holder].balance": amount },
+                $push: { transactions: { address: user, type: "buy", amount: amount, timestamp: new Date() } }
             };
         } else {
             // Add new holder
             updateOperation = {
                 $set: { available_supply: tokenDetails.available_supply },
-                $push: { holders: { address: user, balance: amount } }
+                $push: { 
+                    holders: { address: user, balance: amount },
+                    transactions: { address: user,type: "buy", amount: amount, timestamp: new Date() }
+                },
             };
         }
 
@@ -54,6 +58,15 @@ export const buyToken = async (user: string, token_address: string, amount: numb
             { _id: new ObjectId(token_address) },
             updateOperation,
             holderExists ? { arrayFilters: [{ "holder.address": user }] } : undefined
+        );
+
+        const walletAddress = await getWalletTokenAddress(token_address) as string;
+        if (!walletAddress) {
+            return { error: "Wallet not found" };
+        }
+        const wallet = await client.db("hexbox_poc").collection("wallets").updateOne(
+            { _id: new ObjectId(walletAddress) },
+            { $inc: { balance: amount } }   
         );
         
         return updatedToken;

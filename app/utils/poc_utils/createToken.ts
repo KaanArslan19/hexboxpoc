@@ -4,14 +4,16 @@ export const createToken = async (name: string, supply: number, fundsToRaise: nu
   try {
 
     // Executor gets 40% of the supply, so we need to calculate the price based on the remaining 60% to ensure raised funds are met
-    const tokenPrice = Number(fundsToRaise) / (Number(supply) - (Number(supply) * 0.4))
+    const executorTokens = (supply * 0.4)
+    const tokenPrice = Number(fundsToRaise) / (Number(supply) - executorTokens)
 
     const token = await client.db("hexbox_poc").collection("tokens").insertOne({
       name: name,
       supply: supply,
-      available_supply: supply - (supply * 0.4),
+      available_supply: supply - executorTokens,
       price: tokenPrice,
-      holders: [{address: creatorWalletAddress, balance: (supply * 0.4)}],
+      holders: [{address: creatorWalletAddress, balance: executorTokens}],
+      transactions: [{address: creatorWalletAddress, type: "create", amount: executorTokens, timestamp: new Date()}]
     });
 
     return token.insertedId.toString()

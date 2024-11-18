@@ -53,21 +53,22 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     console.log(campaignEntries.total_supply);
     const totalTokenSupply = Number(campaignEntries.total_supply);
 
-    // Create campaign in DB
-    const mdbClient = client;
-    const db = mdbClient.db("hexbox_main");
-    const result = await db.collection("campaigns").insertOne(campaign);
-
-    console.log(result);
-    const campaignId = result.insertedId.toString();
-
     // Create token
     const tokenId = await createToken(campaign.title as string, totalTokenSupply, Number(campaign.fund_amount), creatorWalletAddress as string);
+    console.log(tokenId);
     campaign.token_address = tokenId as string;
 
     // Create campaign/hexbox wallet here
     const createdWallet = await createWallet(tokenId as string)
+    console.log(createdWallet);
     campaign.wallet_address = createdWallet as string;
+
+    // Create campaign in DB
+    const mdbClient = client;
+    const db = mdbClient.db("hexbox_poc");
+    const result = await db.collection("campaigns").insertOne(campaign);
+    console.log(result);
+    const campaignId = result.insertedId.toString();
 
     return NextResponse.json({ campaignId });
   } catch (e) {
