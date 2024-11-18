@@ -8,7 +8,7 @@ import CustomButton from "../ui/CustomButton";
 const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
   const [campaigns, setCampaigns] = useState(listings);
   const [skip, setSkip] = useState(listings.length);
-  const [hasMore, setHasMore] = useState(true); //
+  const [hasMore, setHasMore] = useState(true);
   const limit = 10;
   const loadMoreCampaigns = async () => {
     console.log("Load more triggered with skip:", skip);
@@ -39,14 +39,10 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
               key={item._id}
               id={item._id}
               userId={item.user_id}
+              one_liner={item.one_liner}
               title={item.title}
-              description={item.description}
               fundAmount={item.fund_amount}
               logo={item.logo}
-              backgroundImage={item.background_image}
-              hexboxAddress={item.hexbox_address}
-              /*               status={item.status}
-               */
             />
           ))}
         </ul>

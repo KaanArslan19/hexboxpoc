@@ -9,8 +9,22 @@ import CampaignActivity from "../ui/CampaignActivity";
 import CampaignInfo from "../ui/CampaignInfo";
 import CampaignDescription from "../ui/CampaignDescription";
 import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
+import { CampaignDetailsProps } from "@/app/types";
 
-export default function CampaignDetails() {
+const CampaignDetails: React.FC<CampaignDetailsProps> = ({
+  _id,
+  deadline,
+  description,
+  hexbox_address,
+  location,
+  logo,
+  fund_amount,
+  social_links,
+  one_liner,
+  status,
+  title,
+  user_id,
+}) => {
   const tabItems = [
     {
       key: "1",
@@ -46,14 +60,7 @@ export default function CampaignDetails() {
     <div>
       <div className="relative w-full h-[400px]">
         <div className="absolute inset-0 w-full h-full ">
-          <Image
-            src="/hexbox_name_logo_black.png"
-            alt="background-cover"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-lightBlueColor/10 rounded-md" />
+          <div className="absolute inset-0 bg-lightBlueColor/30 rounded-md" />
         </div>
 
         <div className="relative grid grid-cols-3 gap-4 h-full">
@@ -94,20 +101,28 @@ export default function CampaignDetails() {
               </div>
 
               <div className="flex gap-4">
-                <FaDiscord className="w-8 h-8 lg:w-10 lg:h-10  bg-blueColor/30 text-white mix-blend-difference backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
-                <FaTelegramPlane className="w-8 h-8 lg:w-10 lg:h-10  bg-blueColor/30 text-white mix-blend-difference backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
-                <FaLinkedin className="w-8 h-8 lg:w-10 lg:h-10 bg-blueColor/30 text-white mix-blend-plus-lighter backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
+                {social_links && social_links.discord && (
+                  <FaDiscord className="w-8 h-8 lg:w-10 lg:h-10  bg-blueColor/30 text-white mix-blend-difference backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
+                )}
+                {social_links && social_links.telegram && (
+                  <FaTelegramPlane className="w-8 h-8 lg:w-10 lg:h-10  bg-blueColor/30 text-white mix-blend-difference backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
+                )}
+                {social_links && social_links.linkedIn && (
+                  <FaLinkedin className="w-8 h-8 lg:w-10 lg:h-10 bg-blueColor/30 text-white mix-blend-plus-lighter backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
       <div className="text-center">
-        <h1 className="mt-4 text-2xl lg:text-3xl ">Title</h1>
-        <span className="mt-2 text-lg lg:text-xl ">OneLiner</span>
+        <h1 className="mt-4 text-2xl lg:text-3xl ">{title}</h1>
+        <span className="mt-2 text-lg lg:text-xl ">{one_liner}</span>
       </div>
 
       <CampaignTabs items={tabItems} />
     </div>
   );
-}
+};
+
+export default CampaignDetails;

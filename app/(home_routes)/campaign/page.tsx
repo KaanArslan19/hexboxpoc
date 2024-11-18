@@ -8,9 +8,13 @@ interface Props {
 export default async function CampaignPage({ searchParams }: Props) {
   const campaignId = searchParams.campaignId;
   const campaign = await fetchSingleCampaign(campaignId);
+  if (!campaign) {
+    return <div>Campaign not found</div>;
+  }
+  console.log(campaign);
   return (
     <div>
-      <CampaignDetails />
+      <CampaignDetails {...campaign} />
     </div>
   );
 }

@@ -9,8 +9,8 @@ import CreateWallet from "./CreateWallet";
 
 const steps = [
   { title: "Project Info" },
-  { title: "Details" },
-  // { title: "Payment Info" },
+  { title: "Description" },
+  { title: "Financial Supply" },
   { title: "Review" },
 ];
 const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB in bytes
@@ -27,7 +27,7 @@ const fileSizeValidator = Yup.mixed().test(
 const validationSchema = [
   Yup.object({
     title: Yup.string().required("Title is required"),
-    oneLiner: Yup.string().required("One Liner is required"),
+    one_liner: Yup.string().required("One Liner is required"),
     logo: fileSizeValidator.required("Logo is required"),
     /*     backgroundImage: fileSizeValidator.required("Background image is required"), */
   }),
@@ -37,6 +37,8 @@ const validationSchema = [
     deadline: Yup.date()
       .required("Project Deadline date is required")
       .min(new Date(), "Deadline must be in the future"),
+  }),
+  Yup.object({
     fundAmount: Yup.number()
       .typeError("Fund amount must be a number")
       .required("Fund amount is required")
@@ -46,6 +48,7 @@ const validationSchema = [
       .required("Total supply is required")
       .min(1, "Total supply must be greater than 1"),
   }),
+
   // Yup.object({
   //   hexboxAddress: Yup.string().required("Hexbox address is required"),
   // }),
@@ -54,12 +57,16 @@ const validationSchema = [
 const initialValues = {
   title: "",
   description: "",
-  fundAmount: "",
-  //hexboxAddress: "",
+  fundAmount: 0,
   logo: null,
-  /*   backgroundImage: null,
-   */
-  totalSupply: "",
+  deadline: "",
+  location: "",
+  totalSupply: 0,
+  one_liner: "",
+  telegram: "",
+  discord: "",
+  website: "",
+  linkedIn: "",
 };
 
 interface Props {
@@ -80,13 +87,20 @@ export default function CampaignForm(props: Props) {
     const projectData: NewCampaignInfo = {
       title: values.title,
       description: values.description,
-      fundAmount: Number(values.fundAmount),  
+      fundAmount: Number(values.fundAmount),
       logo: values.logo!,
-      /*       backgroundImage: values.backgroundImage!,
-       */ 
-      // hexboxAddress: values.hexboxAddress,
+      deadline: Date.parse(values.deadline),
+      location: values.location,
+      one_liner: values.one_liner,
+      social_links: {
+        discord: values.discord,
+        telegram: values.telegram,
+        website: values.website,
+        linkedIn: values.linkedIn,
+      },
       totalSupply: Number(values.totalSupply),
     };
+    console.log(projectData);
     try {
       await onSubmit(projectData);
     } catch (error) {
@@ -146,12 +160,12 @@ export default function CampaignForm(props: Props) {
               />
               <h3 className="text-xl mb-2">Projects One Liner</h3>
               <Field
-                name="oneLiner"
+                name="one_liner"
                 placeholder="One Liner"
                 className="block w-full p-2 border border-gray-300 rounded  mb-8 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
-                name="oneLiner"
+                name="one_liner"
                 component="div"
                 className="text-red-500 mb-2"
               />
@@ -237,6 +251,35 @@ export default function CampaignForm(props: Props) {
                 component="div"
                 className="text-red-500 mb-2"
               />
+              <div className="flex items-center mb-2">
+                <h3 className="text-xl mr-2">Social Links</h3>
+                <p>(optional)</p>
+              </div>
+              <Field
+                name="website"
+                placeholder="Website URL"
+                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              />
+              <Field
+                name="discord"
+                placeholder="Discord URL"
+                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              />
+              <Field
+                name="telegram"
+                placeholder="Telegram URL"
+                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              />
+              <Field
+                name="linkedIn"
+                placeholder="LinkedIn URL"
+                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              />
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <div>
               <h3 className="text-xl mb-2">Fund Amount</h3>
 
               <Field
@@ -262,41 +305,8 @@ export default function CampaignForm(props: Props) {
               />
             </div>
           )}
-          
-          {/*
-          {currentStep === 2 && (
-            <div>
-              <h2 className="text-2xl mb-2">Payment Info</h2>
-              <p className="text-md mb-8 font-thin">
-                Create a Hexbox wallet to receive funding for your campaign.
-                This wallet will securely store the funds raised and enable you
-                to manage and withdraw contributions. Make sure to set it up
-                before launching your campaign.
-              </p>
-              <h3 className="text-xl mb-2">Hexbox Wallet Address</h3>
-              <CreateWallet
-                disabled={!!walletInfo}
-                onWalletInfo={(walletInfo) => {
-                  setWalletInfo(JSON.stringify(walletInfo));
-                  setFieldValue("hexboxAddress", JSON.stringify(walletInfo));
-                  console.log(walletInfo);
-                }}
-              />
-              {walletInfo && (
-                <p className="text-md mb-8 font-thin text-green-500">
-                  Wallet created successfully. Proceed to the next step.
-                </p>
-              )}
-              <ErrorMessage
-                name="hexboxAddress"
-                component="div"
-                className="text-red-500 mb-2"
-              />
-            </div>
-          )}
-          */}
 
-          {currentStep === 2 && (
+          {currentStep === 3 && (
             <div>
               <h2 className="text-2xl mb-2">Review</h2>
               <p className="text-md mb-8 font-thin">

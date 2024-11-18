@@ -6,14 +6,12 @@ import Link from "next/link";
 import { SiSolana } from "react-icons/si";
 const CampaignItem: React.FC<CampaignItemProps> = ({
   id,
-  userId,
   title,
-
   fundAmount,
   logo,
-
   status,
 }) => {
+  console.log(status);
   return (
     <li className=" bg-none flex flex-col justify-between items-center shadow-sm hover:shadow-xl rounded-md overflow-hidden shadow-lightBlueColor transition-shadow duration-150 m-[10px] border-2 border-lightBlueColor">
       <Link className="contents" href={`/campaign?campaignId=${id}`}>
