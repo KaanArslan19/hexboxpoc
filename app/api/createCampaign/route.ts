@@ -35,14 +35,20 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     const campaignEntries = Object.fromEntries(formData.entries());
     let campaign = {
+      user_id: creatorWalletAddress,
       title: campaignEntries.title,
       description: campaignEntries.description,
-      hexboxAddress: "",
+      wallet_address: "",
+      token_address: "",
       logo: logoFileName,
       timestamp: Date.now(),
-      status: true,
-      token_address: "",
+      status: "active",
       fund_amount: campaignEntries.fund_amount,
+      one_liner: campaignEntries.one_liner,
+      social_links: campaignEntries.social_links,
+      location: campaignEntries.location,
+      deadline: campaignEntries.deadline,
+      is_verified: false,
     };
     console.log(campaignEntries.total_supply);
     const totalTokenSupply = Number(campaignEntries.total_supply);
@@ -61,7 +67,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     // Create campaign/hexbox wallet here
     const createdWallet = await createWallet(tokenId as string)
-    campaign.hexboxAddress = createdWallet as string;
+    campaign.wallet_address = createdWallet as string;
 
     return NextResponse.json({ campaignId });
   } catch (e) {
