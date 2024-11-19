@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import React from "react";
 
 export interface MenuItems {
@@ -83,4 +84,19 @@ export interface AboutData {
   image: string;
   header: string;
   description: string;
+}
+export interface TokenDetailsProps {
+  _id: ObjectId;
+  name: string;
+  supply: number;
+  available_supply: number;
+  price: number;
+  holders: [{ address: string; balance: number }];
+  transactions: [
+    {
+      address: string;
+      type: string;
+      amount: number;
+    }
+  ];
 }

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import HexagonImage from "../ui/HexagonImage";
-import Image from "next/image";
 import { FaDiscord, FaLinkedin } from "react-icons/fa";
 import { FaTelegramPlane } from "react-icons/fa";
 import CampaignTabs from "../ui/CampaignTabs";
@@ -8,10 +7,10 @@ import CampaignActivity from "../ui/CampaignActivity";
 import CampaignInfo from "../ui/CampaignProposal";
 import CampaignDescription from "../ui/CampaignDescription";
 import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
-import { CampaignDetailsProps } from "@/app/types";
-import { getWalletTokenAddress } from "@/app/utils/poc_utils/getWalletTokenAddress";
-import { getTokenWalletAddress } from "@/app/utils/poc_utils/getTokenWalletAddress";
+import { CampaignDetailsProps, TokenDetailsProps } from "@/app/types";
+
 import { getTokenDetails } from "@/app/utils/poc_utils/getTokenDetails";
+import { ObjectId } from "mongodb";
 
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
@@ -30,17 +29,37 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
 }) => {
   const tokenDetails = await getTokenDetails(token_address);
   console.log("Activity", tokenDetails);
+  const modifiedProps: TokenDetailsProps = {
+    name: tokenDetails!.name,
+    supply: tokenDetails!.supply,
+    available_supply: tokenDetails!.available_supply,
+    price: tokenDetails!.price,
+    holders: [
+      {
+        address: tokenDetails!.holders.address,
+        balance: tokenDetails!.holders.balance,
+      },
+    ],
+    transactions: [
+      {
+        address: tokenDetails!.transactions.address,
+        type: tokenDetails!.transactions.type,
+        amount: tokenDetails!.transactions.price,
+      },
+    ],
+    _id: new ObjectId(tokenDetails!._id),
+  };
   const tabItems = [
     {
       key: "1",
       label: "Activity",
-      children: <CampaignActivity {...tokenDetails} />,
+      children: <CampaignActivity {...modifiedProps} />,
     },
 
     {
       key: "2",
       label: "Description",
-      children: <CampaignDescription />,
+      children: <CampaignDescription description={description} />,
     },
     {
       key: "3",
