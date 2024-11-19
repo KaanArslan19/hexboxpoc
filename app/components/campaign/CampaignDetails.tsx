@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import HexagonImage from "../ui/HexagonImage";
 import Image from "next/image";
@@ -6,16 +5,20 @@ import { FaDiscord, FaLinkedin } from "react-icons/fa";
 import { FaTelegramPlane } from "react-icons/fa";
 import CampaignTabs from "../ui/CampaignTabs";
 import CampaignActivity from "../ui/CampaignActivity";
-import CampaignInfo from "../ui/CampaignInfo";
+import CampaignInfo from "../ui/CampaignProposal";
 import CampaignDescription from "../ui/CampaignDescription";
 import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
 import { CampaignDetailsProps } from "@/app/types";
+import { getWalletTokenAddress } from "@/app/utils/poc_utils/getWalletTokenAddress";
+import { getTokenWalletAddress } from "@/app/utils/poc_utils/getTokenWalletAddress";
+import { getTokenDetails } from "@/app/utils/poc_utils/getTokenDetails";
 
-const CampaignDetails: React.FC<CampaignDetailsProps> = ({
+const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
   deadline,
   description,
-  hexbox_address,
+  token_address,
+  wallet_address,
   location,
   logo,
   fund_amount,
@@ -25,37 +28,32 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
   title,
   user_id,
 }) => {
+  const tokenDetails = await getTokenDetails(token_address);
+  console.log("Activity", tokenDetails);
   const tabItems = [
     {
       key: "1",
       label: "Activity",
-      children: <CampaignActivity />,
+      children: <CampaignActivity {...tokenDetails} />,
     },
+
     {
       key: "2",
-      label: "Info",
-      children: <CampaignInfo />,
-    },
-    {
-      key: "3",
       label: "Description",
       children: <CampaignDescription />,
     },
     {
-      key: "4",
+      key: "3",
       label: "Treasury Analytics",
       children: <CampaignTreasuryAnalytics />,
     },
+    {
+      key: "4",
+      label: "Proposals",
+      children: <CampaignInfo />,
+    },
   ];
-  const [mobile, setMobile] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const onResize = () => setMobile(window.innerWidth < 960);
-      window!.addEventListener("resize", onResize);
-      return () => window.removeEventListener("resize", onResize);
-    }
-  }, []);
   return (
     <div>
       <div className="relative w-full h-[400px]">
@@ -70,7 +68,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
             <HexagonImage
               src="/hexbox_name_logo_black.png"
               alt="demo"
-              size={!mobile ? 300 : 200}
               className="my-4 "
             />
           </div>
@@ -116,8 +113,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
         </div>
       </div>
       <div className="text-center">
-        <h1 className="mt-4 text-2xl lg:text-3xl ">{title}</h1>
-        <span className="mt-2 text-lg lg:text-xl ">{one_liner}</span>
+        <h1 className="mt-4 text-2xl lg:text-3xl capitalize ">{title}</h1>
+        <p className="mt-2 text-lg lg:text-xl ">{one_liner}</p>
       </div>
 
       <CampaignTabs items={tabItems} />

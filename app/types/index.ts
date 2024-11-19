@@ -41,7 +41,8 @@ export interface CampaignDetailsProps {
   deadline: number;
   social_links: SocialLinks;
   background_image: string;
-  hexbox_address: string;
+  token_address: string;
+  wallet_address: string;
   status: boolean;
 }
 enum Status {
