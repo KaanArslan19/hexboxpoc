@@ -47,7 +47,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       one_liner: campaignEntries.one_liner,
       social_links: campaignEntries.social_links,
       location: campaignEntries.location,
-      deadline: campaignEntries.deadline,
+      deadline: typeof campaignEntries.deadline === 'string' ? Number(campaignEntries.deadline) : campaignEntries.deadline,
       is_verified: false,
     };
     console.log(campaignEntries.total_supply);
