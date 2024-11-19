@@ -5,13 +5,20 @@ export const getTokenWalletAddress = async (token_address: string) => {
     const mdbClient = client;
     const db = mdbClient.db("hexbox_poc");
     const token = await db.collection("tokens").findOne({ _id: new ObjectId(token_address) });
-    const wallet = token?.wallet_address;
+    if (!token) {
+        console.log("Token not found");
+        return null;
+    }
+
+    const wallet = await db.collection("wallets").findOne({ token_address: token_address });
 
     if (!wallet) {
         console.log("Wallet not found");
         return null;
     }
-    console.log(wallet)
 
-    return wallet;
+    const walletAddress = wallet?._id;
+    const walletAddressString = walletAddress?.toString();
+
+    return walletAddressString;
 }
