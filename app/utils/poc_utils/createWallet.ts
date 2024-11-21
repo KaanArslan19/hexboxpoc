@@ -1,6 +1,6 @@
 import client from "@/app/utils/mongodb";
 
-export const createWallet = async (token_address: string) => {
+export const createWallet = async (token_address: string): Promise<string | null> => {
   try {
 
     const wallet = await client.db("hexbox_poc").collection("wallets").insertOne({
@@ -8,9 +8,14 @@ export const createWallet = async (token_address: string) => {
       token_address: token_address,
     });
 
-    return wallet.insertedId.toString()
+    if (!wallet) {
+      return null;
+    }
+
+    return wallet.insertedId.toString() as string;
 
   } catch (error) {
     console.log(error);
+    return null;
   }
 };

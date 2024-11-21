@@ -5,9 +5,15 @@ import { getTokenDetails } from "./getTokenDetails";
 
 const motionTypes = [
     "withdraw",
-    "consensus",
-    "termination"
+    // "consensus",
+    // "termination"
 ]
+
+// Example motion details (saved as json string)
+// {
+//     "amount": 100,
+//     "token_address": "0x1234567890abcdef"
+// }
 
 export const createProposal = async (user: string, wallet_address: string, motionType: string, motionDetails: string) => {
     try {

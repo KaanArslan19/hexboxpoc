@@ -1,6 +1,6 @@
 import client from "@/app/utils/mongodb";
 
-export const createToken = async (name: string, supply: number, fundsToRaise: number, creatorWalletAddress: string) => {
+export const createToken = async (name: string, supply: number, fundsToRaise: number, creatorWalletAddress: string): Promise<string | null> => {
   try {
 
     // Executor gets 40% of the supply, so we need to calculate the price based on the remaining 60% to ensure raised funds are met
@@ -16,9 +16,10 @@ export const createToken = async (name: string, supply: number, fundsToRaise: nu
       transactions: [{address: creatorWalletAddress, type: "create", amount: executorTokens, timestamp: new Date()}]
     });
 
-    return token.insertedId.toString()
+    return token.insertedId.toString() as string;
 
   } catch (error) {
     console.log(error);
+    return null;
   }
 };

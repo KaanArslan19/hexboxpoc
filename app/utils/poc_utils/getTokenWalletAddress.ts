@@ -1,7 +1,7 @@
 import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 
-export const getTokenWalletAddress = async (token_address: string) => {
+export const getTokenWalletAddress = async (token_address: string): Promise<string | null> => {
     const mdbClient = client;
     const db = mdbClient.db("hexbox_poc");
     const token = await db.collection("tokens").findOne({ _id: new ObjectId(token_address) });
@@ -20,5 +20,5 @@ export const getTokenWalletAddress = async (token_address: string) => {
     const walletAddress = wallet?._id;
     const walletAddressString = walletAddress?.toString();
 
-    return walletAddressString;
+    return walletAddressString as string;
 }
