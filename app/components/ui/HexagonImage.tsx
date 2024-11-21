@@ -39,7 +39,7 @@ const HexagonImage: FC<HexagonImageProps> = ({
           height: `${(adjustedSize * Math.sqrt(3)) / 2}px`,
           clipPath:
             "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-          background: "linear-gradient(45deg, #002D5D, #E94E1B, #FFC629)",
+          background: "linear-gradient(45deg, #CE0E2D, #E94E1B, #FFC629)",
           transform: "scale(1.02)",
         }}
       />
@@ -51,7 +51,7 @@ const HexagonImage: FC<HexagonImageProps> = ({
           clipPath:
             "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
           padding: borderWidth,
-          background: "linear-gradient(45deg, #002D5D, #E94E1B, #FFC629)",
+          background: "linear-gradient(45deg, #CE0E2D, #E94E1B, #FFC629)",
         }}
       >
         <div
@@ -65,7 +65,7 @@ const HexagonImage: FC<HexagonImageProps> = ({
             src={src}
             alt={alt}
             layout="fill"
-            className="object-cover"
+            className="object-contain"
             priority
           />
         </div>

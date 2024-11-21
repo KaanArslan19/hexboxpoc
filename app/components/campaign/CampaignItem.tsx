@@ -4,6 +4,7 @@ import { CampaignItemProps } from "@/app/types";
 import Image from "next/image";
 import Link from "next/link";
 import { SiSolana } from "react-icons/si";
+import { FaDollarSign } from "react-icons/fa6";
 const CampaignItem: React.FC<CampaignItemProps> = ({
   id,
   title,
@@ -34,7 +35,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
 
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center space-x-2">
-              <SiSolana className="h-5 w-5 text-blueColor" />
+              <FaDollarSign className="h-5 w-5 text-blueColor" />
               <span className="text-xl">{fundAmount}</span>
             </div>
             <span className="text-lightBlueColor text-lg">{status}</span>

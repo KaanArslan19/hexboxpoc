@@ -86,7 +86,7 @@ export interface AboutData {
   description: string;
 }
 export interface TokenDetailsProps {
-  _id: ObjectId;
+  _id: string;
   name: string;
   supply: number;
   available_supply: number;
@@ -97,6 +97,7 @@ export interface TokenDetailsProps {
       address: string;
       type: string;
       amount: number;
+      timestamp: Date;
     }
   ];
 }

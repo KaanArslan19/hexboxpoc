@@ -12,6 +12,7 @@ module.exports = withMT({
         lightBlueColor: "#002d5d25",
         orangeColor: "#E94E1B",
         yellowColor: "#FFC629",
+        redColor: "#CE0E2D",
       },
       fontFamily: {
         customFont_outline_light: ['"customFont_outline_light"', "sans-serif"],
