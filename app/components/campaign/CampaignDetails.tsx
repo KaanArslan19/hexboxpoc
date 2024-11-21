@@ -10,10 +10,12 @@ import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
 import { CampaignDetailsProps, TokenDetailsProps } from "@/app/types";
 
 import { getTokenDetails } from "@/app/utils/poc_utils/getTokenDetails";
+import { getProposals } from "@/app/utils/poc_utils/getProposals";
 import { ObjectId } from "mongodb";
 import { Progress } from "antd";
 import type { ProgressProps } from "antd";
 import CustomButton from "../ui/CustomButton";
+import CampaignProposal from "../ui/CampaignProposal";
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
   deadline,
@@ -41,6 +43,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     address: item.address,
     balance: item.balance,
   }));
+
+  const proposals = await getProposals(wallet_address);
 
   const modifiedProps: TokenDetailsProps = {
     name: tokenDetails!.name,
@@ -71,7 +75,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     {
       key: "4",
       label: "Proposals",
-      children: <CampaignInfo />,
+      children: <CampaignProposal proposals={proposals} holders={mappedHolders} businessWallet={wallet_address}/>,
     },
   ];
   const remainingFundAmount = (

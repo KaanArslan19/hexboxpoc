@@ -18,7 +18,7 @@ export const auditProposal = async (user: string, proposalID: string, vote: bool
         return { error: "User is not an auditor" };
       }
 
-      if (proposal.status) {
+      if (proposal.finished === true) {
         return { error: "Proposal has finished" };
       }
 
@@ -27,9 +27,12 @@ export const auditProposal = async (user: string, proposalID: string, vote: bool
       }
 
       if (proposal.waiting_audit) {
+        proposal.audit_timestamp = Date.now();
         proposal.passed_audit = vote;
         proposal.waiting_audit = false;
-        proposal.status = vote;
+        proposal.finished = true;
+        proposal.finished_result = vote;
+        proposal.finished_timestamp = Date.now();
       }
 
       const updatedProposal = await client.db("hexbox_poc").collection("proposals").updateOne({ _id: new ObjectId(proposalID) }, { $set: proposal });

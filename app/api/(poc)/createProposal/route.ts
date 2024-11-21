@@ -1,10 +1,6 @@
-import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/utils/auth"
-import { uploadImageToR2 } from "@/app/utils/imageUpload";
-import { ObjectId } from "mongodb";
-import { getCampaign } from "@/app/utils/getCampaign";
 import { createProposal } from "@/app/utils/poc_utils/createProposal";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
@@ -28,7 +24,11 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         const createProposalResponse = await createProposal(user as string, walletAddress as string, motionType as string, motionDetails as string)
         console.log(createProposalResponse)
         
-        return NextResponse.json(createProposalResponse, { status: 200 });
+        if (typeof createProposalResponse === 'object' && 'error' in createProposalResponse) {
+            return NextResponse.json(createProposalResponse, { status: 400 });
+        } else {
+            return NextResponse.json(createProposalResponse, { status: 200 });
+        }
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });

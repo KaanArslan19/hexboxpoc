@@ -25,7 +25,7 @@ export const voteProposal = async (user: string, proposalID: string, vote: boole
       const voters = proposal.voters;
       const existingVote = voters.find((voter: any) => voter.address === user);
 
-      if (proposal.status) {
+      if (proposal.finished === true) {
         return { error: "Proposal has finished" };
       }
       
@@ -54,22 +54,26 @@ export const voteProposal = async (user: string, proposalID: string, vote: boole
           proposal.waiting_audit = true;
         }
       } else {
-        if (totalNoVotes + userTokens >= neededVotes) {
+        if (totalNoVotes + userTokens >= neededVotes || totalYesVotes + userTokens >= neededVotes) {
           proposal.waiting_audit = false;
           proposal.passed_audit = false;
-          proposal.status = false;
+          proposal.finished = true;
+          proposal.finished_result = false
         }
       }
 
       const updatedProposal = await client.db("hexbox_poc").collection("proposals").updateOne({ _id: new ObjectId(proposalID) }, 
       { $set: 
         { 
+          waiting_audit_timestamp: proposal.waiting_audit ? Date.now() : 0,
           waiting_audit: proposal.waiting_audit,
           passed_audit: proposal.passed_audit,
-          status: proposal.status,
+          finished: proposal.finished,
           voters: [...proposal.voters, {address: user, agree: vote, amount: userTokens}],
           total_yes_votes: proposal.total_yes_votes + (vote ? userTokens : 0),
-          total_no_votes: proposal.total_no_votes + (vote ? 0 : userTokens)
+          total_no_votes: proposal.total_no_votes + (vote ? 0 : userTokens),
+          finished_result: proposal.finished_result || null,
+          finished_timestamp: proposal.finished ? Date.now() : 0
         } 
       }); 
 

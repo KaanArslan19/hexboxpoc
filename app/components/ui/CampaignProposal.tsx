@@ -1,5 +1,114 @@
-import React from "react";
+"use client";
 
-export default function CampaignProposal() {
-  return <div>Proposals</div>;
+import React, { useEffect, useState } from "react";
+import CustomButton from "./CustomButton";
+import CampaignProposalItem from "./CampaignProposalItem";
+import { TokenDetailsProps } from "@/app/types";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+
+export default function CampaignProposal({
+  proposals,
+  holders,
+  businessWallet
+}: any) {
+
+  const [showForm, setShowForm] = useState(false);
+  const [proposalType, setProposalType] = useState("");
+  const [proposalAction, setProposalAction] = useState({});
+  const [isAuditor, setIsAuditor] = useState(false);
+  const [isInvestor, setIsInvestor] = useState(false);
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    console.log(proposals);
+  }, [proposals]);
+
+  useEffect(() => {
+    if (session) {
+      const isInvestor = holders.some((holder: any) => holder.address === session.user?.name);
+      setIsInvestor(isInvestor);
+
+      axios.get(`/api/isUserAuditor?walletAddress=${session.user?.name}`).then((res) => {
+        setIsAuditor(res.data);
+      });
+    } else {
+      setIsAuditor(false);
+      setIsInvestor(false);
+    }
+  }, [session])
+
+  if (!session) {
+    return <div>Please sign in to continue</div>
+  }
+
+  async function handleCreateProposal() {
+    // Handle create proposal logic here
+    setShowForm(false);
+    setProposalType("");
+
+    const formData = new FormData();
+    formData.append("wallet_address", businessWallet);
+    formData.append("motion_type", proposalType);
+    formData.append("motion_details", JSON.stringify(proposalAction));
+
+    const response = await axios.post("/api/createProposal", formData);
+    console.log(response);
+  }
+
+  return (
+    <div className="flex flex-col gap-4 text-center">
+      <h2 className="text-xl lg:text-2xl mt-4 mb-2 text-center">Proposals</h2>
+      {isInvestor && (
+        <CustomButton 
+          className="bg-none border-[1px] border-blueColor mx-auto"
+        onClick={() => setShowForm(true)}
+        >
+          Create a Proposal
+        </CustomButton>
+      )}
+
+      {showForm && (
+        <div className="border p-4 rounded-lg max-w-md mx-auto w-full">
+          <select 
+            className="w-full p-2 mb-4 border rounded"
+            value={proposalType}
+            onChange={(e) => setProposalType(e.target.value)}
+          >
+            <option value="">Select Proposal Type</option>
+            <option value="withdraw">Withdraw</option>
+          </select>
+
+          {proposalType === "withdraw" && (
+            <div className="flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="Wallet Address"
+                className="p-2 border rounded"
+                onChange={(e) => setProposalAction({...proposalAction, wallet_address: e.target.value})}
+              />
+              <input
+                type="number"
+                placeholder="Amount"
+                className="p-2 border rounded"
+                onChange={(e) => setProposalAction({...proposalAction, amount: e.target.value})}
+              />
+              <CustomButton 
+                className="bg-blueColor text-white"
+                onClick={handleCreateProposal}
+              >
+                Create
+              </CustomButton>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-4 ">
+        {proposals.map((proposal: any) => (
+          <CampaignProposalItem key={proposal._id} holders={holders} proposal={proposal} isInvestor={isInvestor} isAuditor={isAuditor} />
+        ))}
+      </div>
+    </div>
+  );
 }
