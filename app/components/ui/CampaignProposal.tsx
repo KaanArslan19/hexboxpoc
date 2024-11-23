@@ -5,6 +5,7 @@ import CustomButton from "./CustomButton";
 import CampaignProposalItem from "./CampaignProposalItem";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function CampaignProposal({
   proposals,
@@ -17,7 +18,7 @@ export default function CampaignProposal({
   const [isAuditor, setIsAuditor] = useState(false);
   const [isInvestor, setIsInvestor] = useState(false);
   const { data: session } = useSession();
-
+  const router = useRouter();
   useEffect(() => {
     console.log(proposals);
   }, [proposals]);
@@ -55,7 +56,7 @@ export default function CampaignProposal({
     formData.append("motion_details", JSON.stringify(proposalAction));
 
     const response = await axios.post("/api/createProposal", formData);
-    console.log(response);
+    router.refresh();
   }
 
   return (

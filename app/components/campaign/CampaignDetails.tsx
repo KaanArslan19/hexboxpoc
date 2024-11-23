@@ -59,7 +59,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     transactions: mappedTransactions,
     _id: tokenDetails!._id.toString(),
   };
-  console.log("---", modifiedProps.available_supply);
   const tabItems = [
     {
       key: "1",
@@ -90,7 +89,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     },
   ];
   const remainingFundAmountPercentage = (
-    (((fund_amount - modifiedProps.available_supply) * modifiedProps.price) /
+    ((fund_amount - modifiedProps.available_supply * modifiedProps.price) /
       fund_amount) *
     100
   ).toFixed(0);

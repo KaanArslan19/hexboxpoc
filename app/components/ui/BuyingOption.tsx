@@ -4,6 +4,7 @@ import CustomButton from "./CustomButton";
 import { Input } from "@material-tailwind/react";
 import { buyCampaignToken } from "@/app/utils/apiHelpers";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface BuyingOptionProps {
   pricePerToken: number;
@@ -14,7 +15,6 @@ interface BuyingOptionProps {
 const BuyingOption: React.FC<BuyingOptionProps> = ({
   pricePerToken,
   token_address,
-  user,
 }) => {
   const [tokenAmount, setTokenAmount] = useState<number | "">(0);
   const [usdAmount, setUsdAmount] = useState<number>(0);
@@ -23,6 +23,7 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
   const [success, setSuccess] = useState<string | null>(null);
   const [triggerBuy, setTriggerBuy] = useState<boolean>(false);
   const router = useRouter();
+  const session = useSession();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -56,8 +57,10 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
       setSuccess(null);
 
       try {
+        const investorAddress = session.data?.user?.name;
+
         const result = await buyCampaignToken(
-          user,
+          investorAddress!,
           token_address,
           tokenAmount as number
         );
@@ -73,16 +76,16 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
       }
     };
 
-    if (triggerBuy && +tokenAmount > 0) {
+    if (triggerBuy && +tokenAmount > 0 && session) {
       executeBuyToken();
     }
-  }, [triggerBuy, tokenAmount, token_address, user, router]);
+  }, [triggerBuy, tokenAmount, token_address, router, session]);
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
         setSuccess(null);
         router.refresh();
-      }, 5000);
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
