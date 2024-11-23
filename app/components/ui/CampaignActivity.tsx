@@ -1,8 +1,6 @@
 "use client";
 import { TokenDetailsProps } from "@/app/types";
-import { getWalletTokenAddress } from "@/app/utils/poc_utils/getWalletTokenAddress";
-import { Table } from "antd";
-import { ObjectId } from "mongodb";
+import { Table, Tooltip } from "antd";
 import React from "react";
 
 export default function CampaignActivity({
@@ -13,18 +11,17 @@ export default function CampaignActivity({
   price,
   transactions,
 }: TokenDetailsProps) {
-  console.log(name);
-  console.log(
-    "---------------",
-    transactions.map((item) => item)
-  );
   const columns = [
     {
       title: "Address",
       dataIndex: "address",
       key: "address",
+      render: (address: string) => (
+        <Tooltip title={address}>
+          <span className="truncateAddress">{address}</span>
+        </Tooltip>
+      ),
     },
-
     {
       title: "Amount",
       dataIndex: "amount",
@@ -38,6 +35,7 @@ export default function CampaignActivity({
       render: (timestamp: number) => new Date(timestamp).toLocaleString(),
     },
   ];
+
   return (
     <div>
       <h2 className="text-xl lg:text-2xl mt-4 mb-2 text-center">

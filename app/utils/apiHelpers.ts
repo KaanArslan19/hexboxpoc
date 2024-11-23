@@ -34,3 +34,39 @@ export const fetchSingleCampaign = async (campaignId: string): Promise<any> => {
     throw error;
   }
 };
+
+type BuyTokenResponse = {
+  success?: boolean;
+  error?: string;
+  [key: string]: any;
+};
+
+export const buyCampaignToken = async (
+  user: string,
+  tokenAddress: string,
+  amount: number
+): Promise<BuyTokenResponse> => {
+  const apiUrl = "/api/buyToken";
+  try {
+    const formData = new FormData();
+    formData.append("user", user);
+    formData.append("token_address", tokenAddress);
+    formData.append("amount", amount.toString());
+    console.log("----------FoRM", formData);
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch");
+    }
+
+    const data: BuyTokenResponse = await response.json();
+    return data;
+  } catch (error: any) {
+    console.error("Error calling buyToken API:", error.message);
+    return { error: error.message };
+  }
+};

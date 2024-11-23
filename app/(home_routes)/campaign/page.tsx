@@ -11,7 +11,6 @@ export default async function CampaignPage({ searchParams }: Props) {
   if (!campaign) {
     return <div>Campaign not found</div>;
   }
-  console.log(campaign);
   return (
     <div>
       <CampaignDetails {...campaign} />

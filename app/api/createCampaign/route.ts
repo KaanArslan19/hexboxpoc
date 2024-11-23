@@ -8,14 +8,13 @@ import { createWallet } from "@/app/utils/poc_utils/createWallet";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const creatorWalletAddress = session.user?.name;
-    console.log(creatorWalletAddress);
 
     const formData = await req.formData();
     if (!formData) {
@@ -47,19 +46,27 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       one_liner: campaignEntries.one_liner,
       social_links: campaignEntries.social_links,
       location: campaignEntries.location,
-      deadline: typeof campaignEntries.deadline === 'string' ? Number(campaignEntries.deadline) : campaignEntries.deadline,
+      deadline:
+        typeof campaignEntries.deadline === "string"
+          ? Number(campaignEntries.deadline)
+          : campaignEntries.deadline,
       is_verified: false,
     };
     console.log(campaignEntries.total_supply);
     const totalTokenSupply = Number(campaignEntries.total_supply);
 
     // Create token
-    const tokenId = await createToken(campaign.title as string, totalTokenSupply, Number(campaign.fund_amount), creatorWalletAddress as string);
+    const tokenId = await createToken(
+      campaign.title as string,
+      totalTokenSupply,
+      Number(campaign.fund_amount),
+      creatorWalletAddress as string
+    );
     console.log(tokenId);
     campaign.token_address = tokenId as string;
 
     // Create campaign/hexbox wallet here
-    const createdWallet = await createWallet(tokenId as string)
+    const createdWallet = await createWallet(tokenId as string);
     console.log(createdWallet);
     campaign.wallet_address = createdWallet as string;
 

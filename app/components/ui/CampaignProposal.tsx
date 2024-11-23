@@ -3,16 +3,14 @@
 import React, { useEffect, useState } from "react";
 import CustomButton from "./CustomButton";
 import CampaignProposalItem from "./CampaignProposalItem";
-import { TokenDetailsProps } from "@/app/types";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
 export default function CampaignProposal({
   proposals,
   holders,
-  businessWallet
+  businessWallet,
 }: any) {
-
   const [showForm, setShowForm] = useState(false);
   const [proposalType, setProposalType] = useState("");
   const [proposalAction, setProposalAction] = useState({});
@@ -26,20 +24,24 @@ export default function CampaignProposal({
 
   useEffect(() => {
     if (session) {
-      const isInvestor = holders.some((holder: any) => holder.address === session.user?.name);
+      const isInvestor = holders.some(
+        (holder: any) => holder.address === session.user?.name
+      );
       setIsInvestor(isInvestor);
 
-      axios.get(`/api/isUserAuditor?walletAddress=${session.user?.name}`).then((res) => {
-        setIsAuditor(res.data);
-      });
+      axios
+        .get(`/api/isUserAuditor?walletAddress=${session.user?.name}`)
+        .then((res) => {
+          setIsAuditor(res.data);
+        });
     } else {
       setIsAuditor(false);
       setIsInvestor(false);
     }
-  }, [session])
+  }, [session]);
 
   if (!session) {
-    return <div>Please sign in to continue</div>
+    return <div>Please sign in to continue</div>;
   }
 
   async function handleCreateProposal() {
@@ -60,9 +62,9 @@ export default function CampaignProposal({
     <div className="flex flex-col gap-4 text-center">
       <h2 className="text-xl lg:text-2xl mt-4 mb-2 text-center">Proposals</h2>
       {isInvestor && (
-        <CustomButton 
+        <CustomButton
           className="bg-none border-[1px] border-blueColor mx-auto"
-        onClick={() => setShowForm(true)}
+          onClick={() => setShowForm(true)}
         >
           Create a Proposal
         </CustomButton>
@@ -70,7 +72,7 @@ export default function CampaignProposal({
 
       {showForm && (
         <div className="border p-4 rounded-lg max-w-md mx-auto w-full">
-          <select 
+          <select
             className="w-full p-2 mb-4 border rounded"
             value={proposalType}
             onChange={(e) => setProposalType(e.target.value)}
@@ -85,15 +87,25 @@ export default function CampaignProposal({
                 type="text"
                 placeholder="Wallet Address"
                 className="p-2 border rounded"
-                onChange={(e) => setProposalAction({...proposalAction, wallet_address: e.target.value})}
+                onChange={(e) =>
+                  setProposalAction({
+                    ...proposalAction,
+                    wallet_address: e.target.value,
+                  })
+                }
               />
               <input
                 type="number"
                 placeholder="Amount"
                 className="p-2 border rounded"
-                onChange={(e) => setProposalAction({...proposalAction, amount: e.target.value})}
+                onChange={(e) =>
+                  setProposalAction({
+                    ...proposalAction,
+                    amount: e.target.value,
+                  })
+                }
               />
-              <CustomButton 
+              <CustomButton
                 className="bg-blueColor text-white"
                 onClick={handleCreateProposal}
               >
@@ -106,7 +118,13 @@ export default function CampaignProposal({
 
       <div className="flex flex-col gap-4 ">
         {proposals.map((proposal: any) => (
-          <CampaignProposalItem key={proposal._id} holders={holders} proposal={proposal} isInvestor={isInvestor} isAuditor={isAuditor} />
+          <CampaignProposalItem
+            key={proposal._id}
+            holders={holders}
+            proposal={proposal}
+            isInvestor={isInvestor}
+            isAuditor={isAuditor}
+          />
         ))}
       </div>
     </div>
