@@ -27,7 +27,7 @@ export interface CampaignListProps {
     social_links: SocialLinks;
     background_image: string;
     hexbox_address: string;
-    status: boolean;
+    status: Status;
   }[];
 }
 export interface CampaignDetailsProps {
@@ -44,10 +44,10 @@ export interface CampaignDetailsProps {
   background_image: string;
   token_address: string;
   wallet_address: string;
-  status: boolean;
+  status: Status;
 }
 enum Status {
-  Active = "Active",
+  Active = "active",
   Inactive = "Inactive",
   Completed = "Completed",
 }

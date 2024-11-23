@@ -65,7 +65,6 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
           throw new Error(result.error);
         }
         setSuccess(`Successfully bought ${tokenAmount} tokens!`);
-        router.refresh();
       } catch (err: any) {
         setError(err.message || "Something went wrong.");
       } finally {
@@ -78,9 +77,19 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
       executeBuyToken();
     }
   }, [triggerBuy, tokenAmount, token_address, user, router]);
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        router.refresh();
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [success, router]);
 
   return (
-    <div className="sticky top-4 w-3/4  lg:h-[400px] lg:w-full bg-gradient-to-bl from-yellowColor/70 via-orangeColor/70 to-redColor/70 shadow-md rounded-lg p-6">
+    <div className="sticky top-4 w-5/6  lg:h-[400px] lg:w-full bg-gradient-to-bl from-yellowColor/70 via-orangeColor/70 to-redColor/70 shadow-md rounded-lg p-6">
       <div className="space-y-6">
         <h4 className="text-lg md:text-xl font-semibold text-center text-white">
           Fund the Campaign and Become an Investor
@@ -98,18 +107,19 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
             value={usdAmount === 0 ? "" : usdAmount}
             onChange={handleInputChange}
           />
-
-          <div className="text-white text-center">
-            <p className="text-lg">
-              You will receive{" "}
-              <strong>
-                {typeof tokenAmount === "number"
-                  ? tokenAmount.toFixed(2)
-                  : "0.00"}
-              </strong>{" "}
-              tokens
-            </p>
-          </div>
+          {tokenAmount !== 0 && (
+            <div className="text-center">
+              <p className="text-lg text-white">
+                You will receive{" "}
+                <strong className="text-white">
+                  {typeof tokenAmount === "number"
+                    ? tokenAmount.toFixed(2)
+                    : "0.00"}
+                </strong>{" "}
+                tokens
+              </p>
+            </div>
+          )}
 
           <CustomButton
             onClick={handleBuyTokens}
@@ -119,16 +129,23 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
             {loading ? "Processing..." : "Invest"}
           </CustomButton>
         </div>
-
-        {error && <p className="text-red-900 text-sm text-center">{error}</p>}
-
-        {success && (
-          <p className="text-green-500 text-sm text-center">{success}</p>
+        {error && (
+          <p className="text-white bg-redColor py-2 px-4 rounded-lg text-sm md:text-lg text-center blink">
+            {error}
+          </p>
         )}
 
-        <div className="flex justify-between items-center text-white">
-          <h5 className="text-lg font-medium">Price Per Token</h5>
-          <p className="text-lg font-bold">${pricePerToken.toFixed(2)}</p>
+        {success && (
+          <p className="text-white bg-green-500 py-2 px-4 rounded-lg text-sm md:text-lg text-center blink">
+            {success}
+          </p>
+        )}
+
+        <div className="flex justify-between items-center ">
+          <h5 className="text-lg font-medium text-white">Price Per Token</h5>
+          <p className="text-lg font-bold text-white">
+            ${pricePerToken.toFixed(2)}
+          </p>
         </div>
       </div>
     </div>

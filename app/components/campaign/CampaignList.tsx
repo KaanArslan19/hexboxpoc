@@ -29,11 +29,10 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
       setHasMore(false);
     }
   };
-  console.log(hasMore);
   return (
     <Fragment>
       <div className="flex flex-col items-center my-8  mx-auto ">
-        <ul className="sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+        <ul className="sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 ">
           {campaigns.map((item) => (
             <CampaignItem
               key={item._id}
@@ -43,6 +42,7 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
               title={item.title}
               fundAmount={item.fund_amount}
               logo={item.logo}
+              status={item.status}
             />
           ))}
         </ul>

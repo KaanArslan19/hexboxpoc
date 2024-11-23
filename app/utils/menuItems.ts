@@ -6,19 +6,19 @@ export const InfoMenuItems: MenuItem[] = [
     label: "About",
   },
   {
-    href: "/contact",
+    href: "https://discord.gg/7XudEQ56",
     label: "Contact",
   },
   {
-    href: "/discord",
+    href: "https://discord.gg/7XudEQ56",
     label: "Join Our Discord",
   },
   {
-    href: "/docs",
+    href: "https://hexbox.gitbook.io/hexbox/",
     label: "Docs",
   },
   {
-    href: "/faq",
+    href: "https://hexbox.gitbook.io/hexbox/faq/what-is-hexbox",
     label: "F.A.Q.",
   },
 ];
@@ -36,19 +36,19 @@ export const MobileMenuItems: MenuItem[] = [
     label: "About",
   },
   {
-    href: "/contact",
+    href: "https://discord.gg/7XudEQ56",
     label: "Contact",
   },
   {
-    href: "/discord",
+    href: "https://discord.gg/7XudEQ56",
     label: "Join Our Discord",
   },
   {
-    href: "/docs",
+    href: "https://hexbox.gitbook.io/hexbox/",
     label: "Docs",
   },
   {
-    href: "/faq",
+    href: "https://hexbox.gitbook.io/hexbox/faq/what-is-hexbox",
     label: "F.A.Q.",
   },
 ];

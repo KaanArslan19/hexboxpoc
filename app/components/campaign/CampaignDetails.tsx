@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import HexagonImage from "../ui/HexagonImage";
 import { FaDiscord, FaLinkedin } from "react-icons/fa";
 import { FaTelegramPlane } from "react-icons/fa";
@@ -21,6 +20,7 @@ import BuyingOption from "../ui/BuyingOption";
 import { FaDollarSign } from "react-icons/fa6";
 import { BiDollar } from "react-icons/bi";
 import Link from "next/link";
+import formatPrice from "@/app/utils/formatPrice";
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
   deadline,
@@ -37,7 +37,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   user_id,
 }) => {
   const tokenDetails = await getTokenDetails(token_address);
-
   const mappedTransactions = tokenDetails!.transactions.map((item: any) => ({
     address: item.address,
     type: item.type,
@@ -60,6 +59,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     transactions: mappedTransactions,
     _id: tokenDetails!._id.toString(),
   };
+  console.log("---", modifiedProps.available_supply);
   const tabItems = [
     {
       key: "1",
@@ -111,7 +111,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
 
           <div className="col-span-1 flex flex-col items-center justify-end ">
             <HexagonImage
-              src="/hexbox_black_logo.svg"
+              src={`${process.env.R2_BUCKET_URL}/campaign_logos/` + logo}
               alt="demo"
               className="my-4 "
             />
@@ -126,8 +126,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
             Desired Fund Amount
           </h2>
           <div className="flex items-center bg-blueColor px-3 py-1 rounded-md">
-            <FaDollarSign className="h-5 w-5  mr-2 " fill="white" />
-            <p className="text-xl font-medium text-white ">{fund_amount}</p>
+            <p className="text-xl font-medium text-white ">
+              {formatPrice(fund_amount)}
+            </p>
           </div>
         </div>
 

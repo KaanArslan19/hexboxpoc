@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiSolana } from "react-icons/si";
 import { FaDollarSign } from "react-icons/fa6";
+import formatPrice from "@/app/utils/formatPrice";
 const CampaignItem: React.FC<CampaignItemProps> = ({
   id,
   title,
@@ -12,7 +13,6 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
   logo,
   status,
 }) => {
-  console.log(status);
   return (
     <li className=" bg-none flex flex-col justify-between items-center shadow-sm hover:shadow-xl rounded-md overflow-hidden shadow-lightBlueColor transition-shadow duration-150 m-[10px] border-2 border-lightBlueColor">
       <Link className="contents" href={`/campaign?campaignId=${id}`}>
@@ -35,10 +35,9 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
 
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center space-x-2">
-              <FaDollarSign className="h-5 w-5 text-blueColor" />
-              <span className="text-xl">{fundAmount}</span>
+              <span className="text-xl">{formatPrice(fundAmount)}</span>
             </div>
-            <span className="text-lightBlueColor text-lg">{status}</span>
+            <span className="text-blueColor text-lg capitalize">{status}</span>
           </div>
         </div>
       </Link>

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getUserTokens } from "./getUserTokens";
 import { getWalletTokenAddress } from "./getWalletTokenAddress";
 import { getTokenDetails } from "./getTokenDetails";
+import { getTokenWalletAddress } from "./getTokenWalletAddress";
 
 export const buyToken = async (
   user: string,
@@ -81,7 +82,7 @@ export const buyToken = async (
           ? { arrayFilters: [{ "holder.address": user }] }
           : undefined
       );
-    const walletAddress = (await getWalletTokenAddress(
+    const walletAddress = (await getTokenWalletAddress(
       token_address
     )) as string;
     console.log("WALLLLETTT", walletAddress);
