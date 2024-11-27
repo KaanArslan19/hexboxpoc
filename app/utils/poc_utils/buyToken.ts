@@ -94,7 +94,7 @@ export const buyToken = async (
       .collection("wallets")
       .updateOne(
         { _id: new ObjectId(walletAddress) },
-        { $inc: { balance: amount } }
+        { $inc: { total_funds: Math.round(amount * tokenDetails.price) } }
       );
 
     return updatedToken;
