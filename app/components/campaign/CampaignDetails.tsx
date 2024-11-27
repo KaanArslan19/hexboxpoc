@@ -195,7 +195,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
             className="w-full"
           />
           <p className="text-sm">
-            (${raisedFunds})
+            (${raisedFunds.toLocaleString()})
           </p>
         </div>
       </div>

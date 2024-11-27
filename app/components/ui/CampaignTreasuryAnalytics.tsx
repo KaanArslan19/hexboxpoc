@@ -64,10 +64,24 @@ export default function CampaignTreasuryAnalytics({
   };
   return (
     <div className="relative w-full max-w-2xl mx-auto p-4">
-      <p className="text-smmb-2">Available Tokens: {available_supply.toLocaleString()}/{supply.toLocaleString()}</p>
-      <p className="text-smmb-2">Total Treasury Funds: ${total_funds.toLocaleString()}</p>
-      <p className="text-smmb-2">Wallet Address: {wallet_address}</p>
-      <p className="text-smmb-2">Token Address: {token_address}</p>
+      <div className="flex w-full flex-wrap items-center pb-4">
+        <div className="rounded-lg bg-smoke-50 pb-5 dark:bg-slate-700 w-full min-w-min flex-[1_0_0]">
+          <div className="w-full">
+            <div className="flex flex-1 items-center justify-between">
+              <div className="rounded-lg bg-gray-200 p-4">
+                <span className="mt-2 text-sm text-slate-800">Token Address: {token_address?.substring(0, 3) + '...' + token_address?.substring(token_address.length - 3)}</span>
+                <br />
+                <span className="mt-2 text-lg">Available Tokens: {available_supply.toLocaleString()}/{supply.toLocaleString()}</span>
+              </div>
+              <div className="rounded-lg p-4 bg-gray-200">
+                <span className="mt-2 text-sm text-slate-800">Wallet Address: {wallet_address?.substring(0, 3) + '...' + wallet_address?.substring(wallet_address.length - 3)}</span>
+                <br />
+                <span className="mt-2 text-lg">Total Treasury Funds: ${total_funds.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="flex items-center justify-center">
         <svg
           width={dimensions.width}
