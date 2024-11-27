@@ -1,5 +1,5 @@
 "use client";
-import { TokenDetailsProps } from "@/app/types";
+import { TokenDetailsProps, WalletDetails } from "@/app/types";
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 interface Holder {
@@ -8,8 +8,8 @@ interface Holder {
 }
 
 export default function CampaignTreasuryAnalytics({
-  holders,
-}: TokenDetailsProps) {
+  holders, supply, available_supply, total_funds, token_address, wallet_address
+}: TokenDetailsProps & WalletDetails & {wallet_address: string}) {
   const [tooltip, setTooltip] = useState<{
     x: number;
     y: number;
@@ -64,6 +64,10 @@ export default function CampaignTreasuryAnalytics({
   };
   return (
     <div className="relative w-full max-w-2xl mx-auto p-4">
+      <p className="text-smmb-2">Available Tokens: {available_supply.toLocaleString()}/{supply.toLocaleString()}</p>
+      <p className="text-smmb-2">Total Treasury Funds: ${total_funds.toLocaleString()}</p>
+      <p className="text-smmb-2">Wallet Address: {wallet_address}</p>
+      <p className="text-smmb-2">Token Address: {token_address}</p>
       <div className="flex items-center justify-center">
         <svg
           width={dimensions.width}

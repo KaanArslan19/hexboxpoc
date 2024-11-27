@@ -101,3 +101,8 @@ export interface TokenDetailsProps {
     }
   ];
 }
+
+export type WalletDetails = {
+  total_funds: number;
+  token_address: string;
+}
