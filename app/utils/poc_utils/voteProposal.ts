@@ -72,7 +72,7 @@ export const voteProposal = async (user: string, proposalID: string, vote: boole
           voters: [...proposal.voters, {address: user, agree: vote, amount: userTokens}],
           total_yes_votes: proposal.total_yes_votes + (vote ? userTokens : 0),
           total_no_votes: proposal.total_no_votes + (vote ? 0 : userTokens),
-          finished_result: proposal.finished_result || null,
+          finished_result: proposal.finished_result || false,
           finished_timestamp: proposal.finished ? Date.now() : 0
         } 
       }); 
