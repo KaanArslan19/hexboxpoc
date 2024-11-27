@@ -95,9 +95,10 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       ),
     },
   ];
+  const raisedFunds = fund_amount - modifiedProps.available_supply * modifiedProps.price;
+
   const remainingFundAmountPercentage = (
-    ((fund_amount - modifiedProps.available_supply * modifiedProps.price) /
-      fund_amount) *
+    ((raisedFunds) / fund_amount) *
     100
   ).toFixed(0);
 
@@ -187,11 +188,16 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       </div>
 
       <div className="w-full md:w-[400px] mb-8">
-        <Progress
-          percent={+remainingFundAmountPercentage}
-          strokeColor={twoColors}
-          className="w-full"
-        />
+        <div className="flex items-center gap-2">
+          <Progress
+            percent={+remainingFundAmountPercentage}
+            strokeColor={twoColors}
+            className="w-full"
+          />
+          <p className="text-sm">
+            (${raisedFunds})
+          </p>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
