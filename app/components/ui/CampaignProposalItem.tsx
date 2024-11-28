@@ -7,7 +7,7 @@ import axios from "axios";
 import { useState } from "react";
 
 export default function CampaignProposalItem(props: any) {
-  const { proposal, holders, isInvestor, isAuditor } = props;
+  const { proposal, holders, isInvestor, isAuditor, supply } = props;
   const { data: session } = useSession();
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
@@ -71,6 +71,49 @@ export default function CampaignProposalItem(props: any) {
       <p>Total yes votes: {proposal.total_yes_votes}</p>
       <p>Total no votes: {proposal.total_no_votes}</p>
       <p>Needed yes votes: {proposal.needed_yes_votes}</p>
+      <p>Supply: {supply}</p>
+
+      <div className="w-full px-4 py-2">
+        <div className="relative h-6 bg-gray-200 rounded-full">
+          {/* Yes votes bar and label */}
+          <div
+            className="absolute h-full bg-green-500 rounded-l-full"
+            style={{
+              width: `${(proposal.total_yes_votes / supply) * 100}%`,
+            }}
+          >
+            <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-green-600">
+              {((proposal.total_yes_votes / supply) * 100).toFixed(1)}%
+            </span>
+          </div>
+
+          {/* No votes bar and label */}
+          <div
+            className="absolute h-full bg-red-500"
+            style={{
+              left: `${(proposal.total_yes_votes / supply) * 100}%`,
+              width: `${(proposal.total_no_votes / supply) * 100}%`,
+            }}
+          >
+            <span className="absolute top-8 left-1/2 -translate-x-1/2 text-xs text-red-600">
+              {((proposal.total_no_votes / supply) * 100).toFixed(1)}%
+            </span>
+          </div>
+          
+          {/* 70% threshold marker */}
+          <div 
+            className="absolute w-0.5 h-8 bg-blue-600 -top-1"
+            style={{
+              left: '70%',
+            }}
+          >
+          </div>
+        </div>
+        <div className="text-xs  mt-4">
+          Total Voted: {(((proposal.total_yes_votes + proposal.total_no_votes) / supply) * 100).toFixed(1)}% of Token Supply
+        </div>
+      </div>
+
       <p>Waiting audit: {proposal.waiting_audit.toString()}</p>
       <p>Passed audit: {proposal.passed_audit.toString()}</p>
       <p>Finished: {proposal.finished.toString()}</p>
@@ -90,29 +133,30 @@ export default function CampaignProposalItem(props: any) {
 
       <div className="flex flex-row gap-2 p-2">
         {isInvestor &&
-          proposal.waiting_audit === false &&
-          proposal.finished === false}
-        <>
-          <CustomButton
-            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-            onClick={() => handleVote(true)}
-            disabled={buttonDisabled}
-          >
-            Yes
-          </CustomButton>
-          <CustomButton
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            onClick={() => handleVote(false)}
-            disabled={buttonDisabled}
-          >
-            No
-          </CustomButton>
-        </>
+          !proposal.waiting_audit &&
+          !proposal.finished && (
+            <>
+              <CustomButton
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                onClick={() => handleVote(true)}
+                disabled={buttonDisabled}
+              >
+                Yes
+              </CustomButton>
+              <CustomButton
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                onClick={() => handleVote(false)}
+                disabled={buttonDisabled}
+              >
+                No
+              </CustomButton>
+            </>
+          )}
 
         {isAuditor &&
-          proposal.waiting_audit === true &&
-          proposal.passed_audit === false &&
-          proposal.finished === false && (
+          proposal.waiting_audit &&
+          !proposal.passed_audit &&
+          !proposal.finished && (
             <>
               <CustomButton
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"

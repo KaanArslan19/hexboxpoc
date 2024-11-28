@@ -11,6 +11,7 @@ export default function CampaignProposal({
   proposals,
   holders,
   businessWallet,
+  supply,
 }: any) {
   const [showForm, setShowForm] = useState(false);
   const [proposalType, setProposalType] = useState("");
@@ -125,6 +126,7 @@ export default function CampaignProposal({
             proposal={proposal}
             isInvestor={isInvestor}
             isAuditor={isAuditor}
+            supply={supply}
           />
         ))}
       </div>

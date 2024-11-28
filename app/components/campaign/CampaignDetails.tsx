@@ -91,6 +91,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           proposals={proposals}
           holders={mappedHolders}
           businessWallet={wallet_address}
+          supply={tokenDetails!.supply}
         />
       ),
     },
