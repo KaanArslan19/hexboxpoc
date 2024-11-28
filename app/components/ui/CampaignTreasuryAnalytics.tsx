@@ -2,14 +2,21 @@
 import { TokenDetailsProps, WalletDetails } from "@/app/types";
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
+import { AddressSection } from "./AddressSection";
+import { HolderItem } from "./HolderItem";
 interface Holder {
   address: string;
   balance: number;
 }
 
 export default function CampaignTreasuryAnalytics({
-  holders, supply, available_supply, total_funds, token_address, wallet_address
-}: TokenDetailsProps & WalletDetails & {wallet_address: string}) {
+  holders,
+  supply,
+  available_supply,
+  total_funds,
+  token_address,
+  wallet_address,
+}: TokenDetailsProps & WalletDetails & { wallet_address: string }) {
   const [tooltip, setTooltip] = useState<{
     x: number;
     y: number;
@@ -62,24 +69,18 @@ export default function CampaignTreasuryAnalytics({
       data: slice.data,
     });
   };
+
   return (
     <div className="relative w-full max-w-2xl mx-auto p-4">
       <div className="flex w-full flex-wrap items-center pb-4">
         <div className="rounded-lg bg-smoke-50 pb-5 dark:bg-slate-700 w-full min-w-min flex-[1_0_0]">
-          <div className="w-full">
-            <div className="flex flex-1 items-center justify-between">
-              <div className="rounded-lg bg-gray-200 p-4">
-                <span className="mt-2 text-sm text-slate-800">Token Address: {token_address?.substring(0, 3) + '...' + token_address?.substring(token_address.length - 3)}</span>
-                <br />
-                <span className="mt-2 text-lg">Available Tokens: {available_supply.toLocaleString()}/{supply.toLocaleString()}</span>
-              </div>
-              <div className="rounded-lg p-4 bg-gray-200">
-                <span className="mt-2 text-sm text-slate-800">Wallet Address: {wallet_address?.substring(0, 3) + '...' + wallet_address?.substring(wallet_address.length - 3)}</span>
-                <br />
-                <span className="mt-2 text-lg">Total Treasury Funds: ${total_funds.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
+          <AddressSection
+            token_address={token_address}
+            wallet_address={wallet_address}
+            available_supply={available_supply}
+            supply={supply}
+            total_funds={total_funds}
+          />
         </div>
       </div>
       <div className="flex items-center justify-center">
@@ -127,28 +128,14 @@ export default function CampaignTreasuryAnalytics({
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {data.map((holder, index) => (
-          <div
+          <HolderItem
             key={holder.address}
-            className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 transition-colors"
-          >
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{
-                backgroundColor: colorScale(index) as string,
-              }}
-            />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">
-                {holder.address}
-              </div>
-              <div className="text-xs text-gray-500">
-                {holder.balance.toLocaleString()}
-              </div>
-            </div>
-            <div className="text-sm font-semibold text-gray-700">
-              {holder.percentage.toFixed(2)}%
-            </div>
-          </div>
+            address={holder.address}
+            colorScale={colorScale}
+            balance={holder.balance}
+            percentage={holder.percentage}
+            index={index}
+          />
         ))}
       </div>
     </div>

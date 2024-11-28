@@ -11,7 +11,7 @@ export default function CreateProject() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  /*   useEffect(() => {
+  useEffect(() => {
     if (session) {
       console.log(session);
     }
@@ -20,10 +20,13 @@ export default function CreateProject() {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <h1 className="text-2xl font-bold">To continue, please sign in by clicking <span className="text-orangeColor">Select Wallet</span></h1>
+        <h1 className="text-2xl font-bold">
+          To continue, please sign in by clicking{" "}
+          <span className="text-redColor">Select Wallet</span>
+        </h1>
       </div>
-    )
-  } */
+    );
+  }
 
   const handleCreateProject = async (values: NewCampaignInfo) => {
     try {

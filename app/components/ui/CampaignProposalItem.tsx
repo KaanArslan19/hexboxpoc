@@ -1,10 +1,8 @@
 "use client";
-
-import { TokenDetailsProps } from "@/app/types";
-import { useSession } from "next-auth/react";
-import CustomButton from "./CustomButton";
-import axios from "axios";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import CustomButton from "./CustomButton";
 
 export default function CampaignProposalItem(props: any) {
   const { proposal, holders, isInvestor, isAuditor, supply } = props;
@@ -14,19 +12,13 @@ export default function CampaignProposalItem(props: any) {
   async function handleVote(agree: boolean) {
     setButtonDisabled(true);
     try {
-      console.log(agree);
       const formData = new FormData();
       formData.append("proposal_id", proposal._id);
       formData.append("agree", agree.toString());
-      const voteProposalResponse = await axios.post(
-        "/api/voteProposal",
-        formData
-      );
-      console.log(voteProposalResponse);
+      await axios.post("/api/voteProposal", formData);
       window.location.reload();
     } catch (error) {
-      console.log(error);
-      setButtonDisabled(false);
+      console.error(error);
     } finally {
       setButtonDisabled(false);
     }
@@ -35,123 +27,123 @@ export default function CampaignProposalItem(props: any) {
   async function handleAudit(approve: boolean) {
     setButtonDisabled(true);
     try {
-      console.log(approve);
       const formData = new FormData();
       formData.append("proposal_id", proposal._id);
       formData.append("approve", approve.toString());
-      const auditProposalResponse = await axios.post(
-        "/api/auditProposal",
-        formData
-      );
-      console.log(auditProposalResponse);
+      await axios.post("/api/auditProposal", formData);
       window.location.reload();
     } catch (error) {
-      console.log(error);
-      setButtonDisabled(false);
+      console.error(error);
     } finally {
       setButtonDisabled(false);
     }
   }
 
+  const getStatusStyles = () => {
+    if (proposal.passed_audit) return "bg-green-50  text-green-800";
+    if (proposal.waiting_audit) return "bg-yellowColor/30 text-yellowColor/80";
+    if (proposal.finished && !proposal.passed_audit)
+      return "bg-redColor/30  text-redColor/80";
+    return "bg-white border-gray-200";
+  };
+
+  const getStatusText = () => {
+    if (proposal.passed_audit) return "Approved";
+    if (proposal.waiting_audit) return "Pending Audit";
+    if (proposal.finished && !proposal.passed_audit) return "Rejected";
+    return "In Progress";
+  };
+
   return (
     <div
-      className={`flex flex-col gap-2 justify-between items-center shadow-sm rounded-md overflow-hidden shadow-lightBlueColor border-2 border-lightBlueColor ${
-        proposal.waiting_audit
-          ? "bg-yellow-100"
-          : proposal.passed_audit
-          ? "bg-green-100"
-          : proposal.waiting_audit === false && proposal.finished === true
-          ? "bg-red-100"
-          : "bg-white"
-      }`}
+      className={`
+      border-2 rounded-lg shadow-md p-6 mb-4 
+      transition-all duration-300 ease-in-out
+      ${getStatusStyles()}
+    `}
     >
-      <h3 className="text-lg font-bold">{proposal.motion_type}</h3>
-      <p>{proposal.motion_details}</p>
-      <p>Proposal ID: {proposal._id}</p>
-      <p>Total yes votes: {proposal.total_yes_votes}</p>
-      <p>Total no votes: {proposal.total_no_votes}</p>
-      <p>Needed yes votes: {proposal.needed_yes_votes}</p>
-      <p>Supply: {supply}</p>
-
-      <div className="w-full px-4 py-2">
-        <div className="relative h-6 bg-gray-200 rounded-full">
-          {/* Yes votes bar and label */}
-          <div
-            className="absolute h-full bg-green-500 rounded-l-full"
-            style={{
-              width: `${(proposal.total_yes_votes / supply) * 100}%`,
-            }}
-          >
-            <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-green-600">
-              {((proposal.total_yes_votes / supply) * 100).toFixed(1)}%
-            </span>
-          </div>
-
-          {/* No votes bar and label */}
-          <div
-            className="absolute h-full bg-red-500"
-            style={{
-              left: `${(proposal.total_yes_votes / supply) * 100}%`,
-              width: `${(proposal.total_no_votes / supply) * 100}%`,
-            }}
-          >
-            <span className="absolute top-8 left-1/2 -translate-x-1/2 text-xs text-red-600">
-              {((proposal.total_no_votes / supply) * 100).toFixed(1)}%
-            </span>
-          </div>
-          
-          {/* 70% threshold marker */}
-          <div 
-            className="absolute w-0.5 h-8 bg-blue-600 -top-1"
-            style={{
-              left: '70%',
-            }}
-          >
-          </div>
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2 capitalize">
+            {proposal.motion_type}
+          </h2>
+          <p className="text-sm text-gray-500 mb-1">
+            Proposal ID: {proposal._id}
+          </p>
         </div>
-        <div className="text-xs  mt-4">
-          Total Voted: {(((proposal.total_yes_votes + proposal.total_no_votes) / supply) * 100).toFixed(1)}% of Token Supply
+        <div
+          className={`
+          px-3 py-1 rounded-full text-sm font-semibold
+          ${
+            proposal.passed_audit
+              ? "bg-green-100 text-green-800"
+              : proposal.waiting_audit
+              ? "bg-yellow-100 text-yellowColor/80"
+              : proposal.finished
+              ? "bg-red-100 text-redColor/80"
+              : "bg-blue-100 text-blueColor/80"
+          }
+        `}
+        >
+          {getStatusText()}
         </div>
       </div>
 
-      <p>Waiting audit: {proposal.waiting_audit.toString()}</p>
-      <p>Passed audit: {proposal.passed_audit.toString()}</p>
-      <p>Finished: {proposal.finished.toString()}</p>
-      {proposal.finished === true && (
-        <>
-          <p>Finished result: {proposal.finished_result.toString()}</p>
-          <p>Finished timestamp: {proposal.finished_timestamp}</p>
-        </>
-      )}
-      <p>Voters: {proposal.voters.length}</p>
-      {proposal.voters.map((voter: any) => (
-        <p key={voter.address}>
-          Voter: {voter.address} - {voter.agree.toString()} - {voter.amount}
-        </p>
-      ))}
-      {/* Need timestamps for created at, audited at, passed audit at */}
+      <div className="bg-gray-50 p-4 rounded-md mb-4">
+        <h3 className="text-lg font-semibold text-gray-700 mb-2">
+          Proposal Details
+        </h3>
+        <p className="text-gray-600">{proposal.motion_details}</p>
+      </div>
 
-      <div className="flex flex-row gap-2 p-2">
-        {isInvestor &&
-          !proposal.waiting_audit &&
-          !proposal.finished && (
-            <>
-              <CustomButton
-                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                onClick={() => handleVote(true)}
-                disabled={buttonDisabled}
-              >
-                Yes
-              </CustomButton>
-              <CustomButton
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                onClick={() => handleVote(false)}
-                disabled={buttonDisabled}
-              >
-                No
-              </CustomButton>
-            </>
-          )}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-white border rounded-md p-3">
+          <h4 className="text-sm font-medium text-gray-500 mb-1">Yes Votes</h4>
+          <p className="text-lg font-bold text-green-600">
+            {proposal.total_yes_votes} / {proposal.needed_yes_votes}
+          </p>
+        </div>
+        <div className="bg-white border rounded-md p-3">
+          <h4 className="text-sm font-medium text-gray-500 mb-1">No Votes</h4>
+          <p className="text-lg font-bold text-redColor/60">
+            {proposal.total_no_votes}
+          </p>
+        </div>
+      </div>
+
+      {proposal.finished && (
+        <div className="bg-gray-100 p-3 rounded-md mb-4">
+          <h4 className="text-sm font-medium text-gray-600 mb-2">
+            Final Result
+          </h4>
+          <p className="font-semibold">
+            {proposal.finished_result ? "Passed" : "Rejected"}
+            <span className="text-sm text-gray-500 ml-2">
+              on {new Date(proposal.finished_timestamp).toLocaleString()}
+            </span>
+          </p>
+        </div>
+      )}
+
+      <div className="flex flex-row gap-4 justify-center">
+        {isInvestor && !proposal.waiting_audit && !proposal.finished && (
+          <>
+            <CustomButton
+              className="px-6 py-2 bg-blueColor/80 text-white rounded-md hover:bg-blueColor/60 transition-colors border-none"
+              onClick={() => handleVote(true)}
+              disabled={buttonDisabled}
+            >
+              Vote Yes
+            </CustomButton>
+            <CustomButton
+              className="px-6 py-2 bg-redColor/80 text-white rounded-md hover:bg-redColor/60 transition-colors border-none"
+              onClick={() => handleVote(false)}
+              disabled={buttonDisabled}
+            >
+              Vote No
+            </CustomButton>
+          </>
+        )}
 
         {isAuditor &&
           proposal.waiting_audit &&
@@ -159,18 +151,18 @@ export default function CampaignProposalItem(props: any) {
           !proposal.finished && (
             <>
               <CustomButton
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="px-6 py-2 bg-blueColor/80 text-white rounded-md hover:bg-blueColor/60 transition-colors border-none"
                 onClick={() => handleAudit(true)}
                 disabled={buttonDisabled}
               >
-                Approve
+                Approve Audit
               </CustomButton>
               <CustomButton
-                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+                className="px-6 py-2 bg-orangeColor/80 text-white rounded-md hover:bg-orangeColor/60 transition-colors border-none"
                 onClick={() => handleAudit(false)}
                 disabled={buttonDisabled}
               >
-                Reject
+                Reject Audit
               </CustomButton>
             </>
           )}

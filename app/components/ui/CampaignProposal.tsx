@@ -40,7 +40,7 @@ export default function CampaignProposal({
       setIsAuditor(false);
       setIsInvestor(false);
     }
-  }, [session]);
+  }, [session, holders]);
 
   if (!session) {
     return <div>Please sign in to continue</div>;

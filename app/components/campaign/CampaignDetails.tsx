@@ -6,7 +6,11 @@ import CampaignActivity from "../ui/CampaignActivity";
 import CampaignInfo from "../ui/CampaignProposal";
 import CampaignDescription from "../ui/CampaignDescription";
 import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
-import { CampaignDetailsProps, TokenDetailsProps, WalletDetails } from "@/app/types";
+import {
+  CampaignDetailsProps,
+  TokenDetailsProps,
+  WalletDetails,
+} from "@/app/types";
 
 import { getTokenDetails } from "@/app/utils/poc_utils/getTokenDetails";
 import { getProposals } from "@/app/utils/poc_utils/getProposals";
@@ -52,8 +56,12 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   const walletDetails = await getWallet(wallet_address);
 
   const proposals = await getProposals(wallet_address);
-
-  const modifiedProps: TokenDetailsProps & WalletDetails & {wallet_address: string} = {
+  const simplifiedProposals = proposals.map((proposal) => ({
+    ...proposal,
+    _id: proposal._id.toString(),
+  }));
+  const modifiedProps: TokenDetailsProps &
+    WalletDetails & { wallet_address: string } = {
     name: tokenDetails!.name,
     supply: tokenDetails!.supply,
     available_supply: tokenDetails!.available_supply,
@@ -88,7 +96,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       label: "Proposals",
       children: (
         <CampaignProposal
-          proposals={proposals}
+          proposals={simplifiedProposals}
           holders={mappedHolders}
           businessWallet={wallet_address}
           supply={tokenDetails!.supply}
@@ -96,10 +104,11 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       ),
     },
   ];
-  const raisedFunds = fund_amount - modifiedProps.available_supply * modifiedProps.price;
+  const raisedFunds =
+    fund_amount - modifiedProps.available_supply * modifiedProps.price;
 
   const remainingFundAmountPercentage = (
-    ((raisedFunds) / fund_amount) *
+    (raisedFunds / fund_amount) *
     100
   ).toFixed(0);
 
@@ -195,9 +204,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
             strokeColor={twoColors}
             className="w-full"
           />
-          <p className="text-sm">
-            (${raisedFunds.toLocaleString()})
-          </p>
+          <p className="text-sm">(${raisedFunds.toLocaleString()})</p>
         </div>
       </div>
 
