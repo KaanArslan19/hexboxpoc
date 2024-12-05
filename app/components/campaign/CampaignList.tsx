@@ -48,7 +48,7 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
         </ul>
         <CustomButton
           onClick={loadMoreCampaigns}
-          className="bg-none border-[1px] border-blueColor w-2/4 md:w-3/4 "
+          className="bg-none border-[1px] bg-blueColor text-white hover:bg-blueColor/80 w-2/4 md:w-3/4 "
           disabled={!hasMore}
         >
           {hasMore ? "Load More" : "No more campaigns"}{" "}
