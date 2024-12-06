@@ -2,22 +2,34 @@ import client from "@/app/utils/mongodb";
 
 export const createToken = async (name: string, supply: number, fundsToRaise: number, creatorWalletAddress: string): Promise<string | null> => {
   try {
-
-    // Executor gets 40% of the supply, so we need to calculate the price based on the remaining 60% to ensure raised funds are met
-    const executorTokens = (supply * 0.4)
-    const tokenPrice = Number(fundsToRaise) / (Number(supply) - executorTokens)
+    const executorTokens = (supply * 0.4);
+    const investorTokens = supply - executorTokens;
+    const tokenPrice = Number(fundsToRaise) / investorTokens;
+    const transitionThreshold = investorTokens * 0.6; // 60% of investor tokens
 
     const token = await client.db("hexbox_poc").collection("tokens").insertOne({
       name: name,
       supply: supply,
-      available_supply: supply - executorTokens,
+      available_supply: investorTokens,
       price: tokenPrice,
-      holders: [{address: creatorWalletAddress, balance: executorTokens}],
-      transactions: [{address: creatorWalletAddress, type: "create", amount: executorTokens, timestamp: new Date()}]
+      total_voting_power: 100,
+      transition_threshold: transitionThreshold,
+      threshold_reached: false,
+      total_investor_tokens_owned: 0,
+      holders: [{
+        address: creatorWalletAddress, 
+        balance: executorTokens,
+        voting_power: 40
+      }],
+      transactions: [{
+        address: creatorWalletAddress, 
+        type: "create", 
+        amount: executorTokens,
+        timestamp: new Date()
+      }]
     });
 
-    return token.insertedId.toString() as string;
-
+    return token.insertedId.toString();
   } catch (error) {
     console.log(error);
     return null;

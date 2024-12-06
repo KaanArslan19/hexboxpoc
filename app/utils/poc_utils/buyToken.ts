@@ -27,6 +27,10 @@ export const buyToken = async (
       return { error: "Not enough tokens available" };
     }
 
+    const oldVotingPower = tokenDetails.holders.find(
+      (h: any) => h.address === user
+    )?.voting_power || 0;
+
     const userTokens = await getUserTokens(user, token_address);
     let userTokenBalance = 0;
     if (!userTokens) {
@@ -41,34 +45,86 @@ export const buyToken = async (
       (holder: any) => holder.address === user
     );
 
+    const availableVotingPower = 60; // 60% is available for investors
+    const totalInvestorTokens = tokenDetails.supply * 0.6; // 60% of tokens for investors
+    const purchaseVotingPower = (amount / totalInvestorTokens) * availableVotingPower;
+
+    const roundToTwo = (num: number): number => {
+      return Math.round((num + Number.EPSILON) * 100) / 100;
+    };
+
+    const recalculateVotingPowers = (tokenDetails: any, newHolder: any) => {
+      let updatedHolders = [...tokenDetails.holders];
+      const existingHolderIndex = updatedHolders.findIndex(h => h.address === newHolder.address);
+      
+      // Update or add holder balance
+      if (existingHolderIndex >= 0) {
+        updatedHolders[existingHolderIndex].balance = roundToTwo(newHolder.balance);
+      } else {
+        updatedHolders.push({
+          address: newHolder.address,
+          balance: roundToTwo(newHolder.balance)
+        });
+      }
+
+      // Calculate total investor tokens owned
+      const investorHolders = updatedHolders.filter(h => h.address !== updatedHolders[0].address);
+      const totalInvestorTokens = roundToTwo(investorHolders.reduce(
+        (sum, holder) => sum + holder.balance, 
+        0
+      ));
+
+      // Check if transition threshold is reached
+      const thresholdReached = totalInvestorTokens >= tokenDetails.transition_threshold;
+
+      if (!thresholdReached) {
+        // Before threshold: Creator keeps 40%, investors share 60%
+        return updatedHolders.map(holder => ({
+          ...holder,
+          balance: roundToTwo(holder.balance),
+          voting_power: holder.address === updatedHolders[0].address 
+            ? 40 // Creator keeps 40%
+            : roundToTwo((holder.balance / totalInvestorTokens) * 60) // Investors share 60%
+        }));
+      } else {
+        // After threshold: Voting power proportional to token ownership
+        const totalTokens = roundToTwo(updatedHolders.reduce(
+          (sum, holder) => sum + holder.balance,
+          0
+        ));
+
+        return updatedHolders.map(holder => ({
+          ...holder,
+          balance: roundToTwo(holder.balance),
+          voting_power: roundToTwo((holder.balance / totalTokens) * 100)
+        }));
+      }
+    };
+
     let updateOperation: any;
     if (holderExists) {
-      // Update existing holder
+      const recalculatedHolders = recalculateVotingPowers(tokenDetails, {
+        address: user,
+        balance: userTokenBalance
+      });
+
       updateOperation = {
-        $set: { available_supply: tokenDetails.available_supply },
-        $inc: { "holders.$[holder].balance": amount },
-        $push: {
-          transactions: {
-            address: user,
-            type: "buy",
-            amount: amount,
-            timestamp: new Date(),
-          },
-        },
+        $set: { 
+          available_supply: tokenDetails.available_supply,
+          holders: recalculatedHolders
+        }
       };
     } else {
-      // Add new holder
+      const recalculatedHolders = recalculateVotingPowers(tokenDetails, {
+        address: user,
+        balance: amount
+      });
+
       updateOperation = {
-        $set: { available_supply: tokenDetails.available_supply },
-        $push: {
-          holders: { address: user, balance: amount },
-          transactions: {
-            address: user,
-            type: "buy",
-            amount: amount,
-            timestamp: new Date(),
-          },
-        },
+        $set: {
+          available_supply: tokenDetails.available_supply,
+          holders: recalculatedHolders
+        }
       };
     }
 
@@ -77,11 +133,63 @@ export const buyToken = async (
       .collection("tokens")
       .updateOne(
         { _id: new ObjectId(token_address) },
-        updateOperation,
-        holderExists
-          ? { arrayFilters: [{ "holder.address": user }] }
-          : undefined
+        updateOperation
       );
+
+    // After updating token holdings, get the new voting power
+    const updatedTokenDetails = await getTokenDetails(token_address);
+    if (!updatedTokenDetails) {
+      return { error: "Token not found" };
+    }
+    const newVotingPower = updatedTokenDetails.holders.find(
+      (h: any) => h.address === user
+    )?.voting_power || 0;
+
+    // Update active proposals
+    const activeProposals = await client
+      .db("hexbox_poc")
+      .collection("proposals")
+      .find({
+        wallet_address: await getTokenWalletAddress(token_address),
+        finished: false,
+        waiting_audit: false
+      }).toArray();
+
+    for (const proposal of activeProposals) {
+      const existingVote = proposal.voters.find(
+        (voter: any) => voter.address === user
+      );
+
+      if (existingVote) {
+        const voteDifference = roundToTwo(newVotingPower - oldVotingPower);
+        
+        // Update vote totals and voter amount
+        if (existingVote.agree) {
+          proposal.total_yes_votes = roundToTwo(proposal.total_yes_votes + voteDifference);
+        } else {
+          proposal.total_no_votes = roundToTwo(proposal.total_no_votes + voteDifference);
+        }
+
+        // Update voter amount
+        proposal.voters = proposal.voters.map((voter: any) => 
+          voter.address === user 
+            ? { ...voter, amount: roundToTwo(newVotingPower) }
+            : voter
+        );
+
+        // Check if proposal now meets threshold
+        if (proposal.total_yes_votes >= proposal.needed_yes_votes) {
+          proposal.waiting_audit = true;
+          proposal.waiting_audit_timestamp = Date.now();
+        }
+
+        await client.db("hexbox_poc").collection("proposals").updateOne(
+          { _id: proposal._id },
+          { $set: proposal }
+        );
+      }
+    }
+
     const walletAddress = (await getTokenWalletAddress(
       token_address
     )) as string;

@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { v4 as uuidv4 } from "uuid";
 import { getUserTokens } from "./getUserTokens";
 import { getWalletTokenAddress } from "./getWalletTokenAddress";
+import { getTokenDetails } from "./getTokenDetails";
 
 export const voteProposal = async (user: string, proposalID: string, vote: boolean) => {
     try {
@@ -17,10 +18,17 @@ export const voteProposal = async (user: string, proposalID: string, vote: boole
         return { error: "Token not found" };
       }
 
-      const userTokens = await getUserTokens(user, token);
-      if (!userTokens) {
+      const tokenDetails = await getTokenDetails(token);
+      if (!tokenDetails) {
+        return { error: "Token details not found" };
+      }
+
+      const userHolder = tokenDetails.holders.find((h: any) => h.address === user);
+      if (!userHolder) {
         return { error: "User does not have any tokens" };
       }
+
+      const userVotingPower = userHolder.voting_power;
 
       const voters = proposal.voters;
       const existingVote = voters.find((voter: any) => voter.address === user);
@@ -50,11 +58,11 @@ export const voteProposal = async (user: string, proposalID: string, vote: boole
       const totalYesVotes = proposal.total_yes_votes;
       const totalNoVotes = proposal.total_no_votes;
       if (vote) {
-        if (totalYesVotes + userTokens >= neededVotes) {
+        if (totalYesVotes + userVotingPower >= neededVotes) {
           proposal.waiting_audit = true;
         }
       } else {
-        if (totalNoVotes + userTokens >= neededVotes || totalYesVotes + userTokens >= neededVotes) {
+        if (totalNoVotes + userVotingPower >= neededVotes || totalYesVotes + userVotingPower >= neededVotes) {
           proposal.waiting_audit = false;
           proposal.passed_audit = false;
           proposal.finished = true;
@@ -69,9 +77,9 @@ export const voteProposal = async (user: string, proposalID: string, vote: boole
           waiting_audit: proposal.waiting_audit,
           passed_audit: proposal.passed_audit,
           finished: proposal.finished,
-          voters: [...proposal.voters, {address: user, agree: vote, amount: userTokens}],
-          total_yes_votes: proposal.total_yes_votes + (vote ? userTokens : 0),
-          total_no_votes: proposal.total_no_votes + (vote ? 0 : userTokens),
+          voters: [...proposal.voters, {address: user, agree: vote, amount: userVotingPower}],
+          total_yes_votes: proposal.total_yes_votes + (vote ? userVotingPower : 0),
+          total_no_votes: proposal.total_no_votes + (vote ? 0 : userVotingPower),
           finished_result: proposal.finished_result || false,
           finished_timestamp: proposal.finished ? Date.now() : 0
         } 

@@ -34,19 +34,20 @@ export const createProposal = async (user: string, wallet_address: string, motio
             return { error: "User does not have any tokens" };
         }
 
-        const userTokens = tokenDetails?.holders.find((holder: any) => holder.address === user)?.balance;
-        const tokenSupply = tokenDetails?.supply;
-        const neededVotes = tokenSupply * 0.7;
+        const userVotingPower = tokenDetails?.holders.find((holder: any) => 
+            holder.address === user)?.voting_power || 0;
+        const totalVotingPower = tokenDetails?.total_voting_power || 100;
+        const neededVotes = totalVotingPower * 0.7; // 70% of total voting power needed
 
         const proposal = await client.db("hexbox_poc").collection("proposals").insertOne({
             created_timestamp: Date.now(),
             wallet_address: wallet_address,
             motion_type: motionType,
             motion_details: motionDetails,
-            total_yes_votes: userTokens,
+            total_yes_votes: userVotingPower,
             total_no_votes: 0, 
-            needed_yes_votes: neededVotes, // 70% of supply
-            voters: [{address: user, agree: true, amount: userTokens, timestamp: Date.now()}], // list of voters, their decision and their voting power
+            needed_yes_votes: neededVotes, // 70% of total voting power
+            voters: [{address: user, agree: true, amount: userVotingPower, timestamp: Date.now()}], // list of voters, their decision and their voting power
             waiting_audit: false, // is proposal waiting for audit (has it hit 70% yes votes)
             waiting_audit_timestamp: 0, // timestamp of when proposal hit 70% yes votes
             passed_audit: false, // has proposal passed audit
