@@ -11,7 +11,7 @@ export default async function CampaignsPage() {
     <div className="mx-auto max-w-2xl lg:max-w-6xl">
       <div className="text-center mt-16 mx-2">
         <div className="md:flex justify-between items-center mb-4">
-          <h1 className="text-4xl lg:text-5xl font-customFont_bold tracking-tight  mb-4 ">
+          <h1 className="text-4xl lg:text-5xl font-customFont_bold   mb-4 ">
             Explore Campaigns
           </h1>
           <Link href="/create">

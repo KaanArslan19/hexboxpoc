@@ -9,7 +9,7 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
   const [campaigns, setCampaigns] = useState(listings);
   const [skip, setSkip] = useState(listings.length);
   const [hasMore, setHasMore] = useState(true);
-  const limit = 10;
+  const limit = 4;
   const loadMoreCampaigns = async () => {
     console.log("Load more triggered with skip:", skip);
 
@@ -48,7 +48,7 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
         </ul>
         <CustomButton
           onClick={loadMoreCampaigns}
-          className="bg-none border-[1px] bg-blueColor text-white hover:bg-blueColor/80 w-2/4 md:w-3/4 "
+          className="bg-none border-[1px] bg-blueColor text-white hover:bg-blueColor/90 w-2/4 md:w-3/4 "
           disabled={!hasMore}
         >
           {hasMore ? "Load More" : "No more campaigns"}{" "}

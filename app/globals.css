@@ -106,6 +106,10 @@ button {
 p {
   font-family: customFont_light;
 }
+h1,
+h2 {
+  letter-spacing: -0.025em;
+}
 /* react-slick */
 /* styles/story-slider.css */
 

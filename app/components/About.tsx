@@ -5,6 +5,7 @@ import { AboutData } from "../types";
 import CustomButton from "./ui/CustomButton";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import Funnel from "./ui/Funnel";
 
 export default function About() {
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -58,8 +59,8 @@ export default function About() {
     },
   ];
   return (
-    <div className="container mx-auto px-4 py-16">
-      <h1 className="text-4xl xl:text-6xl capitalize text-center mb-4 tracking-tight">
+    <div className="container mx-auto px-4 py-12">
+      <h1 className="text-4xl xl:text-6xl capitalize text-center mb-4 ">
         Involve in Hexbox world <br className="hidden sm:inline" />
         just in a Minute
       </h1>
@@ -92,7 +93,13 @@ export default function About() {
           </li>
         ))}
       </ul>
-      <div
+      <Funnel
+        firstButtonLink="campaigns"
+        firstButtonText="Explore campaigns"
+        secondButtonLink="create"
+        secondButtonText="Create a campaign"
+      />
+      {/*    <div
         className="relative mt-8 flex justify-center"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -126,7 +133,7 @@ export default function About() {
             color={isHovered ? "white" : "#E94E1B"}
           />
         </CustomButton>
-      </div>
+      </div> */}
     </div>
   );
 }

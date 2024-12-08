@@ -1,16 +1,23 @@
 import React from "react";
 import CustomButton from "./CustomButton";
 import Link from "next/link";
-
-export default function Funnel() {
+interface Props {
+  firstButtonLink: string;
+  firstButtonText: string;
+  secondButtonLink: string;
+  secondButtonText: string;
+}
+export default function Funnel(funnelProps: Props) {
   return (
-    <div className="my-8 max-w-6xl flex justify-center gap-8 md:gap-4">
-      <Link href="campaigns">
-        <CustomButton className="py-4">Explore Campaigns</CustomButton>
+    <div className="my-8 w-full flex justify-center gap-8 md:gap-4">
+      <Link href={funnelProps.firstButtonLink}>
+        <CustomButton className="py-4 hover:bg-lightBlueColor">
+          {funnelProps.firstButtonText}
+        </CustomButton>
       </Link>
-      <Link href="campaigns">
-        <CustomButton className="bg-blueColor text-white hover:bg-blueColor/80 py-4">
-          Explore Campaigns
+      <Link href={funnelProps.secondButtonLink}>
+        <CustomButton className="bg-blueColor text-white hover:bg-blueColor/90 py-4">
+          {funnelProps.secondButtonText}{" "}
         </CustomButton>
       </Link>
     </div>
