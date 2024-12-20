@@ -2,7 +2,7 @@
 import Link from "next/link";
 import React from "react";
 import logo from "../../../public/hexbox_black_logo.svg";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, WalletIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 import { MobileNav } from "../MobileNav";
 import SearchForm from "../SearchForm";
@@ -14,7 +14,7 @@ import {
 import InfoMenu from "../InfoMenu";
 import Image from "next/image";
 import Wallet from "../Wallet";
-import SignInButton from "../SignInButton";
+import { ConnectKitButton } from "connectkit";
 
 export default function NavUI() {
   const [open, setOpen] = React.useState(false);
@@ -58,7 +58,23 @@ export default function NavUI() {
             </div>
           </div>
           <div className="hidden lg:flex gap-2 items-center">
-            <SignInButton />
+            <ConnectKitButton.Custom>
+              {({ isConnected, isConnecting, show }) => (
+                <button
+                  className="flex items-center justify-center space-x-2 bg-gradient-to-r from-orangeColor to-yellowColor text-white font-bold py-3 px-5 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:ring focus:ring-pink-300"
+                  onClick={show}
+                >
+                  <WalletIcon className="h-5 w-5 text-white" />
+                  <span>
+                    {isConnecting
+                      ? "Connecting..."
+                      : isConnected
+                      ? "Wallet Connected"
+                      : "Connect Wallet"}
+                  </span>
+                </button>
+              )}
+            </ConnectKitButton.Custom>
           </div>
 
           <div className="lg:hidden flex items-center space-x-2 ">

@@ -5,7 +5,6 @@ import { NewCampaignInfo } from "@/app/types";
 import { useRouter } from "next/navigation"; // Use `next/navigation` for the new app router
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import SignInButton from "@/app/components/SignInButton";
 
 export default function CreateProject() {
   const router = useRouter();
