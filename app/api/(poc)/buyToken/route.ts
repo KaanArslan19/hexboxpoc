@@ -20,14 +20,13 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
             return NextResponse.json({ error: "Form data is required" }, { status: 400 });
         }
 
-        const token_address = formData.get('token_address')
+        const campaign_id = formData.get('campaign_id')
         const amount = formData.get('amount')
-        const user = formData.get('user')   
-
-        const buyTokenResponse = await buyToken(user as string, token_address as string, Number(amount))
-        console.log(buyTokenResponse)
+            
+        const returnedTranasction = await buyToken(campaign_id as string, Number(amount))
+        console.log(returnedTranasction)
         
-        return NextResponse.json(buyTokenResponse, { status: 200 });
+        return NextResponse.json(returnedTranasction, { status: 200 });
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });

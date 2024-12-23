@@ -76,8 +76,7 @@ export interface NewCampaignInfo {
   social_links: SocialLinks;
   fundAmount: number;
   logo: File;
-
-  totalSupply: number;
+  walletAddress: string;
 }
 
 export interface AboutData {

@@ -43,10 +43,10 @@ const validationSchema = [
       .typeError("Fund amount must be a number")
       .required("Fund amount is required")
       .min(0.0000001, "Fund amount must be greater than 0"),
-    totalSupply: Yup.number()
-      .typeError("Total supply must be a number")
-      .required("Total supply is required")
-      .min(1, "Total supply must be greater than 1"),
+    // totalSupply: Yup.number()
+    //   .typeError("Total supply must be a number")
+    //   .required("Total supply is required")
+    //   .min(1, "Total supply must be greater than 1"),
   }),
 
   // Yup.object({
@@ -61,7 +61,7 @@ const initialValues = {
   logo: null,
   deadline: "",
   location: "",
-  totalSupply: 0,
+  walletAddress: "",
   one_liner: "",
   telegram: "",
   discord: "",
@@ -98,7 +98,7 @@ export default function CampaignForm(props: Props) {
         website: values.website,
         linkedIn: values.linkedIn,
       },
-      totalSupply: Number(values.totalSupply),
+      walletAddress: values.walletAddress,
     };
     console.log(projectData);
     try {
@@ -295,11 +295,11 @@ export default function CampaignForm(props: Props) {
                 className="text-red-500 mb-2"
               />
 
-              <h3 className="text-xl mb-2">Total token supply</h3>
+              <h3 className="text-xl mb-2">Wallet Address for Funds</h3>
               <Field
-                name="totalSupply"
+                name="walletAddress"
                 type="text"
-                placeholder="Total Supply"
+                placeholder="Wallet Address to receive funds"
                 className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
                 min="1"
               />

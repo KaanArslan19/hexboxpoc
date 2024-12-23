@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode } from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { mainnet, polygon, avalanche } from "wagmi/chains";
+import { mainnet, polygon, avalanche, avalancheFuji } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   ConnectKitProvider,
@@ -11,10 +11,10 @@ import {
 
 const config = createConfig(
   getDefaultConfig({
-    chains: [mainnet, polygon, avalanche],
+    chains: [avalancheFuji],
     transports: {
-      [mainnet.id]: http(
-        `https://lb.nodies.app/v1/5e9daed367d1454fab7c75f0ec8aceff`
+      [avalancheFuji.id]: http(
+        `https://avalanche-fuji-c-chain-rpc.publicnode.com` //https://lb.nodies.app/v1/5e9daed367d1454fab7c75f0ec8aceff
       ),
     },
 

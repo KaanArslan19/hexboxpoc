@@ -216,7 +216,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           <BuyingOption
             pricePerToken={tokenDetails!.price}
             user={user_id}
-            token_address={token_address}
+            campaign_id={_id}
           />
         </div>
       </div>

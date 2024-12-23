@@ -34,7 +34,7 @@ export default function CreateProject() {
       formData.append("description", values.description);
       formData.append("fund_amount", values.fundAmount.toString());
       formData.append("logo", values.logo);
-      formData.append("total_supply", values.totalSupply.toString());
+      formData.append("wallet_address", values.walletAddress);
       formData.append("deadline", values.deadline.toString());
       formData.append("one_liner", values.one_liner);
       formData.append("social_links", values.social_links.toString());

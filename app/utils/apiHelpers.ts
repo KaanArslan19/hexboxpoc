@@ -38,19 +38,17 @@ export const fetchSingleCampaign = async (campaignId: string): Promise<any> => {
 type BuyTokenResponse = {
   success?: boolean;
   error?: string;
-  [key: string]: any;
+  transaction?: any;
 };
 
 export const buyCampaignToken = async (
-  user: string,
-  tokenAddress: string,
+  campaign_id: string,
   amount: number
 ): Promise<BuyTokenResponse> => {
   const apiUrl = "/api/buyToken";
   try {
     const formData = new FormData();
-    formData.append("user", user);
-    formData.append("token_address", tokenAddress);
+    formData.append("campaign_id", campaign_id);
     formData.append("amount", amount.toString());
     console.log("----------FoRM", formData);
     const response = await fetch(apiUrl, {

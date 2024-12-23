@@ -2,6 +2,7 @@ import client from "@/app/utils/mongodb";
 
 export const createToken = async (name: string, supply: number, fundsToRaise: number, creatorWalletAddress: string): Promise<string | null> => {
   try {
+    supply = 100000 // just to make it work, since we aren't using supply anymore
     const executorTokens = (supply * 0.4);
     const investorTokens = supply - executorTokens;
     const tokenPrice = Number(fundsToRaise) / investorTokens;

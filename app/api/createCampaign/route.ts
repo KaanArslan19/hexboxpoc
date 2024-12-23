@@ -51,7 +51,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
           ? Number(campaignEntries.deadline)
           : campaignEntries.deadline,
       is_verified: false,
+      evm_wa: campaignEntries.wallet_address
     };
+    
     console.log(campaignEntries.total_supply);
     const totalTokenSupply = Number(campaignEntries.total_supply);
 
