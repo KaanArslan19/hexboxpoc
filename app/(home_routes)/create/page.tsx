@@ -5,16 +5,18 @@ import { NewCampaignInfo } from "@/app/types";
 import { useRouter } from "next/navigation"; // Use `next/navigation` for the new app router
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
+// import { useSIWE } from "connectkit";
 
 export default function CreateProject() {
   const router = useRouter();
   const { data: session } = useSession();
+  //const { data, isSignedIn, signOut, signIn } = useSIWE();
 
-  useEffect(() => {
-    if (session) {
-      console.log(session);
-    }
-  }, [session]);
+  // useEffect(() => {
+  //   if (isSignedIn) {
+  //     console.log(data);
+  //   }
+  // }, [isSignedIn]);
 
   if (!session) {
     return (

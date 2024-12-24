@@ -4,8 +4,9 @@ import Link from "next/link";
 import { MenuItem } from "../types";
 
 import Wallet from "./Wallet";
-import { ConnectKitButton } from "connectkit";
+//import { ConnectKitButton } from "connectkit";
 import { WalletIcon } from "@heroicons/react/24/outline";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 interface Props {
   open: boolean;
@@ -28,7 +29,7 @@ export function MobileNav({ open, menuItems }: Props) {
           ))}
         </ul>
         <div className=" mt-2 text-center flex items-center">
-          <ConnectKitButton.Custom>
+          {/* <ConnectKitButton.Custom>
             {({ isConnected, isConnecting, show }) => (
               <button
                 className="flex items-center justify-center space-x-2 bg-gradient-to-r from-orangeColor to-yellowColor text-white font-bold py-3 px-5 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:ring focus:ring-pink-300"
@@ -44,7 +45,9 @@ export function MobileNav({ open, menuItems }: Props) {
                 </span>
               </button>
             )}
-          </ConnectKitButton.Custom>{" "}
+          </ConnectKitButton.Custom> */}
+          <ConnectButton />
+          {" "}
         </div>
       </Collapse>
     </>
