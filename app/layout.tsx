@@ -5,9 +5,6 @@ import "slick-carousel/slick/slick-theme.css";
 import AuthSession from "./components/AuthSession";
 import Script from "next/script";
 import { Web3Provider } from "./components/Web3Provider";
-import { Wallet } from "lucide-react";
-import { WalletProvider } from "@solana/wallet-adapter-react";
-//import { authOptions } from "./utils/auth";
 
 export const metadata: Metadata = {
   title: "Hexbox",

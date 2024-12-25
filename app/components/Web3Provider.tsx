@@ -3,12 +3,9 @@ import { ReactNode, useEffect } from "react";
 import { WagmiProvider, createConfig, http, useAccount } from "wagmi";
 import { mainnet, polygon, avalanche, avalancheFuji } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import '@rainbow-me/rainbowkit/styles.css';
-import {
-  getDefaultConfig,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
-import { RainbowKitSiweNextAuthProvider } from '@rainbow-me/rainbowkit-siwe-next-auth';
+import "@rainbow-me/rainbowkit/styles.css";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { RainbowKitSiweNextAuthProvider } from "@rainbow-me/rainbowkit-siwe-next-auth";
 import { SessionProvider, useSession, signOut } from "next-auth/react";
 
 const config = getDefaultConfig({
@@ -17,35 +14,46 @@ const config = getDefaultConfig({
   appName: "Get started with Nodie powered by POKT",
   appDescription: "Walllet Connect with Nodie",
 });
-
+console.log(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID);
 function ConnectionManager({ children }: { children: ReactNode }) {
   const { isConnected, address } = useAccount();
   const { data: session, status, update } = useSession();
-
+  console.log("USER WALLET", session?.user?.name);
   useEffect(() => {
+    let isUpdating = false;
+
     const handleConnectionChange = async () => {
-      console.log("Connection state changed:", { 
-        isConnected, 
-        status, 
-        address,
-        sessionAddress: session?.user?.name 
-      });
+      if (isUpdating) return;
+      isUpdating = true;
 
-      // Handle wallet disconnect
-      if (!isConnected && status === 'authenticated') {
-        console.log("Wallet disconnected, ending session");
-        await signOut({ redirect: false });
-        await update();
-        return;
-      }
+      try {
+        console.log("Connection state changed:", {
+          isConnected,
+          status,
+          address,
+          sessionAddress: session?.user?.name,
+        });
 
-      // Handle wallet connect verification
-      if (isConnected && status === 'authenticated') {
-        if (address?.toLowerCase() !== session?.user?.name?.toLowerCase()) {
-          console.log("Address mismatch, ending session");
+        // Handle wallet disconnect
+        if (!isConnected && status === "authenticated") {
+          console.log("Wallet disconnected, ending session");
           await signOut({ redirect: false });
           await update();
+          return;
         }
+
+        // Handle wallet connect verification
+        if (isConnected && status === "authenticated") {
+          if (address?.toLowerCase() !== session?.user?.name?.toLowerCase()) {
+            console.log("Address mismatch, ending session");
+            await signOut({ redirect: false });
+            await update();
+          }
+        }
+      } catch (error) {
+        console.error("Error handling connection change:", error);
+      } finally {
+        isUpdating = false;
       }
     };
 
@@ -64,9 +72,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         <QueryClientProvider client={queryClient}>
           <RainbowKitSiweNextAuthProvider>
             <RainbowKitProvider>
-              <ConnectionManager>
-                {children}
-              </ConnectionManager>
+              <ConnectionManager>{children}</ConnectionManager>
             </RainbowKitProvider>
           </RainbowKitSiweNextAuthProvider>
         </QueryClientProvider>
