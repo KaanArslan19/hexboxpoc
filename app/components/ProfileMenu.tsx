@@ -45,9 +45,9 @@ export default function ProfileMenu({ menuItems, avatar }: Props) {
       </MenuHandler>
 
       <MenuList className="p-1">
-        {menuItems.map(({ href, icon, label }) => {
+        {menuItems.map(({ href, icon, label }, index) => {
           return (
-            <Link key={href} href={href} className="outline-none">
+            <Link key={index} href={href} className="outline-none">
               <MenuItem
                 onClick={closeMenu}
                 className="flex items-center gap-2 rounded"

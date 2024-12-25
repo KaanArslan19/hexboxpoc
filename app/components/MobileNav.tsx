@@ -18,8 +18,8 @@ export function MobileNav({ open, menuItems }: Props) {
     <>
       <Collapse open={open} className="  my-2 ">
         <ul className="space-y-4 border-y-2 border-lightBlueColor py-4 ">
-          {menuItems.map(({ href, label }) => (
-            <li key={href} className="text-lg mx-2 ">
+          {menuItems.map(({ href, label }, index) => (
+            <li key={index} className="text-lg mx-2 ">
               <Link href={href}>
                 <span className="text-black hover:text-orangeColor">
                   {label}
@@ -46,8 +46,7 @@ export function MobileNav({ open, menuItems }: Props) {
               </button>
             )}
           </ConnectKitButton.Custom> */}
-          <ConnectButton />
-          {" "}
+          <ConnectButton />{" "}
         </div>
       </Collapse>
     </>

@@ -6,7 +6,6 @@ import React, { useEffect } from "react";
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  console.log(session);
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/");
