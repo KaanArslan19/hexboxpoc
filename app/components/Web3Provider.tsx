@@ -7,6 +7,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { RainbowKitSiweNextAuthProvider } from "@rainbow-me/rainbowkit-siwe-next-auth";
 import { SessionProvider, useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const config = getDefaultConfig({
   chains: [avalancheFuji],
@@ -19,6 +20,7 @@ function ConnectionManager({ children }: { children: ReactNode }) {
   const { isConnected, address } = useAccount();
   const { data: session, status, update } = useSession();
   console.log("USER WALLET", session?.user?.name);
+  const router = useRouter();
   useEffect(() => {
     let isUpdating = false;
 
@@ -34,7 +36,6 @@ function ConnectionManager({ children }: { children: ReactNode }) {
           sessionAddress: session?.user?.name,
         });
 
-        // Handle wallet disconnect
         if (!isConnected && status === "authenticated") {
           console.log("Wallet disconnected, ending session");
           await signOut({ redirect: false });
@@ -42,13 +43,15 @@ function ConnectionManager({ children }: { children: ReactNode }) {
           return;
         }
 
-        // Handle wallet connect verification
         if (isConnected && status === "authenticated") {
           if (address?.toLowerCase() !== session?.user?.name?.toLowerCase()) {
-            console.log("Address mismatch, ending session");
-            await signOut({ redirect: false });
-            await update();
+            console.log("Address mismatch, updating session");
+            router.refresh();
           }
+        }
+
+        if (isConnected && status === "unauthenticated") {
+          router.refresh();
         }
       } catch (error) {
         console.error("Error handling connection change:", error);
@@ -58,7 +61,7 @@ function ConnectionManager({ children }: { children: ReactNode }) {
     };
 
     handleConnectionChange();
-  }, [isConnected, status, address, session?.user?.name, update]);
+  }, [isConnected, status, address, session?.user?.name, update, router]);
 
   return <>{children}</>;
 }
