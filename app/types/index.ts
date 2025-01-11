@@ -51,6 +51,16 @@ enum Status {
   Inactive = "Inactive",
   Completed = "Completed",
 }
+export enum FundingType {
+  Limitless = "Limitless",
+  AllOrNothing = "All or Nothing",
+  Flexible = "Flexible",
+}
+export enum ProductOrService {
+  ProductOnly = "Only Product",
+  ServiceOnly = "Only Service",
+  ProductAndService = "Product and Service",
+}
 
 export interface CampaignItemProps {
   id: string;
@@ -77,6 +87,8 @@ export interface NewCampaignInfo {
   fundAmount: number;
   logo: File;
   walletAddress: string;
+  funding_type: FundingType;
+  product_or_service: ProductOrService;
 }
 
 export interface AboutData {
@@ -104,4 +116,4 @@ export interface TokenDetailsProps {
 export type WalletDetails = {
   total_funds: number;
   token_address: string;
-}
+};
