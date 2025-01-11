@@ -17,7 +17,7 @@ export default function CreateProject() {
   //     console.log(data);
   //   }
   // }, [isSignedIn]);
-
+  /* 
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
@@ -27,7 +27,7 @@ export default function CreateProject() {
         </h1>
       </div>
     );
-  }
+  } */
 
   const handleCreateProject = async (values: NewCampaignInfo) => {
     try {
@@ -40,7 +40,12 @@ export default function CreateProject() {
       formData.append("deadline", values.deadline.toString());
       formData.append("one_liner", values.one_liner);
       formData.append("social_links", values.social_links.toString());
-
+      formData.append("funding_type", values.funding_type.toString());
+      formData.append(
+        "product_or_service",
+        values.product_or_service.toString()
+      );
+      console.log(formData);
       const response = await fetch("/api/createCampaign", {
         method: "POST",
         body: formData,
