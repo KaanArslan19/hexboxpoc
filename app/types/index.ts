@@ -117,3 +117,12 @@ export type WalletDetails = {
   total_funds: number;
   token_address: string;
 };
+
+export interface Product {
+  id: string;
+  image: string;
+  name: string;
+  details: string;
+  price: number;
+  supply: number;
+}

@@ -8,6 +8,7 @@ import CampaignDescription from "../ui/CampaignDescription";
 import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
 import {
   CampaignDetailsProps,
+  Product,
   TokenDetailsProps,
   WalletDetails,
 } from "@/app/types";
@@ -26,6 +27,8 @@ import { BiDollar } from "react-icons/bi";
 import Link from "next/link";
 import formatPrice from "@/app/utils/formatPrice";
 import { getWallet } from "@/app/utils/poc_utils/getWallet";
+import CampaignProducts from "./CampaignProducts";
+import { getProducts } from "@/app/utils/poc_utils/getProducts";
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
   deadline,
@@ -73,6 +76,15 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     total_funds: walletDetails!.total_funds,
     token_address: walletDetails!.token_address,
   };
+  const products = await getProducts(_id);
+  const productProps = products.map((product) => ({
+    id: product._id.toString(),
+    image: product.image,
+    name: product.name,
+    details: product.details,
+    price: product.price,
+    supply: product.supply,
+  }));
 
   const tabItems = [
     {
@@ -93,6 +105,11 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     },
     {
       key: "4",
+      label: "Products",
+      children: <CampaignProducts /* products={productProps} */ />,
+    },
+    {
+      key: "5",
       label: "Proposals",
       children: (
         <CampaignProposal
