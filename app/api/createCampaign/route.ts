@@ -31,8 +31,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
 
     const logoFileName = await uploadImageToR2(logoFile);
-
     const campaignEntries = Object.fromEntries(formData.entries());
+    console.log("campaignEntries----", campaignEntries);
+
     let campaign = {
       user_id: creatorWalletAddress,
       title: campaignEntries.title,
@@ -51,10 +52,12 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
           ? Number(campaignEntries.deadline)
           : campaignEntries.deadline,
       is_verified: false,
-      evm_wa: campaignEntries.wallet_address
+      funding_type: campaignEntries.funding_type,
+      product_or_service: campaignEntries.product_or_service,
+      evm_wa: campaignEntries.wallet_address,
     };
-    
-    console.log(campaignEntries.total_supply);
+
+    console.log(campaign);
     const totalTokenSupply = Number(campaignEntries.total_supply);
 
     // Create token

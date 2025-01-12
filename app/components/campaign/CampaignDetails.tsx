@@ -77,14 +77,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     token_address: walletDetails!.token_address,
   };
   const products = await getProducts(_id);
-  const productProps = products.map((product) => ({
-    id: product._id.toString(),
-    image: product.image,
-    name: product.name,
-    details: product.details,
-    price: product.price,
-    supply: product.supply,
-  }));
 
   const tabItems = [
     {
@@ -106,7 +98,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     {
       key: "4",
       label: "Products",
-      children: <CampaignProducts /* products={productProps} */ />,
+      children: (
+        <CampaignProducts products={products ? JSON.parse(products) : []} />
+      ),
     },
     {
       key: "5",

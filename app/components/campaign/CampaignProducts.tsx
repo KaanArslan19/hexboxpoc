@@ -5,34 +5,11 @@ import { Table, Tooltip } from "antd";
 import Image from "next/image";
 import React from "react";
 
-const dummyProducts: Product[] = [
-  {
-    id: "1",
-    image: "/hexbox_name_logo_black.png",
-    name: "Product One",
-    details: "This is a detailed description of Product One.",
-    price: 19.99,
-    supply: 50,
-  },
-  {
-    id: "2",
-    image: "/hexbox_name_logo_black.png",
-    name: "Product Two",
-    details: "This is a detailed description of Product Two.",
-    price: 29.99,
-    supply: 100,
-  },
-  {
-    id: "3",
-    image: "/hexbox_name_logo_black.png",
-    name: "Product Three",
-    details: "This is a detailed description of Product Three.",
-    price: 39.99,
-    supply: 200,
-  },
-];
+interface CampaignProductsProps {
+  products: Product[];
+}
 
-export default function CampaignProducts() {
+export default function CampaignProducts({ products }: CampaignProductsProps) {
   const columns = [
     {
       title: "Image",
@@ -41,7 +18,7 @@ export default function CampaignProducts() {
       render: (image: string) => (
         <div className="relative w-16 h-16">
           <Image
-            src={image}
+            src={`${process.env.R2_BUCKET_URL}/campaign_logos/` + image}
             alt="Product"
             fill
             className="object-contain rounded-md"
@@ -102,14 +79,7 @@ export default function CampaignProducts() {
       <h2 className="text-xl lg:text-2xl mt-4 mb-2 text-center">
         Product Inventory
       </h2>
-      <Table
-        dataSource={dummyProducts.map((product) => ({
-          ...product,
-          key: product.id,
-        }))}
-        columns={columns}
-        className="w-full"
-      />
+      <Table dataSource={products} columns={columns} className="w-full" />
     </div>
   );
 }
