@@ -33,7 +33,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
             <span>Status</span>
           </div>
 
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center justify-between mt-3 mb-8 md:mb-12">
             <div className="flex items-center space-x-2">
               <span className="text-xl">{formatPrice(fundAmount)}</span>
             </div>

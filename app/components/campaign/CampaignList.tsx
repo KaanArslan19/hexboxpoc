@@ -31,8 +31,8 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
   };
   return (
     <Fragment>
-      <div className="flex flex-col items-center my-8  mx-auto ">
-        <ul className="sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 ">
+      <div className="flex flex-col items-center my-4 mx-2 sm:my-8 sm:mx-auto">
+        <ul className="grid grid-cols-1 w-full sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           {campaigns.map((item) => (
             <CampaignItem
               key={item._id}
@@ -48,10 +48,10 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
         </ul>
         <CustomButton
           onClick={loadMoreCampaigns}
-          className="bg-none border-[1px] bg-blueColor text-white hover:bg-blueColor/90 w-2/4 md:w-3/4 "
+          className="mt-6 w-full max-w-md sm:w-3/4 lg:w-1/2 bg-blueColor text-white hover:bg-blueColor/90 border border-transparent disabled:opacity-50"
           disabled={!hasMore}
         >
-          {hasMore ? "Load More" : "No more campaigns"}{" "}
+          {hasMore ? "Load More" : "No more campaigns"}
         </CustomButton>
       </div>
     </Fragment>

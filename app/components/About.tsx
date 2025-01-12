@@ -60,8 +60,8 @@ export default function About() {
   ];
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl xl:text-6xl capitalize text-center mb-4 ">
-        Involve in Hexbox world <br className="hidden sm:inline" />
+      <h1 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont_bold text-blueColor">
+        Involve in Hexbox world <br className="hidden sm:inline " />
         just in a Minute
       </h1>
       <p className="mb-8 text-lg lg:text-xl text-center ">
@@ -87,7 +87,9 @@ export default function About() {
                 {item.header}
               </h4>
               <div className="flex-1 overflow-y-auto">
-                <p className="text-base lg:text-lg ">{item.description}</p>
+                <p className="text-base lg:text-lg text-black/80 ">
+                  {item.description}
+                </p>
               </div>
             </div>
           </li>
@@ -99,41 +101,6 @@ export default function About() {
         secondButtonLink="create"
         secondButtonText="Create a campaign"
       />
-      {/*    <div
-        className="relative mt-8 flex justify-center"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <CustomButton
-          onClick={handleButtonClick}
-          className="group relative px-8 py-3 bg-orangeColor/30 hover:bg-orangeColor/70
-                text-white rounded-lg transform transition-all duration-300
-                hover:translate-y-[-2px] hover:shadow-lg
-                flex items-center gap-2 overflow-hidden  border-orangeColor"
-        >
-          {isHovered && (
-            <div
-              className="absolute inset-0 bg-orangeColor transition-transform duration-300 ease-out"
-              style={{
-                transform: `translateX(${progress - 100}%)`,
-              }}
-            />
-          )}
-
-          <span
-            className={`relative z-10 ${
-              isHovered ? "text-white" : "text-orangeColor/90"
-            }`}
-          >
-            Join the Waitlist
-          </span>
-          <ArrowRight
-            className={`relative z-10 w-5 h-5 transition-transform duration-300
-                ${isHovered ? "translate-x-1 " : ""}`}
-            color={isHovered ? "white" : "#E94E1B"}
-          />
-        </CustomButton>
-      </div> */}
     </div>
   );
 }

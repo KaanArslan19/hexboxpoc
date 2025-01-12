@@ -20,10 +20,10 @@ export default async function Home() {
           </p>
         </div>
         <Funnel
-          firstButtonLink="campaigns"
-          firstButtonText="Explore the campaigns"
-          secondButtonLink="create"
-          secondButtonText="Create a campaign"
+          firstButtonLink="create"
+          firstButtonText="Create a campaign"
+          secondButtonLink="campaigns"
+          secondButtonText="Explore the campaigns"
         />
 
         <CampaignList listings={campaigns} />
