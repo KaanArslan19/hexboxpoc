@@ -99,7 +99,11 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       key: "4",
       label: "Products",
       children: (
-        <CampaignProducts products={products ? JSON.parse(products) : []} />
+        <CampaignProducts
+          campaignId={_id}
+          userId={user_id}
+          products={products ? JSON.parse(products) : []}
+        />
       ),
     },
     {

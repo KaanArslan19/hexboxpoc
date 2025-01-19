@@ -1,15 +1,27 @@
 "use client";
-
+import { useAccount } from "wagmi";
+import Link from "next/link";
+import CustomButton from "@components/ui/CustomButton";
 import { Product } from "@/app/types";
 import { Table, Tooltip } from "antd";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 
 interface CampaignProductsProps {
   products: Product[];
+  campaignId: string;
+  userId: string;
 }
 
-export default function CampaignProducts({ products }: CampaignProductsProps) {
+export default function CampaignProducts({
+  products,
+  campaignId,
+  userId,
+}: CampaignProductsProps) {
+  const { address } = useAccount();
+
+  const campaignOwner = userId === address;
+  console.log(address, userId, campaignOwner);
   const columns = [
     {
       title: "Image",
@@ -80,6 +92,16 @@ export default function CampaignProducts({ products }: CampaignProductsProps) {
         Product Inventory
       </h2>
       <Table dataSource={products} columns={columns} className="w-full" />
+      {campaignOwner && (
+        <Link
+          href={`/create-product`}
+          className="w-full md:w-auto flex justify-end mt-2"
+        >
+          <CustomButton className="py-2 md:py-4 hover:bg-lightBlueColor w-full md:w-auto">
+            Create new Product
+          </CustomButton>
+        </Link>
+      )}
     </div>
   );
 }

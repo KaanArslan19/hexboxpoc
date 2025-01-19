@@ -12,16 +12,16 @@ export const getProducts = async (campaignId: string) => {
       return null;
     }
 
-    const campaign = await db
-      .collection("campaigns")
+    const products = await db
+      .collection("products")
       .findOne({ _id: new ObjectId(campaignId) });
 
-    if (!campaign) {
+    if (!products) {
       console.error("No campaign found with the given ID:", campaignId);
       return null;
     }
 
-    return JSON.stringify(campaign.products || []);
+    return JSON.stringify(products || []);
   } catch (error) {
     console.error("Error in getProducts:", error);
     return null;

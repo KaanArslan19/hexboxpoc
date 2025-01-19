@@ -126,3 +126,11 @@ export interface Product {
   price: number;
   supply: number;
 }
+
+export interface NewProductInfo {
+  image: string;
+  name: string;
+  details: string;
+  price: number;
+  supply: number;
+}
