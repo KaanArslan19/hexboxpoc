@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.externals.push("pino-pretty", "lokijs", "encoding");
+    return config;
+  },
   env: {
     RAINBOWKIT_PROJECT_ID: process.env.RAINBOWKIT_PROJECT_ID,
     R2_BUCKET_URL: process.env.R2_BUCKET_URL,
