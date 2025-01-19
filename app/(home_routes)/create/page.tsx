@@ -1,34 +1,25 @@
 "use client";
 
 import CampaignForm from "@/app/components/CampaignForm";
+import useIsAuth from "@/app/lib/auth/hooks/useIsAuth";
 import { NewCampaignInfo } from "@/app/types";
-import { useRouter } from "next/navigation"; // Use `next/navigation` for the new app router
-import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
-// import { useSIWE } from "connectkit";
+import { useRouter } from "next/navigation";
+import React, { use, useEffect } from "react";
 
 export default function CreateProject() {
   const router = useRouter();
-  const { data: session } = useSession();
-  //const { data, isSignedIn, signOut, signIn } = useSIWE();
+  const { isAuth } = useIsAuth();
 
-  // useEffect(() => {
-  //   if (isSignedIn) {
-  //     console.log(data);
-  //   }
-  // }, [isSignedIn]);
-  /* 
-  if (!session) {
+  if (!isAuth) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <h1 className="text-2xl font-bold">
           To continue, please sign in by clicking{" "}
-          <span className="text-redColor">Select Wallet</span>
+          <span className="text-orangeColor">Connect Wallet</span>
         </h1>
       </div>
     );
-  } */
-
+  }
   const handleCreateProject = async (values: NewCampaignInfo) => {
     try {
       const formData = new FormData();

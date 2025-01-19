@@ -4,9 +4,8 @@ import React, { useEffect, useState } from "react";
 import CustomButton from "./CustomButton";
 import CampaignProposalItem from "./CampaignProposalItem";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
+import { useAccount } from "wagmi";
 export default function CampaignProposal({
   proposals,
   holders,
@@ -18,24 +17,22 @@ export default function CampaignProposal({
   const [proposalAction, setProposalAction] = useState({});
   const [isAuditor, setIsAuditor] = useState(false);
   const [isInvestor, setIsInvestor] = useState(false);
-  const { data: session } = useSession();
+  const { address: session } = useAccount();
   const router = useRouter();
   useEffect(() => {
     console.log(proposals);
   }, [proposals]);
-
+  ("");
   useEffect(() => {
     if (session) {
       const isInvestor = holders.some(
-        (holder: any) => holder.address === session.user?.name
+        (holder: any) => holder.address === session
       );
       setIsInvestor(isInvestor);
 
-      axios
-        .get(`/api/isUserAuditor?walletAddress=${session.user?.name}`)
-        .then((res) => {
-          setIsAuditor(res.data);
-        });
+      axios.get(`/api/isUserAuditor?walletAddress=${session}`).then((res) => {
+        setIsAuditor(res.data);
+      });
     } else {
       setIsAuditor(false);
       setIsInvestor(false);
@@ -47,7 +44,6 @@ export default function CampaignProposal({
   }
 
   async function handleCreateProposal() {
-    // Handle create proposal logic here
     setShowForm(false);
     setProposalType("");
 
