@@ -17,6 +17,7 @@ const nextConfig = {
     MONGODB_URI: process.env.MONGODB_URI,
     NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:
       process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+    JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
   },
   images: {
     remotePatterns: [

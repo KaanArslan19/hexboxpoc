@@ -43,5 +43,5 @@ async function generateJwt(payload: {
     .setIssuedAt()
     .setIssuer(JWT_CONFIG.ISSUER)
     .setAudience(JWT_CONFIG.AUDIENCE)
-    .sign(new TextEncoder().encode(env.JWT_SECRET_KEY));
+    .sign(new TextEncoder().encode(process.env.JWT_SECRET_KEY));
 }

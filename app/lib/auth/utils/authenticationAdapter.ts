@@ -6,7 +6,7 @@ import { EMITTER_EVENTS } from "../constants";
 
 export const authenticationAdapter = createAuthenticationAdapter({
   getNonce: async () => {
-    const response = await fetch("/api/nonce");
+    const response = await fetch("/api/auth/nonce");
     const data: { nonce: string } = await response.json();
 
     return new Promise((resolve) => resolve(data.nonce));
