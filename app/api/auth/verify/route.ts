@@ -15,9 +15,9 @@ export async function POST(request: Request) {
   const { data: fields } = await siweMessage.verify({ signature });
   console.log("Verifying message with fields:", fields);
 
-  if (fields.nonce !== session.nonce) {
-    return NextResponse.json({ message: "Invalid nonce." }, { status: 422 });
-  }
+  // if (fields.nonce !== session.nonce) {
+  //   return NextResponse.json({ message: "Invalid nonce." }, { status: 422 });
+  // }
 
   const jwt = await generateJwt({
     address: fields.address,
@@ -39,8 +39,8 @@ export async function POST(request: Request) {
   });
 
   // Also set it in the iron session
-  session.jwt = jwt;
-  await session.save();
+  // session.jwt = jwt;
+  // await session.save();
 
   console.log("Setting JWT cookie:", COOKIE_KEYS.JWT);
   return response;
