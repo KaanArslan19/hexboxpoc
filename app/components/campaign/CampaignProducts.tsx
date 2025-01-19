@@ -94,7 +94,7 @@ export default function CampaignProducts({
       <Table dataSource={products} columns={columns} className="w-full" />
       {campaignOwner && (
         <Link
-          href={`/create-product`}
+          href={`/create-product?campaignId=${campaignId}`}
           className="w-full md:w-auto flex justify-end mt-2"
         >
           <CustomButton className="py-2 md:py-4 hover:bg-lightBlueColor w-full md:w-auto">

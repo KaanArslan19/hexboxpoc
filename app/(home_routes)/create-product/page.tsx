@@ -32,7 +32,7 @@ export default function CreateProductPage({ searchParams }: Props) {
         throw new Error("Failed to create product");
       }
 
-      router.push("/products");
+      router.push("/");
     } catch (error) {
       console.error("Error creating product:", error);
       alert("Error creating product. Please try again.");
