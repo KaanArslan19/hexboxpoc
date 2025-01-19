@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import React, { useEffect, useMemo } from 'react';
 import { clusterApiUrl } from '@solana/web3.js';
@@ -28,4 +28,4 @@ const Wallet = ({
   )
 }
 
-export default Wallet
+export default Wallet */

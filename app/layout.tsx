@@ -4,7 +4,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import AuthSession from "./components/AuthSession";
 import Script from "next/script";
-import { Web3Provider } from "./components/Web3Provider";
 import Providers from "./components/providers/Providers";
 
 export const metadata: Metadata = {

@@ -1,20 +1,19 @@
 import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/utils/auth";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createToken } from "@/app/utils/poc_utils/createToken";
 import { createWallet } from "@/app/utils/poc_utils/createWallet";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
-    const session = await getServerSession(authOptions);
+    /*     const session = await getServerSession(authOptions);
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    } */
 
-    const creatorWalletAddress = session.user?.name;
+    const creatorWalletAddress = "session.user?.name;";
 
     const formData = await req.formData();
     if (!formData) {

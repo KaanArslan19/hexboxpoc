@@ -3,7 +3,6 @@ import { Collapse } from "@material-tailwind/react";
 import Link from "next/link";
 import { MenuItem } from "../types";
 
-import Wallet from "./Wallet";
 //import { ConnectKitButton } from "connectkit";
 import { WalletIcon } from "@heroicons/react/24/outline";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
