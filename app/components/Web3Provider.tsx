@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState, useRef } from "react";
 import { WagmiProvider, createConfig, http, useAccount } from "wagmi";
 import { mainnet, polygon, avalanche, avalancheFuji } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,50 +18,46 @@ const config = getDefaultConfig({
 console.log(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID);
 function ConnectionManager({ children }: { children: ReactNode }) {
   const { isConnected, address } = useAccount();
-  const { data: session, status, update } = useSession();
-  console.log("USER WALLET", session?.user?.name);
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const [isHandlingAuth, setIsHandlingAuth] = useState(false);
+  const previousConnectedRef = useRef(isConnected);
+  const previousStatusRef = useRef(status);
+
   useEffect(() => {
-    let isUpdating = false;
+    const handleStateChange = async () => {
+      console.log("Auth State Change:", {
+        isConnected,
+        status,
+        previousStatus: previousStatusRef.current,
+        address,
+        sessionAddress: session?.user?.name,
+      });
 
-    const handleConnectionChange = async () => {
-      if (isUpdating) return;
-      isUpdating = true;
-
-      try {
-        console.log("Connection state changed:", {
-          isConnected,
-          status,
-          address,
-          sessionAddress: session?.user?.name,
-        });
-
-        if (!isConnected && status === "authenticated") {
-          console.log("Wallet disconnected, ending session");
-          await signOut({ redirect: false });
-          await update();
-          return;
-        }
-
-        if (isConnected && status === "authenticated") {
-          if (address?.toLowerCase() !== session?.user?.name?.toLowerCase()) {
-            console.log("Address mismatch, updating session");
-            router.refresh();
-          }
-        }
-
-        if (isConnected && status === "unauthenticated") {
-          router.refresh();
-        }
-      } catch (error) {
-        console.error("Error handling connection change:", error);
-      } finally {
-        isUpdating = false;
+      // Handle initial authentication
+      if (status === "authenticated" && previousStatusRef.current !== "authenticated") {
+        console.log("Initial authentication detected");
+        router.refresh();
       }
+
+      // Handle disconnect
+      if (!isConnected && previousConnectedRef.current && !isHandlingAuth) {
+        setIsHandlingAuth(true);
+        try {
+          await signOut({ redirect: false });
+          router.refresh();
+        } finally {
+          setIsHandlingAuth(false);
+        }
+      }
+
+      // Update refs
+      previousConnectedRef.current = isConnected;
+      previousStatusRef.current = status;
     };
 
-    handleConnectionChange();
-  }, [isConnected, status, address, session?.user?.name, update, router]);
+    handleStateChange();
+  }, [isConnected, status, session, router]);
 
   return <>{children}</>;
 }
