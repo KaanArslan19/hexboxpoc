@@ -4,11 +4,16 @@ import CampaignForm from "@/app/components/CampaignForm";
 import useIsAuth from "@/app/lib/auth/hooks/useIsAuth";
 import { NewCampaignInfo } from "@/app/types";
 import { useRouter } from "next/navigation";
+import { useAccount, usePublicClient } from "wagmi";
 import React, { use, useEffect } from "react";
+import { useWalletClient } from "wagmi";
 
 export default function CreateProject() {
   const router = useRouter();
   const { isAuth } = useIsAuth();
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
 
   if (!isAuth) {
     return (
@@ -37,15 +42,50 @@ export default function CreateProject() {
         values.product_or_service.toString()
       );
       console.log(formData);
-      const response = await fetch("/api/createCampaign", {
+      const firstResponse = await fetch("/api/createCampaign", {
         method: "POST",
         body: formData,
       });
 
-      if (!response.ok) {
+      const data = await firstResponse.json();
+      if (!data.transaction) {
         throw new Error("Failed to create campaign");
       }
-      router.push("/campaigns");
+
+      // Send the transaction
+      const hash = await walletClient?.sendTransaction({
+        ...data.transaction,
+        account: address,
+      });
+      console.log(hash);
+
+      // Wait for transaction confirmation
+      const receipt = await publicClient?.waitForTransactionReceipt({
+        hash: hash as `0x${string}`,
+        timeout: 60_000,
+        onReplaced: (replacement) => {
+          console.log('Transaction replaced:', replacement);
+        },
+      });
+      console.log(receipt);
+      console.log("start 2nd")
+      const secondResponse = await fetch("/api/confirmCreationOfCampaign", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'  // Make sure this header is set
+        },
+        body: JSON.stringify({  // Properly stringify the body
+          transactionHash: hash,
+          status: 'success',
+          campaignId: data.campaignId
+        })
+      });
+      console.log("done 2nd")
+      const secondData = await secondResponse.json();
+      console.log(secondData);
+
+
+      //router.push("/campaigns");
     } catch (error) {
       console.error("Error creating campaign:", error);
     }

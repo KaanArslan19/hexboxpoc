@@ -4,17 +4,19 @@ import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/utils/auth"
 import { getCampaign } from "@/app/utils/getCampaign";
+import { getServerSideUser } from "@/app/utils/getServerSideUser";
 
 // Add this export to mark the route as dynamic
 export const dynamic = 'force-dynamic';
 
 export const GET = async (req: NextRequest, res: NextResponse) => {
     try {
-        // const session = await getServerSession(authOptions)
-
-        // if (!session) {
-        //     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        // }
+        const session = await getServerSideUser(req);
+        if (!session.isAuthenticated) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        } else {
+            console.log(session.address);
+        }
 
         console.log(req.nextUrl.searchParams);
         if (!req.nextUrl.searchParams.has("campaignId")) {

@@ -5,6 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { buyToken } from "@/app/utils/poc_utils/buyToken";
 import { voteProposal } from "@/app/utils/poc_utils/voteProposal";
 import { auditProposal } from "@/app/utils/poc_utils/auditProposal";
+import { getServerSideUser } from "@/app/utils/getServerSideUser";
+import { COOKIE_KEYS } from '@/app/lib/auth/constants';
+
 export const GET = async (req: NextRequest) => {
   try {
     const mdbClient = client;
@@ -24,7 +27,6 @@ export const GET = async (req: NextRequest) => {
     // const auditProp = await auditProposal("0x0000000000000000000000000000000000000000", "6735f42c48dfe32ab5c7e155", true)
     // console.log(auditProp);
 
-    // Parse query parameters for limit and skip
     const limit = parseInt(req.nextUrl.searchParams.get("limit") || "10");
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0");
 
@@ -37,7 +39,7 @@ export const GET = async (req: NextRequest) => {
 
     return NextResponse.json(campaigns);
   } catch (e) {
-    console.error(e);
+    console.error("Error in getCampaigns:", e);
     return NextResponse.json({ error: e }, { status: 500 });
   }
 };
