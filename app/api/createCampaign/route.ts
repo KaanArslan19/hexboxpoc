@@ -1,16 +1,10 @@
 import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/utils/auth";
-import { uploadImageToR2 } from "@/app/utils/imageUpload";
-import { createToken } from "@/app/utils/poc_utils/createToken";
-import { createWallet } from "@/app/utils/poc_utils/createWallet";
-import { CONTRACTS, CHAIN_IDS } from "@/app/utils/contracts/contracts";
+
+import { CONTRACTS } from "@/app/utils/contracts/contracts";
 import { ethers } from "ethers";
 import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
-import { COOKIE_KEYS } from "@/app/lib/auth/constants";
-
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -92,7 +86,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const campaignId = result.insertedId.toString();
 
     // Initialize provider
-    const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+    const provider = new ethers.JsonRpcProvider(
+      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+    );
 
     // Get factory contract interface
     const factoryContract = new ethers.Contract(
@@ -103,21 +99,21 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     const testProducts = [
       {
-          productId: 9837413,
-          price: 1_000000,     // 1 USDC
-          supplyLimit: 100     // Limited to 100
+        productId: 9837413,
+        price: 1_000000, // 1 USDC
+        supplyLimit: 100, // Limited to 100
       },
       {
-          productId: 7823310,
-          price: 2_000000,     // 2 USDC
-          supplyLimit: 0       // Unlimited supply
+        productId: 7823310,
+        price: 2_000000, // 2 USDC
+        supplyLimit: 0, // Unlimited supply
       },
       {
-          productId: 6453789,
-          price: 3_000000,     // 3 USDC
-          supplyLimit: 200     // Limited to 200
-      }
-  ];
+        productId: 6453789,
+        price: 3_000000, // 3 USDC
+        supplyLimit: 200, // Limited to 200
+      },
+    ];
 
     // Encode the function data
     const functionData = factoryContract.interface.encodeFunctionData(
@@ -128,7 +124,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         1, //placeholder data for funding type
         ethers.parseUnits(campaign.fund_amount.toString(), 6), //placeholder data for minimum target
         campaignEntries.deadline, //placeholder data for deadline
-        testProducts
+        testProducts,
       ]
     );
 
@@ -137,9 +133,8 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       to: CONTRACTS.USDCFundraiserFactory.fuji,
       data: functionData,
       chainId: 43113, // Avalanche Fuji testnet
-      value: '0x00'
+      value: "0x00",
     };
-
 
     return NextResponse.json({ campaignId, transaction });
   } catch (e) {

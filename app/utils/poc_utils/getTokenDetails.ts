@@ -1,6 +1,5 @@
 import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
-import { TokenDetailsProps } from "@/app/types";
 
 export const getTokenDetails = async (token_address: string) => {
   const mdbClient = client;

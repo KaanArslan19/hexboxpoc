@@ -4,9 +4,7 @@ import CustomButton from "./CustomButton";
 import { Input } from "@material-tailwind/react";
 import { buyCampaignToken } from "@/app/utils/apiHelpers";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
-import { ethers } from 'ethers';
+import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 
 interface BuyingOptionProps {
   pricePerToken: number;
@@ -29,7 +27,6 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
   const [success, setSuccess] = useState<string | null>(null);
   const [triggerBuy, setTriggerBuy] = useState<boolean>(false);
   const router = useRouter();
-  const session = useSession();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -58,19 +55,18 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
 
   useEffect(() => {
     const executeBuyToken = async () => {
-
       setLoading(true);
       setError(null);
       setSuccess(null);
 
       try {
-        const investorAddress = session.data?.user?.name;
+        const investorAddress = address;
 
         if (!address || !walletClient) {
           setError("Please connect your wallet");
           return;
         }
-        
+
         const transactionToExecute = await buyCampaignToken(
           campaign_id,
           usdAmount
@@ -81,8 +77,8 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
           throw new Error("Transaction not found");
         }
 
-        console.log(transactionToExecute)
-        
+        console.log(transactionToExecute);
+
         // Send the actual transfer transaction
         const hash = await walletClient?.sendTransaction({
           to: transactionToExecute.transaction.to,
@@ -93,11 +89,11 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
           account: address,
         });
 
-        console.log(hash)
-        console.log("test 1")
+        console.log(hash);
+        console.log("test 1");
 
         // Wait for transaction confirmation
-        console.log(publicClient)
+        console.log(publicClient);
         // Wait for transaction with timeout and status updates
         let receipt;
         try {
@@ -105,29 +101,29 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
             hash,
             timeout: 40_000, // 60 seconds timeout
             onReplaced: (replacement) => {
-              console.log('Transaction replaced:', replacement);
+              console.log("Transaction replaced:", replacement);
             },
             confirmations: 1, // Number of confirmations to wait for
           });
 
-          console.log('Transaction Receipt:', receipt);
+          console.log("Transaction Receipt:", receipt);
         } catch (waitError: any) {
-          console.error('Wait Error:', waitError);
-          
+          console.error("Wait Error:", waitError);
+
           // Check if transaction exists even if wait timed out
           const tx = await publicClient?.getTransaction({ hash });
-          console.log('Transaction Status:', tx);
-          
+          console.log("Transaction Status:", tx);
+
           if (!tx) {
-            throw new Error('Transaction not found on chain');
+            throw new Error("Transaction not found on chain");
           }
         }
-        console.log("test 2")
+        console.log("test 2");
 
         // execute the transaction here - done
 
         // Verify transaction was successful
-        if (receipt?.status === 'success') {
+        if (receipt?.status === "success") {
           setSuccess(`Successfully bought ${tokenAmount} tokens!`);
         } else {
           // Check transaction status manually if receipt is undefined
@@ -135,24 +131,24 @@ const BuyingOption: React.FC<BuyingOptionProps> = ({
           if (tx) {
             setSuccess(`Transaction sent! Hash: ${hash}`);
           } else {
-            throw new Error('Transaction failed or not found');
+            throw new Error("Transaction failed or not found");
           }
         }
 
         setSuccess(`Successfully bought ${tokenAmount} tokens!`);
       } catch (err: any) {
         setError(err.message || "Something went wrong.");
-        console.log(err)
+        console.log(err);
       } finally {
         setLoading(false);
         setTriggerBuy(false);
       }
     };
 
-    if (triggerBuy && +tokenAmount > 0 && session) {
+    if (triggerBuy && +tokenAmount > 0 && address) {
       executeBuyToken();
     }
-  }, [triggerBuy, tokenAmount, campaign_id, router, session]);
+  }, [triggerBuy, tokenAmount, campaign_id, router, address, usdAmount]);
 
   // useEffect(() => {
   //   if (success) {

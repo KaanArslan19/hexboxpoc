@@ -6,13 +6,9 @@ import { getWalletTokenAddress } from "./getWalletTokenAddress";
 import { getTokenDetails } from "./getTokenDetails";
 import { getTokenWalletAddress } from "./getTokenWalletAddress";
 import { createUSDCTransaction } from "./createUSDCTransaction";
-import { ethers } from "ethers";
 import { getCampaign } from "../getCampaign";
 
-export const buyToken = async (
-  campaign_id: string,
-  amount: number,
-) => {
+export const buyToken = async (campaign_id: string, amount: number) => {
   try {
     const campaign = await getCampaign(campaign_id);
     if (!campaign) {
@@ -24,8 +20,7 @@ export const buyToken = async (
     const transaction = await createUSDCTransaction(walletAddress, amount);
     console.log(transaction);
 
-    return transaction
-
+    return transaction;
   } catch (error) {
     console.log(error);
     return { error: "Failed to process token purchase" };
@@ -82,7 +77,7 @@ export const buyToken = async (
 //     const recalculateVotingPowers = (tokenDetails: any, newHolder: any) => {
 //       let updatedHolders = [...tokenDetails.holders];
 //       const existingHolderIndex = updatedHolders.findIndex(h => h.address === newHolder.address);
-      
+
 //       // Update or add holder balance
 //       if (existingHolderIndex >= 0) {
 //         updatedHolders[existingHolderIndex].balance = roundToTwo(newHolder.balance);
@@ -96,7 +91,7 @@ export const buyToken = async (
 //       // Calculate total investor tokens owned
 //       const investorHolders = updatedHolders.filter(h => h.address !== updatedHolders[0].address);
 //       const totalInvestorTokens = roundToTwo(investorHolders.reduce(
-//         (sum, holder) => sum + holder.balance, 
+//         (sum, holder) => sum + holder.balance,
 //         0
 //       ));
 
@@ -108,7 +103,7 @@ export const buyToken = async (
 //         return updatedHolders.map(holder => ({
 //           ...holder,
 //           balance: roundToTwo(holder.balance),
-//           voting_power: holder.address === updatedHolders[0].address 
+//           voting_power: holder.address === updatedHolders[0].address
 //             ? 40 // Creator keeps 40%
 //             : roundToTwo((holder.balance / totalInvestorTokens) * 60) // Investors share 60%
 //         }));
@@ -135,7 +130,7 @@ export const buyToken = async (
 //       });
 
 //       updateOperation = {
-//         $set: { 
+//         $set: {
 //           available_supply: tokenDetails.available_supply,
 //           holders: recalculatedHolders
 //         }
@@ -188,7 +183,7 @@ export const buyToken = async (
 
 //       if (existingVote) {
 //         const voteDifference = roundToTwo(newVotingPower - oldVotingPower);
-        
+
 //         // Update vote totals and voter amount
 //         if (existingVote.agree) {
 //           proposal.total_yes_votes = roundToTwo(proposal.total_yes_votes + voteDifference);
@@ -197,8 +192,8 @@ export const buyToken = async (
 //         }
 
 //         // Update voter amount
-//         proposal.voters = proposal.voters.map((voter: any) => 
-//           voter.address === user 
+//         proposal.voters = proposal.voters.map((voter: any) =>
+//           voter.address === user
 //             ? { ...voter, amount: roundToTwo(newVotingPower) }
 //             : voter
 //         );

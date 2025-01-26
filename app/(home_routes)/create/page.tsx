@@ -4,10 +4,8 @@ import CampaignForm from "@/app/components/CampaignForm";
 import useIsAuth from "@/app/lib/auth/hooks/useIsAuth";
 import { NewCampaignInfo } from "@/app/types";
 import { useRouter } from "next/navigation";
-import { useAccount, usePublicClient } from "wagmi";
-import React, { use, useEffect } from "react";
-import { useWalletClient } from "wagmi";
-
+import React from "react";
+import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 export default function CreateProject() {
   const router = useRouter();
   const { isAuth } = useIsAuth();
@@ -64,26 +62,26 @@ export default function CreateProject() {
         hash: hash as `0x${string}`,
         timeout: 60_000,
         onReplaced: (replacement) => {
-          console.log('Transaction replaced:', replacement);
+          console.log("Transaction replaced:", replacement);
         },
       });
       console.log(receipt);
-      console.log("start 2nd")
+      console.log("start 2nd");
       const secondResponse = await fetch("/api/confirmCreationOfCampaign", {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'  // Make sure this header is set
+          "Content-Type": "application/json", // Make sure this header is set
         },
-        body: JSON.stringify({  // Properly stringify the body
+        body: JSON.stringify({
+          // Properly stringify the body
           transactionHash: hash,
-          status: 'success',
-          campaignId: data.campaignId
-        })
+          status: "success",
+          campaignId: data.campaignId,
+        }),
       });
-      console.log("done 2nd")
+      console.log("done 2nd");
       const secondData = await secondResponse.json();
       console.log(secondData);
-
 
       //router.push("/campaigns");
     } catch (error) {
