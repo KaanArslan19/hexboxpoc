@@ -4,7 +4,8 @@ import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Steps } from "antd";
 import ImageSelector from "./ui/ImageSelector";
-import { NewProductInfo, Product } from "../types";
+import { NewProductInfo } from "../types";
+import { toast } from "react-toastify";
 
 const steps = [
   { title: "Product Info" },
@@ -30,7 +31,7 @@ const validationSchema = [
     image: fileSizeValidator.required("Image is required"),
   }),
   Yup.object({
-    details: Yup.string().required("Details are required"),
+    description: Yup.string().required("Details are required"),
     price: Yup.number()
       .typeError("Price must be a number")
       .required("Price is required")
@@ -46,7 +47,7 @@ const validationSchema = [
 const initialValues: NewProductInfo = {
   image: "",
   name: "",
-  details: "",
+  description: "",
   price: 0,
   supply: 1,
 };
@@ -57,17 +58,28 @@ interface Props {
 export default function ProductForm({ onSubmit }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [image, setImage] = useState<File | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleSubmit = async (values: typeof initialValues) => {
-    const productData: NewProductInfo = {
-      image: values.image as string,
-      name: values.name,
-      details: values.details,
-      price: values.price,
-      supply: values.supply,
-    };
+    setIsPending(true);
+    setSubmitError(null);
 
-    await onSubmit(productData);
+    try {
+      const productData: NewProductInfo = {
+        image: values.image as string,
+        name: values.name,
+        description: values.description,
+        price: values.price,
+        supply: values.supply,
+      };
+
+      await onSubmit(productData);
+    } catch (error) {
+      setSubmitError("An unknown error occurred");
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -106,12 +118,12 @@ export default function ProductForm({ onSubmit }: Props) {
               <Field
                 name="name"
                 placeholder="Product Name"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blue-500"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="name"
                 component="div"
-                className="text-red-500 mb-4"
+                className="text-redColor mb-4"
               />
 
               <h3 className="text-xl mb-2">Image</h3>
@@ -127,7 +139,7 @@ export default function ProductForm({ onSubmit }: Props) {
               <ErrorMessage
                 name="image"
                 component="div"
-                className="text-red-500 mb-4"
+                className="text-redColor mb-4"
               />
             </div>
           )}
@@ -135,17 +147,17 @@ export default function ProductForm({ onSubmit }: Props) {
           {currentStep === 1 && (
             <div>
               <h2 className="text-2xl mb-4">Details</h2>
-              <h3 className="text-xl mb-2">Details</h3>
+              <h3 className="text-xl mb-2">Description</h3>
               <Field
                 as="textarea"
-                name="details"
-                placeholder="Product Details"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blue-500 h-24"
+                name="description"
+                placeholder="Product Description"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor h-24"
               />
               <ErrorMessage
-                name="details"
+                name="description"
                 component="div"
-                className="text-red-500 mb-4"
+                className="text-redColor mb-4"
               />
 
               <h3 className="text-xl mb-2">Price</h3>
@@ -153,12 +165,12 @@ export default function ProductForm({ onSubmit }: Props) {
                 name="price"
                 type="number"
                 placeholder="Price"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blue-500"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="price"
                 component="div"
-                className="text-red-500 mb-4"
+                className="text-redColor mb-4"
               />
 
               <h3 className="text-xl mb-2">Supply</h3>
@@ -166,12 +178,12 @@ export default function ProductForm({ onSubmit }: Props) {
                 name="supply"
                 type="number"
                 placeholder="Supply"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blue-500"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="supply"
                 component="div"
-                className="text-red-500 mb-4"
+                className="text-redColor mb-4"
               />
             </div>
           )}
@@ -180,6 +192,33 @@ export default function ProductForm({ onSubmit }: Props) {
             <div>
               <h2 className="text-2xl mb-4">Review</h2>
               <p>Review all product details before submitting.</p>
+              {submitError && (
+                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="h-5 w-5 text-red-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">
+                        Error Creating Product
+                      </h3>
+                      <div className="mt-2 text-sm text-red-700">
+                        {submitError}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -196,9 +235,20 @@ export default function ProductForm({ onSubmit }: Props) {
               <button
                 type="button"
                 onClick={() =>
-                  validateForm().then(() => setCurrentStep((prev) => prev + 1))
+                  validateForm().then((errors) => {
+                    console.log("Validation Errors:", errors);
+                    if (Object.keys(errors).length === 0) {
+                      setCurrentStep((prev) => prev + 1);
+                    } else {
+                      Object.entries(errors).forEach(([field, error]) => {
+                        toast.error(`${field}: ${error}`, {
+                          autoClose: 3000,
+                        });
+                      });
+                    }
+                  })
                 }
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80"
               >
                 Next
               </button>
@@ -206,10 +256,42 @@ export default function ProductForm({ onSubmit }: Props) {
             {currentStep === steps.length - 1 && (
               <button
                 type="submit"
-                onClick={submitForm}
+                onClick={() => {
+                  if (!isPending) {
+                    setSubmitError(null);
+                    submitForm();
+                  }
+                }}
+                disabled={isPending}
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
               >
-                Submit
+                {isPending ? (
+                  <div className="flex items-center text-white">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="white"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Submitting...
+                  </div>
+                ) : (
+                  "Submit"
+                )}
               </button>
             )}
           </div>

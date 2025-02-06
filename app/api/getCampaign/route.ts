@@ -8,13 +8,13 @@ export const dynamic = "force-dynamic";
 
 export const GET = async (req: NextRequest, res: NextResponse) => {
   try {
-    const session = await getServerSideUser(req);
+    /*     const session = await getServerSideUser(req);
     console.log("getServerSideUser------------", session);
     if (!session.isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     } else {
       console.log(session.address);
-    }
+    } */
 
     console.log(req.nextUrl.searchParams);
     if (!req.nextUrl.searchParams.has("campaignId")) {

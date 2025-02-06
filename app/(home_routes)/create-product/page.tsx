@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import ProductForm from "@/app/components/ProductForm";
 import { useAccount } from "wagmi";
-import { fetchSingleCampaign } from "@/app/utils/apiHelpers";
 
 interface Props {
   searchParams: { campaignId: string };
@@ -12,11 +11,16 @@ export default function CreateProductPage({ searchParams }: Props) {
   const campaignId = searchParams.campaignId;
 
   const router = useRouter();
+  const userId = useAccount().address;
 
   const handleCreateProduct = async (values: any) => {
     try {
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
       const formData = new FormData();
       formData.append("campaignId", campaignId);
+      formData.append("userId", userId);
       formData.append("image", values.image);
       formData.append("name", values.name);
       formData.append("description", values.description);
@@ -32,7 +36,7 @@ export default function CreateProductPage({ searchParams }: Props) {
         throw new Error("Failed to create product");
       }
 
-      router.push("/");
+      router.push("/campaign?campaignId=" + campaignId);
     } catch (error) {
       console.error("Error creating product:", error);
       alert("Error creating product. Please try again.");

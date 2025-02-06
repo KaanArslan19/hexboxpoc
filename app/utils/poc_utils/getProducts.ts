@@ -1,29 +1,40 @@
 import client from "@/app/utils/mongodb";
-import { ObjectId } from "mongodb";
-import { Product, TokenDetailsProps } from "@/app/types";
+import { Product } from "@/app/types";
 
-export const getProducts = async (campaignId: string) => {
+export const getProducts = async (campaignId: string): Promise<Product[]> => {
   const mdbClient = client;
   const db = mdbClient.db("hexbox_poc");
 
   try {
-    if (!ObjectId.isValid(campaignId)) {
-      console.error("Invalid campaign ID provided:", campaignId);
-      return null;
-    }
-
     const products = await db
       .collection("products")
-      .findOne({ _id: new ObjectId(campaignId) });
+      .find({ campaignId: campaignId })
+      .toArray();
 
-    if (!products) {
-      console.error("No campaign found with the given ID:", campaignId);
-      return null;
+    if (!products.length) {
+      console.error(
+        "No products found with the given campaign ID:",
+        campaignId
+      );
+      return [];
     }
+    console.log("getProducts----", products);
 
-    return JSON.stringify(products || []);
+    const formattedProducts: Product[] = products.map((product) => ({
+      id: product._id.toString(),
+      userId: product.userId || "",
+      status: product.status || "",
+      campaignId: product.campaignId || "",
+      image: product.image || "",
+      name: product.name || "",
+      description: product.description || "",
+      price: Number(product.price) || 0,
+      supply: Number(product.supply) || 0,
+    }));
+
+    return formattedProducts;
   } catch (error) {
     console.error("Error in getProducts:", error);
-    return null;
+    return [];
   }
 };
