@@ -71,7 +71,7 @@ export default function About() {
         {ABOUT_DATA.map((item, index) => (
           <li
             key={index}
-            className="w-full max-w-sm h-[28rem] flex flex-col bg-gradient-to-bl from-yellowColor/30 via-orangeColor/30 to-blueColor/30 rounded-2xl overflow-hidden shadow-lg"
+            className="w-full max-w-sm h-[28rem] flex flex-col bg-gradient-to-bl from-yellowColor/50 via-orangeColor/40 to-blueColor/30 rounded-2xl overflow-hidden shadow-lg"
           >
             <div className="h-48 flex items-center justify-center p-4">
               <Image

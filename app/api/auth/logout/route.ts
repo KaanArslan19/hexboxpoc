@@ -8,7 +8,6 @@ export async function GET() {
     cookies(),
     IRON_OPTIONS
   );
-  console.log(session);
 
   await session.destroy();
 
