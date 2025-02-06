@@ -11,21 +11,16 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
   const [hasMore, setHasMore] = useState(true);
   const limit = 4;
   const loadMoreCampaigns = async () => {
-    console.log("Load more triggered with skip:", skip);
-
     try {
       const newCampaigns = await fetchCampaigns(limit, skip);
-      console.log("Fetched new campaigns:", newCampaigns);
 
       if (newCampaigns && newCampaigns.length > 0) {
         setCampaigns((prev) => [...prev, ...newCampaigns]);
         setSkip((prev) => prev + limit);
       } else {
-        console.log("No more campaigns to load");
         setHasMore(false);
       }
     } catch (error) {
-      console.error("Error loading more campaigns:", error);
       setHasMore(false);
     }
   };

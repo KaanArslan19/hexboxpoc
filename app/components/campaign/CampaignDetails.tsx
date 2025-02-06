@@ -3,27 +3,22 @@ import { FaDiscord, FaLinkedin } from "react-icons/fa";
 import { FaTelegramPlane } from "react-icons/fa";
 import CampaignTabs from "../ui/CampaignTabs";
 import CampaignActivity from "../ui/CampaignActivity";
-import CampaignInfo from "../ui/CampaignProposal";
 import CampaignDescription from "../ui/CampaignDescription";
 import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
 import {
   CampaignDetailsProps,
-  Product,
   TokenDetailsProps,
   WalletDetails,
 } from "@/app/types";
 
 import { getTokenDetails } from "@/app/utils/poc_utils/getTokenDetails";
 import { getProposals } from "@/app/utils/poc_utils/getProposals";
-import { ObjectId } from "mongodb";
 import { Progress } from "antd";
 import type { ProgressProps } from "antd";
-import CustomButton from "../ui/CustomButton";
 import CampaignProposal from "../ui/CampaignProposal";
 import { TbWorld } from "react-icons/tb";
 import BuyingOption from "../ui/BuyingOption";
-import { FaDollarSign } from "react-icons/fa6";
-import { BiDollar } from "react-icons/bi";
+
 import Link from "next/link";
 import formatPrice from "@/app/utils/formatPrice";
 import { getWallet } from "@/app/utils/poc_utils/getWallet";
@@ -43,6 +38,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   status,
   title,
   user_id,
+  products,
 }) => {
   const tokenDetails = await getTokenDetails(token_address);
   const mappedTransactions = tokenDetails!.transactions.map((item: any) => ({
@@ -51,6 +47,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     amount: item.amount,
     timestamp: item.timestamp,
   }));
+
   const mappedHolders = tokenDetails!.holders.map((item: any) => ({
     address: item.address,
     balance: item.balance,
@@ -76,7 +73,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     total_funds: walletDetails!.total_funds,
     token_address: walletDetails!.token_address,
   };
-  const products = await getProducts(_id);
 
   const tabItems = [
     {
@@ -102,7 +98,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         <CampaignProducts
           campaignId={_id}
           userId={user_id}
-          products={products ? JSON.parse(products) : []}
+          products={products ? products : []}
         />
       ),
     },

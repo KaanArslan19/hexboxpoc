@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import { FC, useEffect, useState } from "react";
 
@@ -7,7 +8,6 @@ interface HexagonImageProps {
   alt: string;
   size?: number;
   className?: string;
-  borderWidth?: number;
 }
 
 const HexagonImage: FC<HexagonImageProps> = ({
@@ -15,7 +15,6 @@ const HexagonImage: FC<HexagonImageProps> = ({
   alt,
   size = 300,
   className = "",
-  borderWidth = 4,
 }) => {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -29,45 +28,21 @@ const HexagonImage: FC<HexagonImageProps> = ({
   }, []);
 
   const adjustedSize = isMobile ? size * 0.7 : size;
+  const hexHeight = (adjustedSize * Math.sqrt(3)) / 2;
 
   return (
-    <div className={`relative group ${className}`}>
-      <div
-        className="absolute inset-0 blur-md animate-pulse"
-        style={{
-          width: `${adjustedSize}px`,
-          height: `${(adjustedSize * Math.sqrt(3)) / 2}px`,
-          clipPath:
-            "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-          background: "linear-gradient(45deg, #CE0E2D, #E94E1B, #FFC629)",
-          transform: "scale(1.02)",
-        }}
-      />
+    <div className={`relative ${className}`}>
       <div
         className="relative"
         style={{
           width: `${adjustedSize}px`,
-          height: `${(adjustedSize * Math.sqrt(3)) / 2}px`,
+          height: `${hexHeight}px`,
           clipPath:
             "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-          padding: borderWidth,
-          background: "linear-gradient(45deg, #CE0E2D, #E94E1B, #FFC629)",
         }}
       >
-        <div
-          className="w-full h-full overflow-hidden"
-          style={{
-            clipPath:
-              "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-          }}
-        >
-          <Image
-            src={src}
-            alt={alt}
-            layout="fill"
-            className="object-contain"
-            priority
-          />
+        <div className="w-full h-full relative">
+          <Image src={src} alt={alt} fill className="object-cover" priority />
         </div>
       </div>
     </div>

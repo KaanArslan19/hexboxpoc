@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import AuthSession from "./components/AuthSession";
 import Script from "next/script";
 import Providers from "./components/providers/Providers";
+import Notification from "./components/Notification";
 
 export const metadata: Metadata = {
   title: "Hexbox",
@@ -56,7 +57,10 @@ export default async function RootLayout({
             style={{ display: "none", visibility: "hidden" }}
           ></iframe>
         </noscript>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Notification />
+          {children}
+        </Providers>
       </body>
     </html>
   );

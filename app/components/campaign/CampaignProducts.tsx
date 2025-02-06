@@ -1,11 +1,11 @@
 "use client";
+import React, { Fragment } from "react";
 import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CustomButton from "@components/ui/CustomButton";
-import { Product } from "@/app/types";
-import { Table, Tooltip } from "antd";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import { Product } from "@/app/types";
 
 interface CampaignProductsProps {
   products: Product[];
@@ -13,95 +13,74 @@ interface CampaignProductsProps {
   userId: string;
 }
 
-export default function CampaignProducts({
+const ProductCard: React.FC<Product> = ({
+  id,
+  name,
+  description,
+  price,
+  supply,
+  image,
+}) => {
+  const router = useRouter();
+
+  return (
+    <div
+      onClick={() => router.push(`/product?productId=${id}`)}
+      className="cursor-pointer bg-white shadow-md rounded-xl p-4 flex flex-col items-center hover:shadow-lg transition-shadow"
+    >
+      <div className="relative w-28 h-28 mb-4">
+        <Image
+          src={`${process.env.R2_BUCKET_URL}/product_logos/${image}`}
+          alt={name}
+          layout="fill"
+          className="object-contain rounded-md"
+        />
+      </div>
+      <h3 className="text-md font-bold text-gray-800 text-center truncate max-w-full mb-2">
+        {name}
+      </h3>
+      <span className="text-sm text-gray-600 text-center line-clamp-2 mb-4">
+        {description}
+      </span>
+      <span className="text-lg font-semibold text-gray-900 mb-1">
+        ${price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+      </span>
+      <span className="text-sm text-lightBlueColor">
+        Supply: {supply.toLocaleString()}
+      </span>
+    </div>
+  );
+};
+
+const CampaignProducts: React.FC<CampaignProductsProps> = ({
   products,
   campaignId,
   userId,
-}: CampaignProductsProps) {
+}) => {
   const { address } = useAccount();
-
   const campaignOwner = userId === address;
-  console.log(address, userId, campaignOwner);
-  const columns = [
-    {
-      title: "Image",
-      dataIndex: "image",
-      key: "image",
-      render: (image: string) => (
-        <div className="relative w-16 h-16">
-          <Image
-            src={`${process.env.R2_BUCKET_URL}/campaign_logos/` + image}
-            alt="Product"
-            fill
-            className="object-contain rounded-md"
-          />
-        </div>
-      ),
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      render: (name: string) => (
-        <Tooltip title={name}>
-          <span className="font-medium truncate max-w-[200px] block">
-            {name}
-          </span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Details",
-      dataIndex: "details",
-      key: "details",
-      render: (details: string) => (
-        <Tooltip title={details}>
-          <span className="truncate max-w-[300px] block text-gray-600">
-            {details}
-          </span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price: number) => (
-        <span className="font-medium">
-          $
-          {price.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
-        </span>
-      ),
-    },
-    {
-      title: "Supply",
-      dataIndex: "supply",
-      key: "supply",
-      render: (supply: number) => (
-        <span className="font-medium">{supply.toLocaleString()}</span>
-      ),
-    },
-  ];
 
   return (
-    <div>
-      <h2 className="text-xl lg:text-2xl mt-4 mb-2 text-center">
+    <Fragment>
+      <h2 className="text-xl lg:text-2xl mt-4 mb-4 text-center">
         Product Inventory
       </h2>
-      <Table dataSource={products} columns={columns} className="w-full" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products.map((product) => (
+          <ProductCard key={product.id} {...product} />
+        ))}
+      </div>
       {campaignOwner && (
-        <Link
-          href={`/create-product?campaignId=${campaignId}`}
-          className="w-full md:w-auto flex justify-end mt-2"
-        >
-          <CustomButton className="py-2 md:py-4 hover:bg-lightBlueColor w-full md:w-auto">
-            Create new Product
-          </CustomButton>
-        </Link>
+        <div className="flex justify-end mt-6">
+          <Link href={`/create-product?campaignId=${campaignId}`}>
+            <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
+              Create new Product
+            </CustomButton>
+          </Link>
+        </div>
       )}
-    </div>
+    </Fragment>
   );
-}
+};
+
+export default CampaignProducts;

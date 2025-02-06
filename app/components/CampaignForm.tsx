@@ -5,11 +5,17 @@ import * as Yup from "yup";
 import { Steps } from "antd";
 import ImageSelector from "./ui/ImageSelector";
 import { NewCampaignInfo, FundingType, ProductOrService } from "../types";
-
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
+import { TiAttachment } from "react-icons/ti";
+import FundingTypeSelector from "./ui/FundingTypeSelector";
 const steps = [
   { title: "Project Info" },
   { title: "Description" },
   { title: "Financial Supply" },
+  { title: "Funding Type" },
+
   { title: "Review" },
 ];
 
@@ -43,13 +49,16 @@ const validationSchema = [
       .typeError("Fund amount must be a number")
       .required("Fund amount is required")
       .min(0.0000001, "Fund amount must be greater than 0"),
-    funding_type: Yup.string()
-      .oneOf(Object.values(FundingType))
-      .required("Funding type is required"),
+
     productOrService: Yup.string()
       .oneOf(Object.values(ProductOrService))
       .required("Product/Service type is required"),
     walletAddress: Yup.string().required("Wallet address is required"),
+  }),
+  Yup.object({
+    funding_type: Yup.string()
+      .oneOf(Object.values(FundingType))
+      .required("Please select a funding type"),
   }),
 ];
 
@@ -97,14 +106,16 @@ export default function CampaignForm(props: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
-  const [walletInfo, setWalletInfo] = useState<string | null>(null);
   const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
     FundingType.Limitless
   );
   const [selectedProductService, setSelectedProductService] =
     useState<ProductOrService>(ProductOrService.ProductOnly);
+  const router = useRouter();
+  const { address } = useAccount();
 
   const handleSubmit = async (values: typeof initialValues) => {
+    console.log(values);
     setIsPending(true);
     setSubmitError(null);
 
@@ -129,12 +140,12 @@ export default function CampaignForm(props: Props) {
 
     try {
       await onSubmit(projectData);
+      router;
     } catch (error) {
       setSubmitError("An unknown error occurred");
     } finally {
       setIsPending(false);
     }
-    console.log(submitError);
   };
   return (
     <Formik
@@ -142,7 +153,7 @@ export default function CampaignForm(props: Props) {
       validationSchema={validationSchema[currentStep]}
       onSubmit={handleSubmit}
     >
-      {({ validateForm, setFieldValue, submitForm }) => (
+      {({ validateForm, setFieldValue, submitForm, values }) => (
         <form
           onSubmit={(e) => e.preventDefault()}
           className="p-6 max-w-2xl mx-auto"
@@ -183,7 +194,7 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="title"
                 component="div"
-                className="text-redColor mb-2"
+                className="text-redColor/80 mb-2"
               />
               <h3 className="text-xl mb-2">Projects One Liner</h3>
               <Field
@@ -194,7 +205,7 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="one_liner"
                 component="div"
-                className="text-redColor mb-2"
+                className="text-redColor/80 mb-2"
               />
 
               <h3 className="text-xl mb-2">Logo</h3>
@@ -210,7 +221,7 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="logo"
                 component="div"
-                className="text-redColor mb-2"
+                className="text-redColor/80 mb-2"
               />
             </div>
           )}
@@ -234,7 +245,7 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="description"
                 component="div"
-                className="text-redColor mb-2"
+                className="text-redColor/80 mb-2"
               />
               <h3 className="text-xl mb-2">Projects Location</h3>
               <Field
@@ -245,7 +256,7 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="location"
                 component="div"
-                className="text-redColor mb-2"
+                className="text-redColor/80 mb-2"
               />
               <h3 className="text-xl mb-2">Projects Deadline</h3>
               <Field
@@ -257,7 +268,7 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="deadline"
                 component="div"
-                className="text-redColor mb-2"
+                className="text-redColor/80 mb-2"
               />
               <div className="flex items-center mb-2">
                 <h3 className="text-xl mr-2">Social Links</h3>
@@ -299,32 +310,7 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="fundAmount"
                 component="div"
-                className="text-red-500 mb-2"
-              />
-
-              <h3 className="text-xl mb-2">Funding Type</h3>
-              <Field
-                as="select"
-                name="fundingType"
-                className="block w-full p-2 border border-gray-300  rounded mb-2 focus:outline-none"
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setFieldValue("fundingType", e.target.value);
-                  setSelectedFundingType(e.target.value as FundingType);
-                }}
-              >
-                {Object.values(FundingType).map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </Field>
-              <p className="text-sm text-gray-600 mb-4 italic">
-                {fundingTypeDescriptions[selectedFundingType]}
-              </p>
-              <ErrorMessage
-                name="fundingType"
-                component="div"
-                className="text-red-500 mb-2"
+                className="text-redColor/80 mb-2"
               />
 
               <h3 className="text-xl mb-2">Product or Service Type</h3>
@@ -349,25 +335,60 @@ export default function CampaignForm(props: Props) {
               <ErrorMessage
                 name="productOrService"
                 component="div"
-                className="text-red-500 mb-2"
+                className="text-redColor/80 mb-2"
               />
 
               <h3 className="text-xl mb-2">Wallet Address for Funds</h3>
-              <Field
-                name="walletAddress"
-                type="text"
-                placeholder="Wallet Address to receive funds"
-                className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
-              />
+              <div className="flex gap-2 relative">
+                <Field
+                  name="walletAddress"
+                  type="text"
+                  placeholder="Wallet Address to receive funds"
+                  className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setFieldValue("walletAddress", address)}
+                  className="group relative px-2 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 h-[42px] flex items-center justify-center"
+                >
+                  <TiAttachment
+                    className="w-8 h-8 "
+                    style={{ fill: "white" }}
+                  />
+                  <span className="invisible group-hover:visible absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded whitespace-nowrap">
+                    Use Connected Wallet
+                  </span>
+                </button>
+              </div>
               <ErrorMessage
                 name="walletAddress"
                 component="div"
-                className="text-red-500 mb-2"
+                className="text-redColor/80 mb-2"
               />
             </div>
           )}
 
           {currentStep === 3 && (
+            <div>
+              <h2 className="text-2xl mb-2">Choose Your Funding Type</h2>
+              <p className="text-md mb-8 font-thin">
+                Select the funding model that best fits your project`s needs.
+              </p>
+
+              <FundingTypeSelector
+                setFieldValue={setFieldValue}
+                value={values.funding_type}
+              />
+
+              <ErrorMessage
+                name="funding_type"
+                component="div"
+                className="text-redColor/80 mt-4"
+              />
+            </div>
+          )}
+
+          {currentStep === 4 && (
             <div>
               <h2 className="text-2xl mb-2">Review</h2>
               <p className="text-md mb-8 font-thin">
@@ -377,11 +398,11 @@ export default function CampaignForm(props: Props) {
                 submission.
               </p>
               {submitError && (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+                <div className="mb-6 p-4 bg-red-50 border-l-4 border-redColor rounded-r">
                   <div className="flex">
                     <div className="flex-shrink-0">
                       <svg
-                        className="h-5 w-5 text-red-400"
+                        className="h-5 w-5 text-redColor/80"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -393,10 +414,10 @@ export default function CampaignForm(props: Props) {
                       </svg>
                     </div>
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">
+                      <h3 className="text-sm font-medium text-redColor/80">
                         Error Creating Campaign
                       </h3>
-                      <div className="mt-2 text-sm text-red-700">
+                      <div className="mt-2 text-sm text-redColor/80">
                         {submitError}
                       </div>
                     </div>
@@ -431,7 +452,7 @@ export default function CampaignForm(props: Props) {
                 disabled={isPending}
               >
                 {isPending ? (
-                  <div className="flex items-center">
+                  <div className="flex items-center text-white">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                       xmlns="http://www.w3.org/2000/svg"
@@ -466,6 +487,12 @@ export default function CampaignForm(props: Props) {
                     console.log("Validation Errors:", errors);
                     if (Object.keys(errors).length === 0) {
                       setCurrentStep((prev) => prev + 1);
+                    } else {
+                      Object.entries(errors).forEach(([field, error]) => {
+                        toast.error(`${field}: ${error}`, {
+                          autoClose: 3000,
+                        });
+                      });
                     }
                   })
                 }

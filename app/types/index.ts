@@ -45,6 +45,7 @@ export interface CampaignDetailsProps {
   token_address: string;
   wallet_address: string;
   status: Status;
+  products: Product[];
 }
 enum Status {
   Active = "active",
@@ -53,7 +54,7 @@ enum Status {
 }
 export enum FundingType {
   Limitless = "Limitless",
-  AllOrNothing = "All or Nothing",
+  AllOrNothing = "AllOrNothing",
   Flexible = "Flexible",
 }
 export enum ProductOrService {
@@ -91,6 +92,24 @@ export interface NewCampaignInfo {
   product_or_service: ProductOrService;
 }
 
+export interface FetchCampaignsProps {
+  _id: string;
+  title: string;
+  user_id: string;
+  description: string;
+  one_liner: string;
+  location: string;
+  deadline: number;
+  is_verified: boolean;
+  social_links: SocialLinks;
+  fundAmount: number;
+  logo: File;
+  wallet_address: string;
+  token_address: string;
+  funding_type: FundingType;
+  evm_wa: string;
+  product_or_service: ProductOrService;
+}
 export interface AboutData {
   image: string;
   header: string;
@@ -120,17 +139,20 @@ export type WalletDetails = {
 
 export interface Product {
   id: string;
+  campaignId: string;
+  userId: string;
   image: string;
   name: string;
-  details: string;
+  description: string;
   price: number;
+  status: string;
   supply: number;
 }
 
 export interface NewProductInfo {
   image: string;
   name: string;
-  details: string;
+  description: string;
   price: number;
   supply: number;
 }
