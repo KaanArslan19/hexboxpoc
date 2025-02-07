@@ -48,7 +48,7 @@ export async function uploadImageToR2(file: File) {
   return logoFileName;
 }
 
-export async function uploadProductImageToR2(file: File) {
+export async function uploadProductImageToR2(file: File, uuid: string) {
   // Validate file type
   const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
   if (!allowedTypes.includes(file.type)) {
@@ -67,9 +67,9 @@ export async function uploadProductImageToR2(file: File) {
   }
 
   // Generate unique ID for the image
-  const uniqueId = uuidv4();
+  //const uniqueId = uuidv4();
   const fileExtension = file.name.split(".").pop();
-  const logoFileName = `${uniqueId}.${fileExtension}`;
+  const logoFileName = `${uuid}.${fileExtension}`;
   const logoFileDir = `product_logos/${logoFileName}`;
 
   // Upload to S3

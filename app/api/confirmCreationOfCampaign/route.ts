@@ -210,7 +210,7 @@ export const POST = async (req: NextRequest) => {
           ],
           [
             [
-              result.name,
+              result.title,
               "0x",
               fundraiserAddress,
               300000,

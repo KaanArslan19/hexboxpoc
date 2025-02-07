@@ -5,6 +5,7 @@ import { CONTRACTS } from "@/app/utils/contracts/contracts";
 import { ethers } from "ethers";
 import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
+import { uploadImageToR2 } from "@/app/utils/imageUpload";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -27,12 +28,12 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
 
     // Get the logo file from form data
-    // const logoFile = formData.get("logo") as File;
-    // if (!logoFile) {
-    //   return NextResponse.json({ error: "Logo is required" }, { status: 400 });
-    // }
+    const logoFile = formData.get("logo") as File;
+    if (!logoFile) {
+      return NextResponse.json({ error: "Logo is required" }, { status: 400 });
+    }
 
-    const logoFileName = "logo.png"; //await uploadImageToR2(logoFile);
+    const logoFileName = await uploadImageToR2(logoFile);
     const campaignEntries = Object.fromEntries(formData.entries());
     console.log("campaignEntries----", campaignEntries);
 

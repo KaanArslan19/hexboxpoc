@@ -1,6 +1,9 @@
 import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { uploadProductImageToR2 } from "@/app/utils/imageUpload"; // Reused from your campaign
+import { uploadProductMetadataToR2 } from "@/app/utils/metadataUpload";
+
+
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
     /* const session = await getServerSession(authOptions);
@@ -23,12 +26,15 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       return NextResponse.json({ error: "Image is required" }, { status: 400 });
     }
 
-    const imageFileName = await uploadProductImageToR2(productImageFile);
+    const uuid = Math.floor(Math.random()*1E16) // random 16 digit number for the product
+
+    const imageFileName = await uploadProductImageToR2(productImageFile, uuid.toString());
 
     const productEntries = Object.fromEntries(formData.entries());
     console.log("productEntries----", productEntries);
 
     let product = {
+      productId: uuid,
       userId: productEntries.userId,
       campaignId: productEntries.campaignId,
       name: productEntries.name,
@@ -41,6 +47,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     };
 
     console.log("CREATE-PRODUCT ROUTE", product);
+
+    const metadata = await uploadProductMetadataToR2(product);
+    console.log("METADATA", metadata);
 
     const mdbClient = client;
     const db = mdbClient.db("hexbox_poc");

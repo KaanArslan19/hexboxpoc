@@ -62,16 +62,16 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   }));
   const modifiedProps: TokenDetailsProps &
     WalletDetails & { wallet_address: string } = {
-    name: tokenDetails!.name,
-    supply: tokenDetails!.supply,
-    available_supply: tokenDetails!.available_supply,
-    price: tokenDetails!.price,
-    holders: mappedHolders,
-    transactions: mappedTransactions,
-    _id: tokenDetails!._id.toString(),
-    wallet_address,
-    total_funds: walletDetails!.total_funds,
-    token_address: walletDetails!.token_address,
+    name: "test", //tokenDetails!.name,
+    supply: 1000000, //tokenDetails!.supply,
+    available_supply: 1000000, //tokenDetails!.available_supply,
+    price: 1, //tokenDetails!.price,
+    holders: [{address: "0x123", balance: 1000000}], //mappedHolders,
+    transactions: [{address: "0x123", type: "buy", amount: 1000000, timestamp: new Date()}], //mappedTransactions,
+    _id: "123", //tokenDetails!._id.toString(),
+    wallet_address: "0x123", //walletDetails!.wallet_address,
+    total_funds: 1000000, //walletDetails!.total_funds,
+    token_address: "0x123", //walletDetails!.token_address,
   };
 
   const tabItems = [
@@ -110,7 +110,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           proposals={simplifiedProposals}
           holders={mappedHolders}
           businessWallet={wallet_address}
-          supply={tokenDetails!.supply}
+          supply={1000000} //tokenDetails!.supply,
         />
       ),
     },
@@ -225,7 +225,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         </div>
         <div className="lg:col-span-1 flex justify-center">
           <BuyingOption
-            pricePerToken={tokenDetails!.price}
+            pricePerToken={1} //tokenDetails!.price,
             user={user_id}
             campaign_id={_id}
           />
