@@ -6,6 +6,7 @@ import { ethers } from "ethers";
 import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
+import { createProduct } from "@/app/utils/poc_utils/createProduct";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -98,21 +99,22 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       provider
     );
 
-    const testProducts = [
+    const dummyProduct = new FormData()
+    dummyProduct.append("image", logoFile);
+    dummyProduct.append("userId", creatorWalletAddress as string);
+    dummyProduct.append("campaignId", campaignId);
+    dummyProduct.append("name", `${campaignEntries.title} Donation`);
+    dummyProduct.append("description", `${campaignEntries.name} Donation product if you want to support the project without purchasing their products/services.`);
+    dummyProduct.append("price", "1");
+    dummyProduct.append("supply", "0");
+
+    const [productId, price, supply] = await createProduct(dummyProduct);
+
+    const products = [
       {
-        productId: 9837413,
-        price: 1_000000, // 1 USDC
-        supplyLimit: 100, // Limited to 100
-      },
-      {
-        productId: 7823310,
-        price: 2_000000, // 2 USDC
-        supplyLimit: 0, // Unlimited supply
-      },
-      {
-        productId: 6453789,
-        price: 3_000000, // 3 USDC
-        supplyLimit: 200, // Limited to 200
+        productId: productId,
+        price: ethers.parseUnits(price.toString(), 6), // 1 USDC
+        supplyLimit: supply as unknown as number, // Limited to 100
       },
     ];
 
@@ -125,7 +127,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         1, //placeholder data for funding type
         ethers.parseUnits(campaign.fund_amount.toString(), 6), //placeholder data for minimum target
         campaignEntries.deadline, //placeholder data for deadline
-        testProducts,
+        products,
       ]
     );
 
