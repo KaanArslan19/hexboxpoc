@@ -4,14 +4,62 @@ import CampaignForm from "@/app/components/CampaignForm";
 import useIsAuth from "@/app/lib/auth/hooks/useIsAuth";
 import { NewCampaignInfo } from "@/app/types";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
+import { createCampaignTransaction } from "@/app/utils/poc_utils/campaignCreationTransaction";
+import { useTransaction } from "@/app/hooks/useTransaction";
+
 export default function CreateProject() {
   const router = useRouter();
   const { isAuth } = useIsAuth();
   const { address } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
+  //const { data: walletClient } = useWalletClient();
+  //const publicClient = usePublicClient();
+  const [data, setData] = useState<any>(null);  // Store API response data
+  
+  const { sendTransaction, isLoading, error } = useTransaction({
+    onSuccess: async (hash, responseData) => {
+      const campaignCreationData = await createCampaignTransaction({
+        hash,
+        campaignId: responseData.campaignId
+      });
+      
+      if (campaignCreationData.success) {
+        router.push("/campaigns");
+      }
+    },
+    onError: async (error, responseData) => {
+      console.error("Campaign creation failed:", error);
+      
+      // Clean up the campaign from database
+      if (responseData?.campaignId) {
+        try {
+          console.log("Attempting to delete campaign:", responseData.campaignId);
+          const cleanupResponse = await fetch("/api/deleteCampaign", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("hexbox_auth")}`
+            },
+            body: JSON.stringify({
+              campaignId: responseData.campaignId
+            }),
+          });
+
+          console.log("Cleanup response status:", cleanupResponse.status);
+          const cleanupData = await cleanupResponse.json();
+          console.log("Cleanup response data:", cleanupData);
+          
+          if (!cleanupData.success) {
+            console.error("Failed to clean up campaign:", cleanupData.error);
+          }
+        } catch (cleanupError) {
+          console.error("Error cleaning up campaign:", cleanupError);
+        }
+      }
+    }
+  });
 
   if (!isAuth) {
     return (
@@ -23,6 +71,7 @@ export default function CreateProject() {
       </div>
     );
   }
+
   const handleCreateProject = async (values: NewCampaignInfo) => {
     try {
       const formData = new FormData();
@@ -45,52 +94,45 @@ export default function CreateProject() {
         body: formData,
       });
 
-      const data = await firstResponse.json();
-      if (!data.transaction) {
+      const responseData = await firstResponse.json();
+      if (!responseData.transaction) {
         throw new Error("Failed to create campaign");
       }
 
-      // Send the transaction
-      const hash = await walletClient?.sendTransaction({
-        ...data.transaction,
+      // Store the response data
+      console.log("responseData");
+      console.log(responseData);
+      console.log("----");
+      setData(responseData);
+      console.log("data");
+      console.log(data);
+
+      // Pass both transaction and response data
+      await sendTransaction({
+        ...responseData.transaction,
         account: address,
-      });
-      console.log(hash);
+      }, responseData);
 
-      // Wait for transaction confirmation
-      const receipt = await publicClient?.waitForTransactionReceipt({
-        hash: hash as `0x${string}`,
-        timeout: 60_000,
-        onReplaced: (replacement) => {
-          console.log("Transaction replaced:", replacement);
-        },
-      });
-      console.log(receipt);
-      console.log("start 2nd");
-      const secondResponse = await fetch("/api/confirmCreationOfCampaign", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Make sure this header is set
-        },
-        body: JSON.stringify({
-          // Properly stringify the body
-          transactionHash: hash,
-          status: "success",
-          campaignId: data.campaignId,
-        }),
-      });
-      console.log("done 2nd");
-      const secondData = await secondResponse.json();
-      console.log(secondData);
-
-      //router.push("/campaigns");
     } catch (error) {
       console.error("Error creating campaign:", error);
     }
   };
 
   return (
-    <div>
+    <div className="relative">
+      {error && (
+        <div className="text-red-500 mb-4">
+          {error}
+        </div>
+      )}
+      {isLoading && (
+        <>
+          <div className="fixed top-0 left-0 w-full bg-blue-500 text-white p-2 text-center z-50">
+            Transaction in progress...
+          </div>
+          <div className="absolute inset-0 bg-white/50 cursor-not-allowed z-40" />
+        </>
+      )}
       <CampaignForm onSubmit={handleCreateProject} />
     </div>
   );
