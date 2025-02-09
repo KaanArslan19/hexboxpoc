@@ -99,16 +99,16 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       provider
     );
 
-    const dummyProduct = new FormData()
-    dummyProduct.append("image", logoFile);
-    dummyProduct.append("userId", creatorWalletAddress as string);
-    dummyProduct.append("campaignId", campaignId);
-    dummyProduct.append("name", `${campaignEntries.title} Donation`);
-    dummyProduct.append("description", `${campaignEntries.name} Donation product if you want to support the project without purchasing their products/services.`);
-    dummyProduct.append("price", "1");
-    dummyProduct.append("supply", "0");
+    const donationProduct = new FormData()
+    donationProduct.append("image", logoFile);
+    donationProduct.append("userId", creatorWalletAddress as string);
+    donationProduct.append("campaignId", campaignId);
+    donationProduct.append("name", `${campaignEntries.title} Donation`);
+    donationProduct.append("description", `${campaignEntries.title} Donation product if you want to support the project without purchasing their products/services.`);
+    donationProduct.append("price", "1");
+    donationProduct.append("supply", "0");
 
-    const [productId, price, supply] = await createProduct(dummyProduct);
+    const [productId, price, supply] = await createProduct(donationProduct);
 
     const products = [
       {
