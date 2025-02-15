@@ -19,6 +19,7 @@ export const getProduct = async (
 
     const formattedProduct: Product = {
       id: product._id.toString(),
+      productId: product.productId || "", 
       userId: product.userId || "",
       status: product.status || "",
       campaignId: product.campaignId || "",

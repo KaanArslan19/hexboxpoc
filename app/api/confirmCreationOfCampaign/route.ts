@@ -4,9 +4,12 @@ import { ethers } from "ethers";
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
 import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductToken.sol/ProductToken.json";
 import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
+
+import type { ProductToken } from "@/app/utils/typechain-types";
 
 interface IERC20 {
   transfer(to: string, amount: bigint): Promise<any>;
@@ -154,6 +157,18 @@ export const POST = async (req: NextRequest) => {
       interface: ethers.Interface;
     };
 
+    const productToken = new ethers.Contract(
+      CONTRACTS.ProductToken.fuji,
+      ProductTokenABI.abi,
+      provider
+    ).connect(deployer) as unknown as ProductToken;
+
+    const grantRole = await productToken.grantRole(
+      await productToken.MINTER_ROLE(),
+      fundraiserAddress
+    );
+    console.log("Grant role:", grantRole);
+
     const linkToken = new ethers.Contract(
       CONTRACTS.LINK.fuji,
       [
@@ -245,8 +260,8 @@ export const POST = async (req: NextRequest) => {
           {
             $set: {
               configured: true,
-              upkeepID: upkeepID.toString(),
-              fundraiserAddress: fundraiserAddress,
+              upkeep_id: upkeepID.toString(),
+              fundraiser_address: fundraiserAddress,
             },
           }
         );

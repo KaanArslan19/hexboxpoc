@@ -139,6 +139,7 @@ export type WalletDetails = {
 
 export interface Product {
   id: string;
+  productId: string;
   campaignId: string;
   userId: string;
   image: string;
