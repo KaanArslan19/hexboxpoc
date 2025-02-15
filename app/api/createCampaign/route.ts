@@ -112,9 +112,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     const products = [
       {
-        productId: productId,
+        productId: BigInt(productId as string),
         price: ethers.parseUnits(price.toString(), 6), // 1 USDC
-        supplyLimit: supply as unknown as number, // Limited to 100
+        supplyLimit: BigInt(supply as string), // Limited to 100
       },
     ];
 
