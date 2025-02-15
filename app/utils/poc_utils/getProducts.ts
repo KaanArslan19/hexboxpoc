@@ -30,6 +30,7 @@ export const getProducts = async (campaignId: string): Promise<Product[]> => {
       description: product.description || "",
       price: Number(product.price) || 0,
       supply: Number(product.supply) || 0,
+      productId: product.productId || 0
     }));
 
     return formattedProducts;
