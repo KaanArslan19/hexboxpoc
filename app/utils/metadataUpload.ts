@@ -28,7 +28,7 @@ export async function uploadProductMetadataToR2(productMetadata: any) {
         ]
     }
 
-    const jsn = JSON.stringify(productMetadata);
+    const jsn = JSON.stringify(productMetadataStructure);
     const blob = new Blob([jsn], { type: 'application/json' });
     const file = new File([ blob ], 'file.json');
 
