@@ -3,10 +3,13 @@ import Image from "next/image";
 import { Product } from "@/app/types";
 import Link from "next/link";
 import CustomButton from "./ui/CustomButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useWalletClient } from "wagmi"; // Import useAccount and useWalletClient for wallet connection check
 import { ethers } from "ethers";
 import { CONTRACTS, ABIS } from "@/app/utils/contracts/contracts";
+import type { ProductToken } from "@/app/utils/typechain-types";
+import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductToken.sol/ProductToken.json";
+import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 
 interface CampaignProductsProps {
   product: Product;
@@ -15,6 +18,8 @@ interface CampaignProductsProps {
 const ProductDetails = ({ product }: CampaignProductsProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [isRefunding, setIsRefunding] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState<bigint>(BigInt(0));
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
   //const [campaignAddress, setCampaignAddress] = useState<string | null>(null);
@@ -62,7 +67,6 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
     try {
       setIsApproving(true);
       const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
-
 
       const usdcContract = new ethers.Contract(
         CONTRACTS.USDC.fuji,
@@ -154,6 +158,8 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
 
       if (receipt?.status === 1) {
         alert("Successfully backed the project!");
+        // Refresh token balance after successful purchase
+        await checkTokenBalance(_campaignAddress);
       } else {
         throw new Error("Transaction failed");
       }
@@ -165,7 +171,87 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
     }
   };
 
-  console.log(product);
+  // Add function to check token balance
+  const checkTokenBalance = async (campaignAddress: string) => {
+    try {
+      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+      const productTokenContract = new ethers.Contract(
+        CONTRACTS.ProductToken.fuji,
+        ProductTokenABI.abi,
+        provider
+      ) as unknown as ProductToken;
+
+      const balance = await productTokenContract.balanceOf(address!, product.productId);
+      setTokenBalance(balance);
+      return balance > 0;
+    } catch (error) {
+      console.error("Error checking token balance:", error);
+      return false;
+    }
+  };
+
+  const handleRefund = async () => {
+    if (!isConnected || !walletClient) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    try {
+      setIsRefunding(true);
+      const campaignAddress = await getCampaignAddress();
+      
+      // Check if user has tokens to refund
+      const hasTokens = await checkTokenBalance(campaignAddress);
+      if (!hasTokens) {
+        throw new Error("No tokens available to refund");
+      }
+
+      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+      const contract = new ethers.Contract(
+        campaignAddress,
+        USDCFundraiserABI.abi,
+        provider
+      );
+
+      // Encode the refund function call
+      const txData = contract.interface.encodeFunctionData("claimRefund", [
+        BigInt(product.productId),
+        BigInt(1) // Refund 1 token for now, could be made variable
+      ]);
+
+      const hash = await walletClient.sendTransaction({
+        to: campaignAddress as `0x${string}`,
+        data: txData as `0x${string}`,
+      });
+
+      const receipt = await provider.waitForTransaction(hash);
+
+      if (receipt?.status === 1) {
+        alert("Successfully refunded!");
+        // Refresh token balance after successful refund
+        await checkTokenBalance(campaignAddress);
+      } else {
+        throw new Error("Refund transaction failed");
+      }
+    } catch (error) {
+      console.error("Error refunding:", error);
+      alert(error instanceof Error ? error.message : "Failed to refund. Please try again.");
+    } finally {
+      setIsRefunding(false);
+    }
+  };
+
+  useEffect(() => {
+    const updateTokenBalance = async () => {
+      if (isConnected && address) {
+        const campaignAddress = await getCampaignAddress();
+        await checkTokenBalance(campaignAddress);
+      }
+    };
+
+    updateTokenBalance();
+  }, [address, isConnected, product.productId]); // Dependencies array includes address and product ID
+
   return (
     <main className="p-8 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -213,6 +299,17 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
                    isLoading ? 'Processing...' : 'Back this Project'}
                 </CustomButton>
               </Link>
+              {tokenBalance > 0 && (
+                <CustomButton
+                  onClick={handleRefund}
+                  disabled={isRefunding}
+                  className={`py-2 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto mt-2 ${
+                    isRefunding ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isRefunding ? 'Processing Refund...' : 'Request Refund'}
+                </CustomButton>
+              )}
             </div>
           </div>
         </div>
