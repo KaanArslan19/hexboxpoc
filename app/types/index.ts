@@ -40,6 +40,8 @@ export interface CampaignDetailsProps {
   one_liner: string;
   location: string;
   deadline: number;
+  funding_type: FundingType;
+  product_or_service: ProductOrService;
   social_links: SocialLinks;
   background_image: string;
   token_address: string;
@@ -56,11 +58,6 @@ export enum FundingType {
   Limitless = "Limitless",
   AllOrNothing = "AllOrNothing",
   Flexible = "Flexible",
-}
-export enum ProductOrService {
-  ProductOnly = "Only Product",
-  ServiceOnly = "Only Service",
-  ProductAndService = "Product and Service",
 }
 
 export interface CampaignItemProps {
@@ -89,7 +86,7 @@ export interface NewCampaignInfo {
   logo: File;
   walletAddress: string;
   funding_type: FundingType;
-  product_or_service: ProductOrService;
+  productOrService: ProductOrService;
 }
 
 export interface FetchCampaignsProps {
@@ -155,5 +152,65 @@ export interface NewProductInfo {
   name: string;
   description: string;
   price: number;
+  supply: number;
+}
+
+export enum ProductOrService {
+  ProductOnly = "ProductOnly",
+  ServiceOnly = "ServiceOnly",
+  ProductAndService = "ProductAndService",
+}
+export enum ProductCategory {
+  TECH = "Tech & Innovation",
+  ART = "Art & Creative",
+  GAMING = "Gaming & Esports",
+  DEFI = "DeFi & Finance",
+  NFT = "NFT & Collectibles",
+  HEALTH = "Health & Well-being",
+  EDUCATION = "Education & Research",
+  SOCIAL_IMPACT = "Social Impact & Charity",
+  ENVIRONMENT = "Environment & Sustainability",
+  WEB3 = "Web3 Infrastructure",
+  AI = "Artificial Intelligence",
+  DAO = "Decentralized Autonomous Organizations",
+  METAVERSE = "Metaverse & Virtual Worlds",
+  MUSIC = "Music & Entertainment",
+  FILM = "Film & Video",
+  HARDWARE = "Hardware & Gadgets",
+  REAL_ESTATE = "Real Estate & Tokenized Assets",
+  SPORTS = "Sports & Fitness",
+  FASHION = "Fashion & Wearables",
+  FOOD = "Food & Beverages",
+}
+
+export interface ProductNew {
+  manufacturerId: string;
+  name: string;
+  type: ProductOrService;
+  countryOfOrigin: string;
+  category: { name: ProductCategory };
+
+  description: string;
+  price: {
+    amount: number;
+    tax_inclusive: boolean;
+    gst_rate: number;
+    gst_amount: number;
+  };
+  inventory: {
+    stock_level: number;
+  };
+  freeShipping: boolean;
+  productReturnPolicy: {
+    eligible: boolean;
+    return_period_days: number;
+    conditions: string;
+  };
+  campaignId: string;
+  userId: string;
+  logo: string;
+  images: File[];
+
+  status: string;
   supply: number;
 }
