@@ -47,7 +47,7 @@ export interface CampaignDetailsProps {
   token_address: string;
   wallet_address: string;
   status: Status;
-  products: Product[];
+  products: ProductFetch[];
 }
 enum Status {
   Active = "active",
@@ -134,15 +134,35 @@ export type WalletDetails = {
   token_address: string;
 };
 
-export interface Product {
+export interface ProductFetch {
   id: string;
-  productId: string;
+  manufacturerId: string;
+  name: string;
+  type: ProductOrService;
+  countryOfOrigin: string;
+  category: { name: ProductCategory };
+
+  description: string;
+  price: {
+    amount: number;
+    tax_inclusive: boolean;
+    gst_rate: number;
+    gst_amount: number;
+  };
+  inventory: {
+    stock_level: number;
+  };
+  freeShipping: boolean;
+  productReturnPolicy: {
+    eligible: boolean;
+    return_period_days: number;
+    conditions: string;
+  };
   campaignId: string;
   userId: string;
-  image: string;
-  name: string;
-  description: string;
-  price: number;
+  logo: string;
+  images: File[];
+
   status: string;
   supply: number;
 }

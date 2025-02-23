@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { TiAttachment } from "react-icons/ti";
 import FundingTypeSelector from "./ui/FundingTypeSelector";
+import { productServiceDisplayNames } from "../lib/auth/utils/productServiceDisplayNames";
 const steps = [
   { title: "Project Info" },
   { title: "Description" },
@@ -49,10 +50,16 @@ const validationSchema = [
       .typeError("Fund amount must be a number")
       .required("Fund amount is required")
       .min(0.0000001, "Fund amount must be greater than 0"),
-
     productOrService: Yup.string()
-      .oneOf(Object.values(ProductOrService))
-      .required("Product/Service type is required"),
+      .required("Product/Service type is required")
+      .oneOf(
+        [
+          ProductOrService.ProductOnly,
+          ProductOrService.ServiceOnly,
+          ProductOrService.ProductAndService,
+        ],
+        "Invalid product/service type"
+      ),
     walletAddress: Yup.string().required("Wallet address is required"),
   }),
   Yup.object({
@@ -76,21 +83,13 @@ const initialValues = {
   website: "",
   linkedIn: "",
   funding_type: FundingType.Limitless,
-  product_or_service: ProductOrService.ProductOnly,
+  productOrService: ProductOrService.ProductOnly,
 };
-
+console.log("Product OR Service--", initialValues.productOrService);
 interface Props {
   onSubmit(values: NewCampaignInfo): void;
   onImageRemove?(source: string): void;
 }
-const fundingTypeDescriptions = {
-  [FundingType.Limitless]:
-    "No funding cap. Continue receiving funds until the deadline, regardless of the target amount.",
-  [FundingType.AllOrNothing]:
-    "You'll only receive the funds if the target amount is reached by the deadline. If not met, all funds are returned to backers.",
-  [FundingType.Flexible]:
-    "Keep all funds raised, even if you don't reach your target amount by the deadline.",
-};
 
 const productServiceDescriptions = {
   [ProductOrService.ProductOnly]:
@@ -110,8 +109,7 @@ export default function CampaignForm(props: Props) {
     FundingType.Limitless
   );
   const [selectedProductService, setSelectedProductService] =
-    useState<ProductOrService>(ProductOrService.ProductOnly);
-  const router = useRouter();
+    useState<ProductOrService>(initialValues.productOrService);
   const { address } = useAccount();
 
   const handleSubmit = async (values: typeof initialValues) => {
@@ -135,12 +133,11 @@ export default function CampaignForm(props: Props) {
       },
       walletAddress: values.walletAddress,
       funding_type: values.funding_type as FundingType,
-      product_or_service: values.product_or_service as ProductOrService,
+      productOrService: values.productOrService as ProductOrService,
     };
 
     try {
       await onSubmit(projectData);
-      router;
     } catch (error) {
       setSubmitError("An unknown error occurred");
     } finally {
@@ -151,6 +148,8 @@ export default function CampaignForm(props: Props) {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema[currentStep]}
+      enableReinitialize={true}
+      validateOnMount={true}
       onSubmit={handleSubmit}
     >
       {({ validateForm, setFieldValue, submitForm, values }) => (
@@ -318,12 +317,13 @@ export default function CampaignForm(props: Props) {
                 as="select"
                 name="productOrService"
                 className="block w-full p-2 border border-gray-300  rounded mb-2 focus:outline-none"
+                value={values.productOrService}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                   setFieldValue("productOrService", e.target.value);
                   setSelectedProductService(e.target.value as ProductOrService);
                 }}
               >
-                {Object.values(ProductOrService).map((type) => (
+                {Object.values(productServiceDisplayNames).map((type) => (
                   <option key={type} value={type}>
                     {type}
                   </option>
@@ -484,6 +484,7 @@ export default function CampaignForm(props: Props) {
                 type="button"
                 onClick={() =>
                   validateForm().then((errors) => {
+                    console.log("Current form values:", values);
                     console.log("Validation Errors:", errors);
                     if (Object.keys(errors).length === 0) {
                       setCurrentStep((prev) => prev + 1);

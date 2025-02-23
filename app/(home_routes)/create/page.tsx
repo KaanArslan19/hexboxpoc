@@ -15,42 +15,45 @@ export default function CreateProject() {
   const { address } = useAccount();
   //const { data: walletClient } = useWalletClient();
   //const publicClient = usePublicClient();
-  const [data, setData] = useState<any>(null);  // Store API response data
-  
+  const [data, setData] = useState<any>(null); // Store API response data
+
   const { sendTransaction, isLoading, error } = useTransaction({
     onSuccess: async (hash, responseData) => {
       const campaignCreationData = await createCampaignTransaction({
         hash,
-        campaignId: responseData.campaignId
+        campaignId: responseData.campaignId,
       });
-      
+
       if (campaignCreationData.success) {
         router.push("/campaigns");
       }
     },
     onError: async (error, responseData) => {
       console.error("Campaign creation failed:", error);
-      
+
       // Clean up the campaign from database
       if (responseData?.campaignId) {
         try {
-          console.log("Attempting to delete campaign:", responseData.campaignId);
+          console.log(
+            "Attempting to delete campaign:",
+            responseData.campaignId
+          );
           const cleanupResponse = await fetch("/api/deleteCampaign", {
             method: "POST",
             credentials: "include",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${localStorage.getItem("hexbox_auth")}`
+              Authorization: `Bearer ${localStorage.getItem("hexbox_auth")}`,
             },
             body: JSON.stringify({
-              campaignId: responseData.campaignId
+              campaignId: responseData.campaignId,
             }),
           });
 
           console.log("Cleanup response status:", cleanupResponse.status);
           const cleanupData = await cleanupResponse.json();
           console.log("Cleanup response data:", cleanupData);
-          
+
           if (!cleanupData.success) {
             console.error("Failed to clean up campaign:", cleanupData.error);
           }
@@ -58,7 +61,7 @@ export default function CreateProject() {
           console.error("Error cleaning up campaign:", cleanupError);
         }
       }
-    }
+    },
   });
 
   if (!isAuth) {
@@ -79,15 +82,13 @@ export default function CreateProject() {
       formData.append("description", values.description);
       formData.append("fund_amount", values.fundAmount.toString());
       formData.append("logo", values.logo);
+      formData.append("location", values.location);
       formData.append("wallet_address", values.walletAddress);
       formData.append("deadline", values.deadline.toString());
       formData.append("one_liner", values.one_liner);
       formData.append("social_links", values.social_links.toString());
       formData.append("funding_type", values.funding_type.toString());
-      formData.append(
-        "product_or_service",
-        values.product_or_service.toString()
-      );
+      formData.append("product_or_service", values.productOrService.toString());
       console.log(formData);
       const firstResponse = await fetch("/api/createCampaign", {
         method: "POST",
@@ -108,11 +109,13 @@ export default function CreateProject() {
       console.log(data);
 
       // Pass both transaction and response data
-      await sendTransaction({
-        ...responseData.transaction,
-        account: address,
-      }, responseData);
-
+      await sendTransaction(
+        {
+          ...responseData.transaction,
+          account: address,
+        },
+        responseData
+      );
     } catch (error) {
       console.error("Error creating campaign:", error);
     }
@@ -120,11 +123,7 @@ export default function CreateProject() {
 
   return (
     <div className="relative">
-      {error && (
-        <div className="text-red-500 mb-4">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
       {isLoading && (
         <>
           <div className="fixed top-0 left-0 w-full bg-blue-500 text-white p-2 text-center z-50">

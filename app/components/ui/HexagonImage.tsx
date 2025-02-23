@@ -33,7 +33,7 @@ const HexagonImage: FC<HexagonImageProps> = ({
   return (
     <div className={`relative ${className}`}>
       <div
-        className="relative"
+        className="relative bg-lightBlueColor"
         style={{
           width: `${adjustedSize}px`,
           height: `${hexHeight}px`,

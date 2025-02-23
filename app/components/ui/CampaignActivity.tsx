@@ -38,7 +38,7 @@ export default function CampaignActivity({
 
   return (
     <div>
-      <h2 className="text-xl lg:text-2xl mt-4 mb-2 text-center">
+      <h2 className="text-xl md:text-2xl mt-4 mb-2 text-center">
         Latest Transactions
       </h2>
       <Table

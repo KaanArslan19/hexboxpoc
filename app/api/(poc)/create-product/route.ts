@@ -1,6 +1,9 @@
 import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
-import { uploadProductImageToR2 } from "@/app/utils/imageUpload"; // Reused from your campaign
+import {
+  uploadProductImageToR2,
+  uploadProductImagesToR2,
+} from "@/app/utils/imageUpload";
 import { uploadProductMetadataToR2 } from "@/app/utils/metadataUpload";
 import { createProduct } from "@/app/utils/poc_utils/createProduct";
 
@@ -20,44 +23,57 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
+    console.log("formDAta BACKEND--", formData);
+    const uuid = Math.floor(Math.random() * 1e16); // random 16 digit number for the product
 
-    const productId = await createProduct(formData);
+    const productImagesFiles = formData.getAll("images") as File[];
+    const productLogoFile = formData.get("logo") as File;
+    const logoFileName = await uploadProductImageToR2(
+      productLogoFile,
+      uuid.toString()
+    );
+    const imagesFileNames = await uploadProductImagesToR2(
+      productImagesFiles,
+      uuid.toString()
+    );
+    if (!productLogoFile) {
+      return NextResponse.json({ error: "Logo is required" }, { status: 400 });
+    }
 
-    // const productImageFile = formData.get("image") as File;
-    // if (!productImageFile) {
-    //   return NextResponse.json({ error: "Image is required" }, { status: 400 });
-    // }
+    const productEntries = Object.fromEntries(formData.entries());
+    console.log("productEntries----", productEntries);
 
-    // const uuid = Math.floor(Math.random()*1E16) // random 16 digit number for the product
+    let product = {
+      productId: uuid,
+      manufacturerId: productEntries.manufacturerId,
+      countryOfOrigin: productEntries.countryOfOrigin,
+      type: productEntries.type,
+      logo: logoFileName,
+      userId: productEntries.userId,
+      campaignId: productEntries.campaignId,
+      name: productEntries.name,
+      description: productEntries.description,
+      inventory: productEntries.inventory,
+      freeShipping: productEntries.freeShipping,
+      images: imagesFileNames,
+      category: productEntries.category,
+      returnPolicy: productEntries.productReturnPolicy,
+      price: productEntries.price,
+      supply: productEntries.supply,
+      status: "available",
+      timestamp: Date.now(),
+    };
 
-    // const imageFileName = await uploadProductImageToR2(productImageFile, uuid.toString());
+    console.log("CREATE-PRODUCT ROUTE", product);
 
-    // const productEntries = Object.fromEntries(formData.entries());
-    // console.log("productEntries----", productEntries);
+    const metadata = await uploadProductMetadataToR2(product);
+    console.log("METADATA", metadata);
 
-    // let product = {
-    //   productId: uuid,
-    //   userId: productEntries.userId,
-    //   campaignId: productEntries.campaignId,
-    //   name: productEntries.name,
-    //   description: productEntries.description,
-    //   image: imageFileName,
-    //   price: productEntries.price,
-    //   supply: productEntries.supply,
-    //   status: "available",
-    //   timestamp: Date.now(),
-    // };
-
-    // console.log("CREATE-PRODUCT ROUTE", product);
-
-    // const metadata = await uploadProductMetadataToR2(product);
-    // console.log("METADATA", metadata);
-
-    // const mdbClient = client;
-    // const db = mdbClient.db("hexbox_poc");
-    // const result = await db.collection("products").insertOne(product);
-    // console.log("Product Inserted:", result);
-    // const productId = result.insertedId.toString();
+    const mdbClient = client;
+    const db = mdbClient.db("hexbox_poc");
+    const result = await db.collection("products").insertOne(product);
+    console.log("Product Inserted:", result);
+    const productId = result.insertedId.toString();
 
     return NextResponse.json({ productId });
   } catch (e) {

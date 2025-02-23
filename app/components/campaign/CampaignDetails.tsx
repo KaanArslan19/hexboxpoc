@@ -4,26 +4,21 @@ import { FaTelegramPlane } from "react-icons/fa";
 import CampaignTabs from "../ui/CampaignTabs";
 import CampaignActivity from "../ui/CampaignActivity";
 import CampaignDescription from "../ui/CampaignDescription";
-import CampaignTreasuryAnalytics from "../ui/CampaignTreasuryAnalytics";
 import {
   CampaignDetailsProps,
   TokenDetailsProps,
   WalletDetails,
 } from "@/app/types";
 
-import { getTokenDetails } from "@/app/utils/poc_utils/getTokenDetails";
-import { getProposals } from "@/app/utils/poc_utils/getProposals";
 import { Progress } from "antd";
 import type { ProgressProps } from "antd";
-import CampaignProposal from "../ui/CampaignProposal";
 import { TbWorld } from "react-icons/tb";
-import BuyingOption from "../ui/BuyingOption";
 
 import Link from "next/link";
 import formatPrice from "@/app/utils/formatPrice";
-import { getWallet } from "@/app/utils/poc_utils/getWallet";
 import CampaignProducts from "./CampaignProducts";
-import { getProducts } from "@/app/utils/poc_utils/getProducts";
+
+import { checkServerAuth } from "@/app/utils/CheckServerAuth";
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
   deadline,
@@ -39,8 +34,10 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   title,
   user_id,
   products,
+  product_or_service,
 }) => {
-  const tokenDetails = await getTokenDetails(token_address);
+  /*   
+  const tokenDetails = await getTokenDetails(token_address); 
   const mappedTransactions = tokenDetails!.transactions.map((item: any) => ({
     address: item.address,
     type: item.type,
@@ -52,33 +49,44 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     address: item.address,
     balance: item.balance,
   }));
-
-  const walletDetails = await getWallet(wallet_address);
-
-  const proposals = await getProposals(wallet_address);
-  const simplifiedProposals = proposals.map((proposal) => ({
+ const simplifiedProposals = proposals.map((proposal) => ({
     ...proposal,
     _id: proposal._id.toString(),
-  }));
+  })); 
+  const walletDetails = await getWallet(wallet_address);
+    const proposals = await getProposals(wallet_address);
+
+  */
+
+  const { isAuthenticated } = await checkServerAuth();
+  console.log("isAuth--", isAuthenticated);
   const modifiedProps: TokenDetailsProps &
     WalletDetails & { wallet_address: string } = {
     name: "test", //tokenDetails!.name,
     supply: 1000000, //tokenDetails!.supply,
     available_supply: 1000000, //tokenDetails!.available_supply,
     price: 1, //tokenDetails!.price,
-    holders: [{address: "0x123", balance: 1000000}], //mappedHolders,
-    transactions: [{address: "0x123", type: "buy", amount: 1000000, timestamp: new Date()}], //mappedTransactions,
+    holders: [{ address: "0x123", balance: 1000000 }], //mappedHolders,
+    transactions: [
+      { address: "0x123", type: "buy", amount: 1000000, timestamp: new Date() },
+    ], //mappedTransactions,
     _id: "123", //tokenDetails!._id.toString(),
     wallet_address: "0x123", //walletDetails!.wallet_address,
     total_funds: 1000000, //walletDetails!.total_funds,
     token_address: "0x123", //walletDetails!.token_address,
   };
-
   const tabItems = [
     {
       key: "1",
-      label: "Activity",
-      children: <CampaignActivity {...modifiedProps} />,
+      label: "Rewards",
+      children: (
+        <CampaignProducts
+          campaignId={_id}
+          userId={user_id}
+          pors={product_or_service}
+          products={products ? products : []}
+        />
+      ),
     },
 
     {
@@ -88,21 +96,16 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     },
     {
       key: "3",
+      label: "Activity",
+      children: <CampaignActivity {...modifiedProps} />,
+    },
+    /*     {
+      key: "4",
       label: "Treasury Analytics",
       children: <CampaignTreasuryAnalytics {...modifiedProps} />,
-    },
-    {
-      key: "4",
-      label: "Products",
-      children: (
-        <CampaignProducts
-          campaignId={_id}
-          userId={user_id}
-          products={products ? products : []}
-        />
-      ),
-    },
-    {
+    }, */
+
+    /*     {
       key: "5",
       label: "Proposals",
       children: (
@@ -113,7 +116,19 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           supply={1000000} //tokenDetails!.supply,
         />
       ),
-    },
+    }, */
+
+    /*    {
+      key: "6",
+      label: "Create",
+      children: (
+        <CreateProductOrService
+          userId={user_id}
+          pors={product_or_service}
+          campaignId={_id}
+        />
+      ),
+    }, */
   ];
   const raisedFunds =
     fund_amount - modifiedProps.available_supply * modifiedProps.price;
@@ -127,6 +142,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     "0%": "#FFC629",
     "100%": "#CE0E2D",
   };
+  console.log("------", user_id);
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative w-full h-[400px]">
@@ -148,6 +164,15 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           <div className="col-span-1 flex justify-end pt-4 pr-8"></div>
         </div>
       </div>
+      <div className="text-center my-4">
+        <h1 className="text-2xl md:text-3xl font-semibold  text-blueColor z-10">
+          {title}
+        </h1>
+        <p className="text-lg lg:text-xl font-semibold text-lightBlueColor/50 z-10">
+          {one_liner}
+        </p>
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 my-4">
         <div className="flex items-center justify-center gap-4 bg-BlueColor p-4 rounded-lg  ">
           <h2 className="text-xl lg:text-2xl font-semibold ">
@@ -184,7 +209,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
             )}
           </div>
           <div className="flex items-center gap-2 text-white">
-            <span className="text-lg lg:text-xl">Location</span>
+            <span className="text-lg lg:text-xl">{location}</span>
             <svg
               className="w-5 h-5"
               viewBox="0 0 24 24"
@@ -208,28 +233,31 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         </div>
       </div>
 
-      <div className="w-full md:w-[400px] mb-8">
-        <div className="flex items-center gap-2">
-          <Progress
-            percent={+remainingFundAmountPercentage}
-            strokeColor={twoColors}
-            className="w-full"
-          />
-          <p className="text-sm">(${raisedFunds.toLocaleString()})</p>
+      {isAuthenticated && (
+        <div className="w-full md:w-[400px] mb-8">
+          <div className="flex items-center gap-2">
+            <Progress
+              percent={+remainingFundAmountPercentage}
+              strokeColor={twoColors}
+              className="w-full"
+            />
+            <p className="text-sm">(${raisedFunds.toLocaleString()})</p>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <CampaignTabs items={tabItems} />
-        </div>
-        <div className="lg:col-span-1 flex justify-center">
+      <div /* className="grid lg:grid-cols-3 gap-8" */>
+        <CampaignTabs items={tabItems} />
+        {/*      <div className="lg:col-span-2">
+
+        </div> */}
+        {/*        <div className="lg:col-span-1 flex justify-center">
           <BuyingOption
             pricePerToken={1} //tokenDetails!.price,
             user={user_id}
             campaign_id={_id}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

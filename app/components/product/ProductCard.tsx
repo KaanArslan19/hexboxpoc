@@ -1,46 +1,45 @@
 "use client";
-
+import React from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { FaDollarSign } from "react-icons/fa6";
-import formatPrice from "@/app/utils/formatPrice";
+import { ProductFetch } from "@/app/types";
+import { useRouter } from "next/navigation";
+import { log } from "console";
 
-import { NewProductInfo } from "@/app/types";
-const ProductCard: React.FC<NewProductInfo> = ({
-  image,
+const ProductCard: React.FC<ProductFetch> = ({
+  id,
   name,
   description,
   price,
   supply,
+  logo,
 }) => {
+  const router = useRouter();
   return (
-    <li className="bg-none flex flex-col justify-between items-center shadow-sm hover:shadow-xl rounded-md overflow-hidden shadow-lightBlueColor transition-shadow duration-150 m-[10px] border-2 border-lightBlueColor">
-      <Link className="contents" href={`/product?productName=${name}`}>
+    <div
+      onClick={() => router.push(`/product?productId=${id}`)}
+      className="cursor-pointer bg-white shadow-md rounded-xl p-4 flex flex-col items-center hover:shadow-lg transition-shadow"
+    >
+      <div className="relative w-28 h-28 mb-4">
         <Image
-          className="h-[170px] w-full object-cover object-center"
-          loading="lazy"
-          src={`${process.env.R2_BUCKET_URL}/product_images/` + image}
+          src={`${process.env.R2_BUCKET_URL}/product_logos/${logo}`}
           alt={name}
-          width={100}
-          height={70}
+          layout="fill"
+          className="object-contain rounded-md"
         />
-
-        <div className="w-full p-6 shadow-lightBlueColor">
-          <h4 className="m-0 text-2xl font-bold truncate">{name}</h4>
-          <p className="mt-2 text-sm text-gray-500 truncate">{description}</p>
-
-          <div className="flex items-center justify-between mt-4 text-lg font-semibold">
-            <div className="flex items-center space-x-2">
-              <FaDollarSign />
-              <span className="text-xl">{formatPrice(price)}</span>
-            </div>
-            <span className="text-blueColor text-lg capitalize">
-              {supply > 0 ? `In Stock: ${supply}` : "Out of Stock"}
-            </span>
-          </div>
-        </div>
-      </Link>
-    </li>
+      </div>
+      <h3 className="text-md font-bold text-gray-800 text-center truncate max-w-full mb-2">
+        {name}
+      </h3>
+      <span className="text-sm text-gray-600 text-center line-clamp-2 mb-4">
+        {description}
+      </span>
+      <span className="text-lg font-semibold text-gray-900 mb-1">
+        ${price.amount.toLocaleString()}
+      </span>
+      <span className="text-sm text-lightBlueColor">
+        Supply: {supply.toLocaleString()}
+      </span>
+    </div>
   );
 };
 

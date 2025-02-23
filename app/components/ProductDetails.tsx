@@ -1,6 +1,7 @@
 "use client";
+
 import Image from "next/image";
-import { Product } from "@/app/types";
+import { ProductFetch } from "@/app/types";
 import Link from "next/link";
 import CustomButton from "./ui/CustomButton";
 import { useState, useEffect } from "react";
@@ -12,10 +13,41 @@ import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductTo
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 
 interface CampaignProductsProps {
-  product: Product;
+  product: ProductFetch;
 }
 
-const ProductDetails = ({ product }: CampaignProductsProps) => {
+interface Campaign {
+  _id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  wallet_address: string;
+  token_address: string;
+  logo: string;
+  timestamp: number;
+  status: string;
+  fund_amount: string;
+  one_liner: string;
+  social_links: any;
+  location: string | null;
+  deadline: number;
+  is_verified: boolean;
+  funding_type: string;
+  product_or_service: string;
+  evm_wa: string;
+  created_timestamp?: number;
+}
+
+interface CampaignProductsProps {
+  product: ProductFetch;
+  campaign: Campaign;
+}
+
+const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
+  const daysToGo = Math.max(
+    Math.ceil((campaign.deadline - Date.now()) / (1000 * 60 * 60 * 24)),
+    0
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isRefunding, setIsRefunding] = useState(false);
@@ -25,7 +57,9 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
   //const [campaignAddress, setCampaignAddress] = useState<string | null>(null);
 
   const getCampaignAddress = async () => {
-    const response = await fetch(`/api/getCampaignFromProduct?productId=${product.id}`);
+    const response = await fetch(
+      `/api/getCampaignFromProduct?productId=${product.id}`
+    );
     const data = await response.json();
     console.log(data);
 
@@ -33,11 +67,13 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
     console.log(data.campaign.fundraiser_address);
 
     return data.campaign.fundraiser_address;
-  }
+  };
 
   const checkAllowance = async (_campaignAddress: string) => {
     try {
-      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      );
       const usdcContract = new ethers.Contract(
         CONTRACTS.USDC.fuji,
         ABIS.USDC_ABI,
@@ -66,7 +102,9 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
 
     try {
       setIsApproving(true);
-      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      );
 
       const usdcContract = new ethers.Contract(
         CONTRACTS.USDC.fuji,
@@ -120,8 +158,8 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
         if (!approved) return;
       }
 
-      setIsLoading(true)
-      
+      setIsLoading(true);
+
       // Call the API to prepare the transaction
       const response = await fetch("/api/buyProduct", {
         method: "POST",
@@ -131,7 +169,7 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
         body: JSON.stringify({
           campaignAddress: _campaignAddress,
           userAddress: address,
-          productId: product.productId,
+          productId: product.id,
           quantity: 1, // TODO: Change to amount of product user wants to buy
         }),
       });
@@ -143,7 +181,7 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
 
       const data = await response.json();
       console.log("Transaction data:", data);
-      
+
       if (!walletClient) {
         throw new Error("Wallet not connected");
       }
@@ -153,7 +191,9 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
         data: data.data as `0x${string}`,
       });
 
-      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      );
       const receipt = await provider.waitForTransaction(hash);
 
       if (receipt?.status === 1) {
@@ -174,14 +214,19 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
   // Add function to check token balance
   const checkTokenBalance = async (campaignAddress: string) => {
     try {
-      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      );
       const productTokenContract = new ethers.Contract(
         CONTRACTS.ProductToken.fuji,
         ProductTokenABI.abi,
         provider
       ) as unknown as ProductToken;
 
-      const balance = await productTokenContract.balanceOf(address!, product.productId);
+      const balance = await productTokenContract.balanceOf(
+        address!,
+        product.id
+      );
       setTokenBalance(balance);
       return balance > 0;
     } catch (error) {
@@ -199,14 +244,16 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
     try {
       setIsRefunding(true);
       const campaignAddress = await getCampaignAddress();
-      
+
       // Check if user has tokens to refund
       const hasTokens = await checkTokenBalance(campaignAddress);
       if (!hasTokens) {
         throw new Error("No tokens available to refund");
       }
 
-      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      );
       const contract = new ethers.Contract(
         campaignAddress,
         USDCFundraiserABI.abi,
@@ -215,8 +262,8 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
 
       // Encode the refund function call
       const txData = contract.interface.encodeFunctionData("claimRefund", [
-        BigInt(product.productId),
-        BigInt(1) // Refund 1 token for now, could be made variable
+        BigInt(product.id),
+        BigInt(1), // Refund 1 token for now, could be made variable
       ]);
 
       const hash = await walletClient.sendTransaction({
@@ -235,7 +282,11 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
       }
     } catch (error) {
       console.error("Error refunding:", error);
-      alert(error instanceof Error ? error.message : "Failed to refund. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to refund. Please try again."
+      );
     } finally {
       setIsRefunding(false);
     }
@@ -250,8 +301,8 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
     };
 
     updateTokenBalance();
-  }, [address, isConnected, product.productId]); // Dependencies array includes address and product ID
-
+  }, [address, isConnected, product.id]); // Dependencies array includes address and product ID
+  console.log("---product", product);
   return (
     <main className="p-8 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -259,7 +310,7 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
           <div className="md:col-span-2">
             <div className="relative w-full h-96">
               <Image
-                src={`${process.env.R2_BUCKET_URL}/product_logos/${product.image}`}
+                src={`${process.env.R2_BUCKET_URL}/product_logos/${product.logo}`}
                 alt={product.name}
                 fill
                 className="object-contain rounded-lg"
@@ -276,7 +327,7 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
                 <p className="text-gray-600 text-sm">Funds Pledged</p>
                 <p className="text-3xl font-bold">AU$676,830</p>
                 <p className="text-sm text-gray-600">
-                  pledged of fundAmount of campaign goal
+                  Pledged of {campaign.fund_amount} campaign goal
                 </p>
               </div>
               <div>
@@ -285,18 +336,23 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
               </div>
               <div>
                 <p className="text-lightBlueColor/80 text-sm">Days to Go</p>
-                <p className="text-3xl font-bold">36</p>
+                <p className="text-3xl font-bold">{daysToGo}</p>
               </div>
               <Link href="" className="w-full md:w-auto">
-                <CustomButton 
+                <CustomButton
                   onClick={handleBackProject}
                   disabled={isLoading || isApproving}
                   className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-auto mt-2 ${
-                    (isLoading || isApproving) ? 'opacity-50 cursor-not-allowed' : ''
+                    isLoading || isApproving
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
                   }`}
                 >
-                  {isApproving ? 'Approving USDC...' : 
-                   isLoading ? 'Processing...' : 'Back this Project'}
+                  {isApproving
+                    ? "Approving USDC..."
+                    : isLoading
+                    ? "Processing..."
+                    : "Back this Project"}
                 </CustomButton>
               </Link>
               {tokenBalance > 0 && (
@@ -304,10 +360,10 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
                   onClick={handleRefund}
                   disabled={isRefunding}
                   className={`py-2 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto mt-2 ${
-                    isRefunding ? 'opacity-50 cursor-not-allowed' : ''
+                    isRefunding ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  {isRefunding ? 'Processing Refund...' : 'Request Refund'}
+                  {isRefunding ? "Processing Refund..." : "Request Refund"}
                 </CustomButton>
               )}
             </div>
@@ -315,10 +371,32 @@ const ProductDetails = ({ product }: CampaignProductsProps) => {
         </div>
 
         <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-          <h2 className="text-xl font-bold mb-2">Project We Love</h2>
-          <p className="text-gray-700">
-            This project will only be funded if it reaches its goal by campaign
-            end date
+          <h2 className="text-xl font-bold mb-2">About this Campaign</h2>
+          <p className="text-gray-700">{campaign.description}</p>
+          <p className="text-gray-700 mt-2">
+            <span className="font-semibold">Funding Type:</span>{" "}
+            {campaign.funding_type}
+          </p>
+          <p className="text-gray-700 mt-2">
+            <span className="font-semibold">Status:</span> {campaign.status}
+          </p>
+          <p className="text-gray-700 mt-2">
+            <span className="font-semibold">Wallet Address:</span>{" "}
+            {campaign.wallet_address}
+          </p>
+          <p className="text-gray-700 mt-2">
+            <span className="font-semibold">Token Address:</span>{" "}
+            {campaign.token_address}
+          </p>
+          {campaign.location && (
+            <p className="text-gray-700 mt-2">
+              <span className="font-semibold">Location:</span>{" "}
+              {campaign.location}
+            </p>
+          )}
+          <p className="text-gray-700 mt-2">
+            <span className="font-semibold">Verification:</span>{" "}
+            {campaign.is_verified ? "Verified" : "Not Verified"}
           </p>
         </div>
       </div>
