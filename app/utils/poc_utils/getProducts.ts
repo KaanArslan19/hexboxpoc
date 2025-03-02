@@ -50,7 +50,10 @@ export const getProducts = async (
       campaignId: product.campaignId || "",
       userId: product.userId || "",
       logo: product.logo || "",
-      images: [], // Default empty array for images
+      images: {
+        uploadedFiles: product.images.uploadedFiles || [], // Default empty array for images
+        errors: product.images.errors || null,
+      },
       status: product.status || "",
       supply: Number(product.supply) || 0,
     }));
