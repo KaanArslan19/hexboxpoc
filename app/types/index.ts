@@ -136,6 +136,7 @@ export type WalletDetails = {
 
 export interface ProductFetch {
   id: string;
+  productId: number;
   manufacturerId: string;
   name: string;
   type: ProductOrService;

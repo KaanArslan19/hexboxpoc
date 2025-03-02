@@ -20,6 +20,7 @@ export const getProduct = async (
 
     const formattedProduct: ProductFetch = {
       id: product._id.toString(),
+      productId: product.productId || 0,
       manufacturerId: product.userId || "",
       name: product.name || "",
       type: "ProductOnly" as ProductOrService,

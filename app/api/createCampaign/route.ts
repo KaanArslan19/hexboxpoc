@@ -7,7 +7,7 @@ import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USD
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createProduct } from "@/app/utils/poc_utils/createProduct";
-
+import { ProductCategory } from "@/app/types";
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
     const session = await getServerSideUser(req);
@@ -100,8 +100,58 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       provider
     );
 
+    /*const productInitialValues: ProductNew = {
+      manufacturerId: "",
+      name: "",
+      type: ProductOrService.ProductOnly,
+      countryOfOrigin: "",
+      category: { name: ProductCategory.TECH },
+      description: "",
+      price: {
+        amount: 0,
+        tax_inclusive: false,
+        gst_rate: 0,
+        gst_amount: 0,
+      },
+      inventory: {
+        stock_level: 1,
+      },
+      freeShipping: false,
+      productReturnPolicy: {
+        eligible: true,
+        return_period_days: 30,
+        conditions: "",
+      },
+      campaignId: "",
+      userId: "",
+      logo: "",
+      images: [],
+      status: "draft",
+      supply: 1,
+    };*/
+
+
     const donationProduct = new FormData();
-    donationProduct.append("image", logoFile);
+    donationProduct.append("isDonationProduct", "true");
+    donationProduct.append("manufacturerId", "");
+    donationProduct.append("countryOfOrigin", "");
+    donationProduct.append("type", "false");
+    donationProduct.append("category", "");
+    donationProduct.append("logo", logoFile);
+    donationProduct.append("description", "");
+    donationProduct.append("price", JSON.stringify({
+      amount: 1,
+      tax_inclusive: false,
+      gst_rate: 0,
+      gst_amount: 0,
+    }));
+    donationProduct.append("inventory", JSON.stringify({
+      stock_level: 0,
+    }));
+    donationProduct.append("freeShipping", "false");
+    donationProduct.append("productReturnPolicy", "false");
+    donationProduct.append("status", "available");
+    donationProduct.append("images", "");
     donationProduct.append("userId", creatorWalletAddress as string);
     donationProduct.append("campaignId", campaignId);
     donationProduct.append("name", `${campaignEntries.title} Donation`);
@@ -109,8 +159,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "description",
       `${campaignEntries.title} Donation product if you want to support the project without purchasing their products/services.`
     );
-    donationProduct.append("price", "1");
-    donationProduct.append("supply", "0");
+    donationProduct.append("supply", "0"); 
 
     const [productId, price, supply] = await createProduct(donationProduct);
 

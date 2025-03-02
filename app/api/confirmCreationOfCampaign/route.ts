@@ -168,6 +168,7 @@ export const POST = async (req: NextRequest) => {
       fundraiserAddress
     );
     console.log("Grant role:", grantRole);
+    await grantRole.wait();
 
     const linkToken = new ethers.Contract(
       CONTRACTS.LINK.fuji,

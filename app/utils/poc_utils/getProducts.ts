@@ -24,6 +24,7 @@ export const getProducts = async (
 
     const formattedProducts: ProductFetch[] = products.map((product) => ({
       id: product._id.toString(),
+      productId: product.productId || 0,
       manufacturerId: product.userId || "",
       name: product.name || "",
       type: "ProductOnly" as ProductOrService,
@@ -33,7 +34,7 @@ export const getProducts = async (
       },
       description: product.description || "",
       price: {
-        amount: Number(product.price) || 0,
+        amount: Number(JSON.parse(product.price).amount) || 0,
         tax_inclusive: false, // Default value
         gst_rate: 0, // Default value
         gst_amount: 0, // Default value

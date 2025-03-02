@@ -249,13 +249,16 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         provider
       );
 
-      const allowance = await usdcContract.approve(
-        _campaignAddress,
-        ethers.MaxUint256
+      const allowance = await usdcContract.allowance(
+        address!,
+        _campaignAddress
       );
 
       // Convert product.price to same decimals as USDC for comparison
-      const requiredAmount = ethers.parseUnits(product.price.toString(), 6); // USDC has 6 decimals
+      const requiredAmount = ethers.parseUnits(product.price.amount.toString(), 6); // USDC has 6 decimals
+      console.log("allowance", allowance);
+      console.log("requiredAmount", requiredAmount);
+      console.log("allowance >= requiredAmount", allowance >= requiredAmount);
       return allowance >= requiredAmount;
     } catch (error) {
       console.error("Error checking allowance:", error);
@@ -322,6 +325,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       // Check USDC allowance first
       const hasAllowance = await checkAllowance(_campaignAddress);
+      console.log("hasAllowance", hasAllowance);
       if (!hasAllowance) {
         const approved = await handleApprove(_campaignAddress);
         if (!approved) return;
@@ -338,7 +342,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         body: JSON.stringify({
           campaignAddress: _campaignAddress,
           userAddress: address,
-          productId: product.id,
+          productId: product.productId,
           quantity: 1, // TODO: Change to amount of product user wants to buy
         }),
       });
@@ -367,8 +371,31 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       if (receipt?.status === 1) {
         alert("Successfully backed the project!");
+              // Sync campaign data after successful transaction
+        try {
+          const syncResponse = await fetch('/api/sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              fundraiserAddress: _campaignAddress
+            })
+          });
+          console.log("Sync response:", syncResponse);
+
+          if (!syncResponse.ok) {
+            console.error('Failed to sync campaign data after purchase');
+          } else {
+            const syncResult = await syncResponse.json();
+            console.log('Sync after purchase result:', syncResult);
+          }
+        } catch (syncError) {
+          console.error('Error syncing campaign after purchase:', syncError);
+        }
         // Refresh token balance after successful purchase
         await checkTokenBalance(_campaignAddress);
+
       } else {
         throw new Error("Transaction failed");
       }
@@ -470,11 +497,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     };
 
     updateTokenBalance();
-  }, [address, isConnected, product.id]); // Dependencies array includes address and product ID
+  }, [address, isConnected, product.productId]); // Dependencies array includes address and product ID
   console.log(
     "---product",
     `${process.env.R2_BUCKET_URL}/product_images/${product.images.uploadedFiles[0]}`
   );
+  console.log("product", product);
   return (
     <main className="p-8 bg-white">
       <div className="max-w-7xl mx-auto">
