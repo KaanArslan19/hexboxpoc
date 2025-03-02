@@ -26,7 +26,17 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     console.log("formDAta BACKEND--", formData);
     const uuid = Math.floor(Math.random() * 1e16); // random 16 digit number for the product
 
-    const productImagesFiles = formData.getAll("images") as File[];
+    const productImagesFiles: File[] = [];
+    const entries = Array.from(formData.entries());
+
+    for (const [key, value] of entries) {
+      if (key.startsWith("images[") || key === "images") {
+        if (value instanceof File) {
+          productImagesFiles.push(value);
+        }
+      }
+    }
+    console.log("productImagesFiles", productImagesFiles);
     const productLogoFile = formData.get("logo") as File;
     const logoFileName = await uploadProductImageToR2(
       productLogoFile,
@@ -36,6 +46,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       productImagesFiles,
       uuid.toString()
     );
+    console.log("imagesFileNames", imagesFileNames);
     if (!productLogoFile) {
       return NextResponse.json({ error: "Logo is required" }, { status: 400 });
     }

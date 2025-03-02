@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import ProductForm from "@/app/components/ProductForm";
 import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
+import { getCampaign } from "@/app/utils/getCampaign";
 
 interface Props {
   searchParams: { campaignId: string };
@@ -12,7 +14,23 @@ export default function CreateProductPage({ searchParams }: Props) {
 
   const router = useRouter();
   const userId = useAccount().address;
+  const [productOrService, setProductOrService] = useState("");
+  useEffect(() => {
+    const fetchCampaign = async () => {
+      try {
+        const res = await fetch(`/api/getCampaign?campaignId=${campaignId}`);
+        if (!res.ok) throw new Error("Campaign not found");
+        const campaign = await res.json();
 
+        setProductOrService(campaign.product_or_service);
+      } catch (error) {
+        console.log("error", error);
+        router.push("/");
+      }
+    };
+
+    fetchCampaign();
+  }, [campaignId, router]);
   const handleCreateProduct = async (values: any) => {
     try {
       if (!userId) {
@@ -25,7 +43,13 @@ export default function CreateProductPage({ searchParams }: Props) {
       formData.append("countryOfOrigin", values.countryOfOrigin);
       formData.append("type", values.type);
       formData.append("logo", values.logo);
-      formData.append("images", values.images);
+      if (Array.isArray(values.images)) {
+        values.images.forEach((image: File, index: number) => {
+          formData.append(`images[${index}]`, image);
+        });
+      } else if (values.images) {
+        formData.append("images", values.images);
+      }
       formData.append("name", values.name);
       formData.append("description", values.description);
       formData.append("supply", values.supply.toString());
@@ -56,6 +80,10 @@ export default function CreateProductPage({ searchParams }: Props) {
       alert("Error creating product. Please try again.");
     }
   };
-
-  return <ProductForm onSubmit={handleCreateProduct} />;
+  return (
+    <ProductForm
+      productOrService={productOrService}
+      onSubmit={handleCreateProduct}
+    />
+  );
 }

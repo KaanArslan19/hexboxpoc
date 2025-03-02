@@ -3,7 +3,7 @@ export const fetchCampaigns = async (
   skip: number
 ): Promise<any> => {
   const response = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/getCampaigns?limit=${limit}&skip=${skip}`,
+    `${process.env.NEXTAUTH_URL}/api/getCampaigns?limit=${limit}&skip=${skip}/* &factCheck=true */`,
     {
       cache: "no-store",
     }

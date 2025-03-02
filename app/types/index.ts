@@ -161,7 +161,10 @@ export interface ProductFetch {
   campaignId: string;
   userId: string;
   logo: string;
-  images: File[];
+  images: {
+    uploadedFiles: string[];
+    errors: string | null;
+  };
 
   status: string;
   supply: number;

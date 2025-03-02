@@ -11,7 +11,7 @@ import { CONTRACTS, ABIS } from "@/app/utils/contracts/contracts";
 import type { ProductToken } from "@/app/utils/typechain-types";
 import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductToken.sol/ProductToken.json";
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
-
+import { Tabs } from "antd";
 interface CampaignProductsProps {
   product: ProductFetch;
 }
@@ -49,13 +49,182 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     0
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("1");
+
+  // Handle tab change
+
   const [isApproving, setIsApproving] = useState(false);
   const [isRefunding, setIsRefunding] = useState(false);
   const [tokenBalance, setTokenBalance] = useState<bigint>(BigInt(0));
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
   //const [campaignAddress, setCampaignAddress] = useState<string | null>(null);
+  const onChange = (key: any) => {
+    setActiveTab(key);
+  };
+  const items = [
+    {
+      key: "1",
+      label: "Overview",
+      children: (
+        <div className="p-4">
+          <p className="text-gray-700 mb-4">{campaign.description}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-100 p-3 rounded-md">
+              <span className="font-semibold text-gray-800">Funding Type</span>
+              <p className="mt-1">{campaign.funding_type}</p>
+            </div>
+            <div className="bg-gray-100 p-3 rounded-md">
+              <span className="font-semibold text-gray-800">Status</span>
+              <p className="mt-1 flex items-center">
+                <span
+                  className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                    campaign.status === "Active"
+                      ? "bg-green-500"
+                      : campaign.status === "Ended"
+                      ? "bg-red-500"
+                      : "bg-yellow-500"
+                  }`}
+                ></span>
+                {campaign.status}
+              </p>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "2",
+      label: "Gallery",
+      children: (
+        <div className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {product &&
+            product.images &&
+            product.images.uploadedFiles &&
+            product.images.uploadedFiles.length > 0 ? (
+              product.images.uploadedFiles.map((image, index) => (
+                <div
+                  key={index}
+                  className="relative overflow-hidden rounded-lg shadow-md aspect-w-16 aspect-h-9"
+                >
+                  <Image
+                    src={`${process.env.R2_BUCKET_URL}/product_images/${image}`}
+                    alt={`Product image ${index + 1}`}
+                    width={200}
+                    height={200}
+                    className="object-cover w-full h-full transition duration-300 hover:scale-105"
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-2 p-6 bg-gray-100 rounded-lg text-center text-gray-500">
+                No images available for this product
+              </div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "3",
+      label: "Tech Details",
+      children: (
+        <div className="p-4">
+          <div className="mb-4">
+            <span className="font-semibold text-gray-800">Wallet Address</span>
+            <div className="mt-1 p-3 bg-gray-100 rounded-md overflow-x-auto">
+              <code className="text-sm">{campaign.wallet_address}</code>
+              <button className="ml-2 text-blue-600 hover:text-blue-800">
+                <span className="text-xs">Copy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
+    },
 
+    {
+      key: "4",
+      label: "Verification",
+      children: (
+        <div className="p-4">
+          <div className="flex flex-col items-center">
+            <div
+              className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+                campaign.is_verified ? "bg-green-100" : "bg-gray-100"
+              }`}
+            >
+              {campaign.is_verified ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              )}
+            </div>
+            <span className="text-lg font-medium">
+              {campaign.is_verified ? "Verified Campaign" : "Not Verified"}
+            </span>
+            <p className="text-gray-600 text-center mt-2">
+              {campaign.is_verified
+                ? "This campaign has been verified by our team and meets all our standards."
+                : "This campaign has not yet been verified by our team. Proceed with caution."}
+            </p>
+            {campaign.location && (
+              <div className="mt-4 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-500 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span>{campaign.location}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+  ];
   const getCampaignAddress = async () => {
     const response = await fetch(
       `/api/getCampaignFromProduct?productId=${product.id}`
@@ -302,7 +471,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
     updateTokenBalance();
   }, [address, isConnected, product.id]); // Dependencies array includes address and product ID
-  console.log("---product", product);
+  console.log(
+    "---product",
+    `${process.env.R2_BUCKET_URL}/product_images/${product.images.uploadedFiles[0]}`
+  );
   return (
     <main className="p-8 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -369,35 +541,16 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             </div>
           </div>
         </div>
-
-        <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-          <h2 className="text-xl font-bold mb-2">About this Campaign</h2>
-          <p className="text-gray-700">{campaign.description}</p>
-          <p className="text-gray-700 mt-2">
-            <span className="font-semibold">Funding Type:</span>{" "}
-            {campaign.funding_type}
-          </p>
-          <p className="text-gray-700 mt-2">
-            <span className="font-semibold">Status:</span> {campaign.status}
-          </p>
-          <p className="text-gray-700 mt-2">
-            <span className="font-semibold">Wallet Address:</span>{" "}
-            {campaign.wallet_address}
-          </p>
-          <p className="text-gray-700 mt-2">
-            <span className="font-semibold">Token Address:</span>{" "}
-            {campaign.token_address}
-          </p>
-          {campaign.location && (
-            <p className="text-gray-700 mt-2">
-              <span className="font-semibold">Location:</span>{" "}
-              {campaign.location}
-            </p>
-          )}
-          <p className="text-gray-700 mt-2">
-            <span className="font-semibold">Verification:</span>{" "}
-            {campaign.is_verified ? "Verified" : "Not Verified"}
-          </p>
+        <div className="mt-8 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-bold">About this Product</h2>
+          </div>
+          <Tabs
+            tabPosition="left"
+            items={items}
+            defaultActiveKey="1"
+            className="campaign-details-tabs my-4"
+          />
         </div>
       </div>
     </main>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEventHandler } from "react";
+import React, { useState, ChangeEventHandler, useEffect } from "react";
 import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Steps } from "antd";
@@ -7,33 +7,37 @@ import ImageSelector from "./ui/ImageSelector";
 import { ProductNew, ProductCategory, ProductOrService } from "../types";
 import { toast } from "react-toastify";
 import { fileValidator } from "../utils/imageValidators";
+
 const steps = [
   { title: "Basic Info" },
-  { title: "Product Details" },
+  { title: "Details" },
   { title: "Pricing & Inventory" },
-  { title: "Shipping & Returns" },
+  { title: "Shipping & Terms" },
   { title: "Review" },
 ];
 
-const validationSchema = [
-  // Basic Info
-  Yup.object({
-    name: Yup.string().required("Product name is required"),
+// Base validation schemas
+const baseValidationSchemas = {
+  // Basic Info - common for both
+  basicInfo: Yup.object({
+    name: Yup.string().required("Name is required"),
     logo: fileValidator.required("Logo is required"),
     images: Yup.array().of(fileValidator),
     manufacturerId: Yup.string().required("Manufacturer ID is required"),
-    type: Yup.string().required("Product type is required"),
+    type: Yup.string().required("Type is required"),
     countryOfOrigin: Yup.string().required("Country of origin is required"),
   }),
-  // Product Details
-  Yup.object({
+
+  // Details - common for both
+  details: Yup.object({
     description: Yup.string().required("Description is required"),
     category: Yup.object({
       name: Yup.string().required("Category is required"),
     }),
   }),
-  // Pricing & Inventory
-  Yup.object({
+
+  // Pricing & Inventory - different for product vs service
+  pricingProduct: Yup.object({
     price: Yup.object({
       amount: Yup.number()
         .typeError("Price must be a number")
@@ -66,8 +70,36 @@ const validationSchema = [
         .min(1, "Stock level must be at least 1"),
     }),
   }),
-  // Shipping & Returns
-  Yup.object({
+
+  pricingService: Yup.object({
+    price: Yup.object({
+      amount: Yup.number()
+        .typeError("Price must be a number")
+        .required("Price is required")
+        .positive("Price must be greater than 0"),
+      tax_inclusive: Yup.boolean().required("Tax inclusive status is required"),
+      gst_rate: Yup.number().when("tax_inclusive", {
+        is: true,
+        then: (schema) =>
+          schema
+            .min(0, "GST rate cannot be negative")
+            .max(90, "GST rate cannot exceed 90%")
+            .required("GST rate is required"),
+        otherwise: (schema) => schema.nullable(),
+      }),
+      gst_amount: Yup.number().when("tax_inclusive", {
+        is: true,
+        then: (schema) =>
+          schema
+            .min(0, "GST amount cannot be negative")
+            .required("GST amount is required"),
+        otherwise: (schema) => schema.nullable(),
+      }),
+    }),
+  }),
+
+  // Shipping & Terms - different for product vs service
+  shippingProduct: Yup.object({
     freeShipping: Yup.boolean().required("Free shipping status is required"),
     productReturnPolicy: Yup.object({
       eligible: Yup.boolean().required("Return eligibility is required"),
@@ -78,9 +110,39 @@ const validationSchema = [
       conditions: Yup.string().required("Return conditions are required"),
     }),
   }),
-];
 
-const initialValues: ProductNew = {
+  serviceTerms: Yup.object({
+    service_terms: Yup.object({
+      contract_time_begining: Yup.string().required(
+        "Contract start time is required"
+      ),
+      contract_length: Yup.string().required("Contract length is required"),
+    }),
+  }),
+};
+
+const getValidationSchema = (type: string, step: number) => {
+  const isService = type === ProductOrService.ServiceOnly;
+
+  switch (step) {
+    case 0:
+      return baseValidationSchemas.basicInfo;
+    case 1:
+      return baseValidationSchemas.details;
+    case 2:
+      return isService
+        ? baseValidationSchemas.pricingService
+        : baseValidationSchemas.pricingProduct;
+    case 3:
+      return isService
+        ? baseValidationSchemas.serviceTerms
+        : baseValidationSchemas.shippingProduct;
+    default:
+      return Yup.object({});
+  }
+};
+
+const productInitialValues: ProductNew = {
   manufacturerId: "",
   name: "",
   type: ProductOrService.ProductOnly,
@@ -110,18 +172,48 @@ const initialValues: ProductNew = {
   supply: 1,
 };
 
+const serviceInitialValues = {
+  ...productInitialValues,
+  type: ProductOrService.ServiceOnly,
+  inventory: undefined,
+  freeShipping: undefined,
+  productReturnPolicy: undefined,
+  service_terms: {
+    contract_time_begining: "",
+    contract_length: "2 hours",
+  },
+};
+
 interface Props {
+  productOrService: string;
   onSubmit(values: ProductNew): void;
   onImageRemove?(source: string): void;
 }
 
-export default function ProductForm({ onSubmit, onImageRemove }: Props) {
+export default function ProductForm({
+  onSubmit,
+  onImageRemove,
+  productOrService,
+}: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [logo, setLogo] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isPending, setIsPending] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [campaignImageSource, setCampaignImageSource] = useState<string[]>();
+  const [campaignImageSource, setCampaignImageSource] = useState<string[]>([]);
+  const [formType, setFormType] = useState<string>(
+    ProductOrService.ProductOnly
+  );
+
+  // Update form steps based on product/service type
+  const getStepTitle = (index: number) => {
+    if (index === 3) {
+      return formType === ProductOrService.ServiceOnly
+        ? "Service Terms"
+        : "Shipping & Returns";
+    }
+    return steps[index].title;
+  };
 
   const onImagesChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const files = target.files;
@@ -158,12 +250,13 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
     const newImagesSource = campaignImageSource.filter((_, i) => i !== index);
     setCampaignImageSource([...newImagesSource]);
   };
-  const handleSubmit = async (values: typeof initialValues) => {
+
+  const handleSubmit = async (values: any) => {
     setIsPending(true);
     setSubmitError(null);
 
     try {
-      const productData: ProductNew = {
+      const productData = {
         ...values,
         logo: values.logo as string,
         images: imageFiles,
@@ -180,23 +273,31 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
 
   return (
     <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema[currentStep]}
+      initialValues={
+        formType === ProductOrService.ServiceOnly
+          ? serviceInitialValues
+          : productInitialValues
+      }
+      validationSchema={() => getValidationSchema(formType, currentStep)}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
-      {({ validateForm, setFieldValue, submitForm }) => (
+      {({ validateForm, setFieldValue, submitForm, values }) => (
         <form
           onSubmit={(e) => e.preventDefault()}
           className="p-6 max-w-4xl mx-auto"
         >
-          <h1 className="text-3xl text-center mb-4">Create a Product</h1>
+          <h1 className="text-3xl text-center mb-4">
+            Create a{" "}
+            {formType === ProductOrService.ServiceOnly ? "Service" : "Product"}
+          </h1>
           <div className="mb-6">
             <Steps
               progressDot
               current={currentStep}
               responsive
               items={steps.map((step, index) => ({
-                title: step.title,
+                title: getStepTitle(index),
                 description:
                   index < currentStep
                     ? "Completed"
@@ -212,10 +313,43 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
               <h2 className="text-2xl mb-4">Basic Information</h2>
               <div className="space-y-4">
                 <div>
+                  <h3 className="text-xl mb-2">Type</h3>
+
+                  {productOrService !== ProductOrService.ProductAndService && (
+                    <Field
+                      as="select"
+                      name="type"
+                      className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                        const newType = e.target.value;
+                        setFieldValue("type", newType);
+                        setFormType(newType);
+                      }}
+                    >
+                      <option value={ProductOrService.ProductOnly}>
+                        Product
+                      </option>
+                      <option value={ProductOrService.ServiceOnly}>
+                        Service
+                      </option>
+                    </Field>
+                  )}
+
+                  <ErrorMessage
+                    name="type"
+                    component="div"
+                    className="text-redColor"
+                  />
+                </div>
+                <div>
                   <h3 className="text-xl mb-2">Name</h3>
                   <Field
                     name="name"
-                    placeholder="Product Name"
+                    placeholder={
+                      formType === ProductOrService.ServiceOnly
+                        ? "Service Name"
+                        : "Product Name"
+                    }
                     className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
                   />
                   <ErrorMessage
@@ -273,26 +407,6 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
                 </div>
 
                 <div>
-                  <h3 className="text-xl mb-2">Type</h3>
-                  <Field
-                    as="select"
-                    name="type"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
-                  >
-                    {Object.values(ProductOrService).map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </Field>
-                  <ErrorMessage
-                    name="type"
-                    component="div"
-                    className="text-redColor"
-                  />
-                </div>
-
-                <div>
                   <h3 className="text-xl mb-2">Country of Origin</h3>
                   <Field
                     name="countryOfOrigin"
@@ -311,14 +425,23 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
 
           {currentStep === 1 && (
             <div>
-              <h2 className="text-2xl mb-4">Product Details</h2>
+              <h2 className="text-2xl mb-4">
+                {formType === ProductOrService.ServiceOnly
+                  ? "Service"
+                  : "Product"}{" "}
+                Details
+              </h2>
               <div className="space-y-4">
                 <div>
                   <h3 className="text-xl mb-2">Description</h3>
                   <Field
                     as="textarea"
                     name="description"
-                    placeholder="Product Description"
+                    placeholder={
+                      formType === ProductOrService.ServiceOnly
+                        ? "Service Description"
+                        : "Product Description"
+                    }
                     className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor h-24"
                   />
                   <ErrorMessage
@@ -353,7 +476,11 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
 
           {currentStep === 2 && (
             <div>
-              <h2 className="text-2xl mb-4">Pricing & Inventory</h2>
+              <h2 className="text-2xl mb-4">
+                {formType === ProductOrService.ServiceOnly
+                  ? "Pricing"
+                  : "Pricing & Inventory"}
+              </h2>
               <div className="space-y-4">
                 <div>
                   <h3 className="text-xl mb-2">Price Amount (USDC)</h3>
@@ -375,7 +502,6 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
                 <div>
                   <h3 className="text-xl mb-2">Tax Details</h3>
 
-                  {/* Tax Inclusive Checkbox */}
                   <label className="block mb-2">
                     <Field type="checkbox" name="price.tax_inclusive" />
                     <span className="ml-2">Tax Inclusive</span>
@@ -386,12 +512,10 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
                     className="text-red-500 text-sm"
                   />
 
-                  {/* Conditional Fields when tax_inclusive is checked */}
                   <Field name="price.tax_inclusive">
                     {({ field: { value } }: { field: { value: boolean } }) =>
                       value && (
                         <>
-                          {/* GST Rate Field */}
                           <Field
                             name="price.gst_rate"
                             type="number"
@@ -404,7 +528,6 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
                             className="text-red-500 text-sm"
                           />
 
-                          {/* GST Amount Field */}
                           <Field
                             name="price.gst_amount"
                             type="number"
@@ -422,25 +545,27 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
                   </Field>
                 </div>
 
-                <div>
-                  <h3 className="text-xl mb-2">Stock Level</h3>
-                  <Field
-                    name="inventory.stock_level"
-                    type="number"
-                    placeholder="Stock Level"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
-                  />
-                  <ErrorMessage
-                    name="inventory.stock_level"
-                    component="div"
-                    className="text-redColor"
-                  />
-                </div>
+                {formType === ProductOrService.ProductOnly && (
+                  <div>
+                    <h3 className="text-xl mb-2">Stock Level</h3>
+                    <Field
+                      name="inventory.stock_level"
+                      type="number"
+                      placeholder="Stock Level"
+                      className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    />
+                    <ErrorMessage
+                      name="inventory.stock_level"
+                      component="div"
+                      className="text-redColor"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === 3 && formType === ProductOrService.ProductOnly && (
             <div>
               <h2 className="text-2xl mb-4">Shipping & Returns</h2>
               <div className="space-y-4">
@@ -484,10 +609,51 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
             </div>
           )}
 
+          {currentStep === 3 && formType === ProductOrService.ServiceOnly && (
+            <div>
+              <h2 className="text-2xl mb-4">Service Terms</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl mb-2">Contract Start Time</h3>
+                  <Field
+                    type="date"
+                    name="service_terms.contract_time_begining"
+                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                  />
+                  <ErrorMessage
+                    name="service_terms.contract_time_begining"
+                    component="div"
+                    className="text-redColor"
+                  />
+                </div>
+
+                <div>
+                  <h3 className="text-xl mb-2">Contract Length</h3>
+                  <Field
+                    name="service_terms.contract_length"
+                    placeholder="e.g. 2 hours, 3 days, 1 week"
+                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                  />
+                  <ErrorMessage
+                    name="service_terms.contract_length"
+                    component="div"
+                    className="text-redColor"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {currentStep === 4 && (
             <div>
               <h2 className="text-2xl mb-4">Review</h2>
-              <p>Please review all product details before submitting.</p>
+              <p>
+                Please review all{" "}
+                {formType === ProductOrService.ServiceOnly
+                  ? "service"
+                  : "product"}{" "}
+                details before submitting.
+              </p>
               {submitError && (
                 <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
                   <div className="flex">
@@ -506,7 +672,10 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-red-800">
-                        Error Creating Product
+                        Error Creating{" "}
+                        {formType === ProductOrService.ServiceOnly
+                          ? "Service"
+                          : "Product"}
                       </h3>
                       <div className="mt-2 text-sm text-red-700">
                         {submitError}
@@ -537,9 +706,19 @@ export default function ProductForm({ onSubmit, onImageRemove }: Props) {
                       setCurrentStep((prev) => prev + 1);
                     } else {
                       Object.entries(errors).forEach(([field, error]) => {
-                        toast.error(`${field}: ${error}`, {
-                          autoClose: 3000,
-                        });
+                        if (typeof error === "string") {
+                          toast.error(`${field}: ${error}`, {
+                            autoClose: 3000,
+                          });
+                        } else if (error && typeof error === "object") {
+                          Object.entries(error).forEach(
+                            ([subField, subError]) => {
+                              toast.error(`${field}.${subField}: ${subError}`, {
+                                autoClose: 3000,
+                              });
+                            }
+                          );
+                        }
                       });
                     }
                   })

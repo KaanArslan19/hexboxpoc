@@ -56,6 +56,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
           ? Number(campaignEntries.deadline)
           : campaignEntries.deadline,
       is_verified: false,
+      factCheck: false,
       funding_type: campaignEntries.funding_type,
       product_or_service: campaignEntries.product_or_service,
       evm_wa: campaignEntries.wallet_address,
@@ -99,12 +100,15 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       provider
     );
 
-    const donationProduct = new FormData()
+    const donationProduct = new FormData();
     donationProduct.append("image", logoFile);
     donationProduct.append("userId", creatorWalletAddress as string);
     donationProduct.append("campaignId", campaignId);
     donationProduct.append("name", `${campaignEntries.title} Donation`);
-    donationProduct.append("description", `${campaignEntries.title} Donation product if you want to support the project without purchasing their products/services.`);
+    donationProduct.append(
+      "description",
+      `${campaignEntries.title} Donation product if you want to support the project without purchasing their products/services.`
+    );
     donationProduct.append("price", "1");
     donationProduct.append("supply", "0");
 
