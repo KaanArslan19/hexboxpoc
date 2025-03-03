@@ -368,7 +368,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         process.env.NEXT_PUBLIC_TESTNET_RPC_URL
       );
       const receipt = await provider.waitForTransaction(hash);
-
+ 
       if (receipt?.status === 1) {
         alert("Successfully backed the project!");
               // Sync campaign data after successful transaction
