@@ -324,12 +324,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       console.log("Campaign address:", _campaignAddress);
 
       // Check USDC allowance first
-      const hasAllowance = await checkAllowance(_campaignAddress);
-      console.log("hasAllowance", hasAllowance);
-      if (!hasAllowance) {
+      //const hasAllowance = await checkAllowance(_campaignAddress);
+      //console.log("hasAllowance", hasAllowance);
+      //if (!hasAllowance) {
         const approved = await handleApprove(_campaignAddress);
         if (!approved) return;
-      }
+      //}
 
       setIsLoading(true);
 
