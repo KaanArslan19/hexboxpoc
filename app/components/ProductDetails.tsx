@@ -421,7 +421,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       const balance = await productTokenContract.balanceOf(
         address!,
-        product.id
+        product.productId
       );
       setTokenBalance(balance);
       return balance > 0;
