@@ -4,6 +4,7 @@ import RainbowKitProvider from "./RainbowKitProvider";
 import { cookieToInitialState } from "wagmi";
 import wagmiConfig from "@lib/auth/config/wagmi";
 import { headers } from "next/headers";
+import { AuthCheck } from "../AuthCheck";
 
 type ProvidersProps = {
   children: ReactNode;
@@ -23,6 +24,7 @@ export default async function Providers({ children }: ProvidersProps) {
       disableTransitionOnChange
     >
       <RainbowKitProvider initialState={initialState}>
+        <AuthCheck />
         {children}
       </RainbowKitProvider>
     </ThemeProvider>
