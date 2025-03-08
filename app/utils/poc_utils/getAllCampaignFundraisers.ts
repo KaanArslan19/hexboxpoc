@@ -12,12 +12,12 @@ export async function getAllCampaignFundraisers(): Promise<string[]> {
     
     // Map and filter out undefined/null addresses
     const fundraiserAddresses = campaigns
-        .map(campaign => campaign.fundraiser_address)
+        .map(campaign => campaign.fundraiser_address?.toLowerCase())
         .filter((address): address is string => 
             address !== undefined && 
             address !== null && 
             address !== ''
         );
-        
+
     return fundraiserAddresses;
 }

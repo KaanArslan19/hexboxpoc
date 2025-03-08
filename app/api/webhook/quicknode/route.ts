@@ -1,6 +1,8 @@
 import client from "@/app/utils/mongodb";
 import { NextRequest } from "next/server";
 import { getAllCampaignFundraisers } from "@/app/utils/poc_utils/getAllCampaignFundraisers";
+import { ethers } from "ethers";
+import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 
 const WEBHOOK_SECRET = "jhsdhsdah" //process.env.WEBHOOK_SECRET;
 
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const reqData = await req.json();
-    console.log("Data:", reqData);
+    //console.log("Data:", reqData);
 
     // TODO: Handle the webhook data
     if (!reqData || reqData.length === 0) {
@@ -22,59 +24,107 @@ export async function POST(req: NextRequest) {
     }
 
     const campaignFundraisers = await getAllCampaignFundraisers();
-    console.log("Campaign fundraisers:", campaignFundraisers);
+    //console.log("Campaign fundraisers:", campaignFundraisers);
 
     if (!reqData.data[0] || !reqData.data[0].transactions) {
         console.log("No transactions received");
         return Response.json({ message: "No transactions received" });
     }
+    console.log("No. blocks in stream:", reqData.data.length);
+    console.log("Block number:", BigInt(reqData.data[0].number));
 
     const transactions = reqData.data[0].transactions;
-    let filteredTransactions = [];
+    //console.log("Transactions:", transactions);
+
+    // Group transactions by campaign address
+    const campaignTransactions: { [key: string]: any[] } = {};
 
     for (const transaction of transactions) {
-        if (campaignFundraisers.includes(transaction.to)) {
-            const transactionData = {
-                transactionHash: transaction.transactionHash,
-                transactionIndex: transaction.transactionIndex,
-                from: transaction.from,
-                to: transaction.to,
-                value: transaction.value,
-                gas: transaction.gas,
-                gasPrice: transaction.gasPrice,
-                input: transaction.input,
-            }
-            filteredTransactions.push(transactionData);
-        }
+        const campaignAddress = transaction.to?.toLowerCase();
+        const fromAddress = transaction.from?.toLowerCase();
         
-        if (campaignFundraisers.includes(transaction.from)) {
-            const transactionData = {
-                transactionHash: transaction.transactionHash,
-                transactionIndex: transaction.transactionIndex,
-                from: transaction.from,
-                to: transaction.to,
-                value: transaction.value,
-                gas: transaction.gas,
-                gasPrice: transaction.gasPrice,
-                input: transaction.input,
+        // Check if this transaction involves a campaign (either as sender or receiver)
+        const relevantAddress = campaignFundraisers.includes(campaignAddress) 
+            ? campaignAddress 
+            : campaignFundraisers.includes(fromAddress) 
+                ? fromAddress 
+                : null;
+
+        if (relevantAddress) {
+            if (!campaignTransactions[relevantAddress]) {
+                campaignTransactions[relevantAddress] = [];
             }
-            filteredTransactions.push(transactionData);
+
+            // Create interface for decoding
+            const iface = new ethers.Interface(USDCFundraiserABI.abi);
+            
+            // Decode the input data
+            let decodedData;
+            try {
+                decodedData = iface.parseTransaction({ 
+                    data: transaction.input,
+                    value: transaction.value 
+                });
+                
+                const transactionData = {
+                    transactionHash: transaction.hash,
+                    blockNumber: BigInt(reqData.data[0].number),
+                    timestamp: new Date(),
+                    from: transaction.from,
+                    to: transaction.to,
+                    input: transaction.input,
+                    decodedFunction: {
+                        name: decodedData?.name,
+                        args: decodedData?.args.map(arg => 
+                            typeof arg === 'bigint' ? arg.toString() : arg
+                        ),
+                        signature: decodedData?.signature,
+                        formatted: `${decodedData?.name}(${decodedData?.args.map(arg => 
+                            typeof arg === 'bigint' ? arg.toString() : arg
+                        ).join(', ')})`
+                    }
+                };
+                campaignTransactions[relevantAddress].push(transactionData);
+            } catch (error) {
+                console.log("Failed to decode input for transaction:", transaction.transactionHash);
+                const transactionData = {
+                    transactionHash: transaction.hash,
+                    blockNumber: BigInt(reqData.data[0].number),
+                    timestamp: new Date(),
+                    from: transaction.from,
+                    to: transaction.to,
+                    input: transaction.input,
+                    decodedFunction: null
+                };
+                campaignTransactions[relevantAddress].push(transactionData);
+            }
         }
     }
-    if (filteredTransactions.length > 0) {
-        // Connect to MongoDB and save the data
-        const mdbClient = client;
-        const db = mdbClient.db("hexbox_poc");
-        const collection = db.collection("sample_blockchain_data");
-        await collection.insertOne({
-            data: filteredTransactions
-        });
-    } else {
-        console.log("No transactions to save");
+
+    // Update MongoDB for each campaign
+    const db = client.db("hexbox_poc");
+    const campaignsCollection = db.collection("campaigns");
+
+    for (const [campaignAddress, txs] of Object.entries(campaignTransactions)) {
+        if (txs.length > 0) {
+            try {
+                await campaignsCollection.updateOne(
+                    { fundraiser_address: campaignAddress },
+                    { 
+                        $addToSet: { 
+                            transactions: { 
+                                $each: txs 
+                            }
+                        }
+                    },
+                    { upsert: true }
+                );
+                console.log(`Updated transactions for campaign: ${campaignAddress}`);
+            } catch (error) {
+                console.error(`Failed to update transactions for campaign ${campaignAddress}:`, error);
+            }
+        }
     }
 
-    //console.log("✅ Webhook verified:", data);
-
-
-    return Response.json({ message: "Webhook received securely" });
+    return Response.json({ message: "Webhook processed successfully" });
 }
