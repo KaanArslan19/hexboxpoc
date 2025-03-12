@@ -20,7 +20,7 @@ export default async function Home() {
           </p>
         </div>
         <Funnel
-          firstButtonLink="create"
+          firstButtonLink="/campaign/create"
           firstButtonText="Create a campaign"
           secondButtonLink="campaigns"
           secondButtonText="Explore the campaigns"
