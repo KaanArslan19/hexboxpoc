@@ -41,7 +41,7 @@ export default function SystemFeatures() {
       <Funnel
         firstButtonLink="https://hexbox.gitbook.io/hexbox/"
         firstButtonText="Read the Docs"
-        secondButtonLink="create"
+        secondButtonLink="/campaign/create"
         secondButtonText="Create a campaign"
       />
     </div>

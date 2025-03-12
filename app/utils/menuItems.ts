@@ -28,7 +28,7 @@ export const MobileMenuItems: MenuItem[] = [
     label: "Explore",
   },
   {
-    href: "/create",
+    href: "/campaign/create",
     label: "Create",
   },
   {
@@ -59,7 +59,7 @@ export const NavItems: MenuItem[] = [
     label: "Explore",
   },
   {
-    href: "/create",
+    href: "/campaign/create",
     label: "Create",
   },
 ];

@@ -98,7 +98,7 @@ export default function About() {
       <Funnel
         firstButtonLink="campaigns"
         firstButtonText="Explore campaigns"
-        secondButtonLink="create"
+        secondButtonLink="/campaign/create"
         secondButtonText="Create a campaign"
       />
     </div>
