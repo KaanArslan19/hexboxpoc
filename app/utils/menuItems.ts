@@ -6,11 +6,11 @@ export const InfoMenuItems: MenuItem[] = [
     label: "About",
   },
   {
-    href: "https://discord.gg/7XudEQ56",
+    href: "https://discord.com/invite/MYCvTmThYN",
     label: "Contact",
   },
   {
-    href: "https://discord.gg/7XudEQ56",
+    href: "https://discord.com/invite/MYCvTmThYN",
     label: "Join Our Discord",
   },
   {
@@ -36,11 +36,11 @@ export const MobileMenuItems: MenuItem[] = [
     label: "About",
   },
   {
-    href: "https://discord.gg/7XudEQ56",
+    href: "https://discord.com/invite/MYCvTmThYN",
     label: "Contact",
   },
   {
-    href: "https://discord.gg/7XudEQ56",
+    href: "https://discord.com/invite/MYCvTmThYN",
     label: "Join Our Discord",
   },
   {
