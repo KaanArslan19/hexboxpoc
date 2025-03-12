@@ -36,7 +36,12 @@ export default function InfoMenu({ menuItems }: Props) {
       <MenuList className="p-1">
         {menuItems.map(({ href, label }, index) => {
           return (
-            <Link key={index} href={href} className="outline-none">
+            <Link
+              key={index}
+              href={href}
+              className="outline-none"
+              target="_blank"
+            >
               <MenuItem
                 onClick={closeMenu}
                 className="flex items-center gap-2 rounded-none text-black hover:bg-lightBlueColor"

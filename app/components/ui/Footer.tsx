@@ -6,21 +6,18 @@ import {
   FaQuestionCircle,
   FaEnvelope,
 } from "react-icons/fa";
-
-// Reusing your existing MenuItem type
+import { FaXTwitter } from "react-icons/fa6";
 export type MenuItem = {
   href: string;
   label: string;
 };
 
-// Extending the footer with additional sections similar to Kickstarter
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const mainLinks = MobileMenuItems.slice(0, 3); // Explore, Create, About
   const supportLinks = MobileMenuItems.slice(3, 5); // Contact, Discord
-  const resourceLinks = MobileMenuItems.slice(5); // Docs, FAQ
-
+  const resourceLinks = MobileMenuItems.slice(5); // Docs, FAQ, X
   return (
     <footer className="bg-gray-100 border-t border-gray-200">
       <div className="container mx-auto px-4 py-10">
@@ -67,6 +64,7 @@ export const Footer = () => {
             <ul className="space-y-2">
               <Link
                 href="mailto:hexbox.money@gmail.com"
+                target="_blank"
                 className="text-gray-600 hover:text-indigo-600 text-sm flex items-center"
               >
                 <FaEnvelope className="w-4 h-4 mr-2 text-gray-500" />
@@ -79,6 +77,7 @@ export const Footer = () => {
                   )}
                   <Link
                     href={item.href}
+                    target="_blank"
                     className="text-gray-600 hover:text-blueColor/80 text-sm"
                   >
                     {item.label}
@@ -88,7 +87,6 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Resource links */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-blueColor mb-4">
               Resources
@@ -101,6 +99,9 @@ export const Footer = () => {
                   )}
                   {item.label.includes("F.A.Q.") && (
                     <FaQuestionCircle className="w-4 h-4 mr-2 text-gray-500" />
+                  )}
+                  {item.label.includes("Social") && (
+                    <FaXTwitter className="w-4 h-4 mr-2 text-gray-500" />
                   )}
                   <Link
                     href={item.href}

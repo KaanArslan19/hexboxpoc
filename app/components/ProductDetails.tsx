@@ -12,6 +12,7 @@ import type { ProductToken } from "@/app/utils/typechain-types";
 import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductToken.sol/ProductToken.json";
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 import { Tabs } from "antd";
+import { Input } from "@material-tailwind/react";
 interface CampaignProductsProps {
   product: ProductFetch;
 }
@@ -52,16 +53,15 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const [activeTab, setActiveTab] = useState("1");
 
   // Handle tab change
-
   const [isApproving, setIsApproving] = useState(false);
   const [isRefunding, setIsRefunding] = useState(false);
+  const [productQuantity, setProductQuantity] = useState<number>(0);
+
   const [tokenBalance, setTokenBalance] = useState<bigint>(BigInt(0));
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
   //const [campaignAddress, setCampaignAddress] = useState<string | null>(null);
-  const onChange = (key: any) => {
-    setActiveTab(key);
-  };
+
   const items = [
     {
       key: "1",
@@ -255,7 +255,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       );
 
       // Convert product.price to same decimals as USDC for comparison
-      const requiredAmount = ethers.parseUnits(product.price.amount.toString(), 6); // USDC has 6 decimals
+      const requiredAmount = ethers.parseUnits(
+        product.price.amount.toString(),
+        6
+      ); // USDC has 6 decimals
       console.log("allowance", allowance);
       console.log("requiredAmount", requiredAmount);
       console.log("allowance >= requiredAmount", allowance >= requiredAmount);
@@ -327,8 +330,8 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       //const hasAllowance = await checkAllowance(_campaignAddress);
       //console.log("hasAllowance", hasAllowance);
       //if (!hasAllowance) {
-        const approved = await handleApprove(_campaignAddress);
-        if (!approved) return;
+      const approved = await handleApprove(_campaignAddress);
+      if (!approved) return;
       //}
 
       setIsLoading(true);
@@ -343,7 +346,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
           campaignAddress: _campaignAddress,
           userAddress: address,
           productId: product.productId,
-          quantity: 1, // TODO: Change to amount of product user wants to buy
+          quantity: productQuantity,
         }),
       });
 
@@ -368,34 +371,33 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         process.env.NEXT_PUBLIC_TESTNET_RPC_URL
       );
       const receipt = await provider.waitForTransaction(hash);
- 
+
       if (receipt?.status === 1) {
         alert("Successfully backed the project!");
-              // Sync campaign data after successful transaction
+        // Sync campaign data after successful transaction
         try {
-          const syncResponse = await fetch('/api/sync', {
-            method: 'POST',
+          const syncResponse = await fetch("/api/sync", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              fundraiserAddress: _campaignAddress
-            })
+              fundraiserAddress: _campaignAddress,
+            }),
           });
           console.log("Sync response:", syncResponse);
 
           if (!syncResponse.ok) {
-            console.error('Failed to sync campaign data after purchase');
+            console.error("Failed to sync campaign data after purchase");
           } else {
             const syncResult = await syncResponse.json();
-            console.log('Sync after purchase result:', syncResult);
+            console.log("Sync after purchase result:", syncResult);
           }
         } catch (syncError) {
-          console.error('Error syncing campaign after purchase:', syncError);
+          console.error("Error syncing campaign after purchase:", syncError);
         }
         // Refresh token balance after successful purchase
         await checkTokenBalance(_campaignAddress);
-
       } else {
         throw new Error("Transaction failed");
       }
@@ -487,7 +489,15 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       setIsRefunding(false);
     }
   };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
 
+    if (!isNaN(value)) {
+      setProductQuantity(value);
+    } else {
+      setProductQuantity(0);
+    }
+  };
   useEffect(() => {
     const updateTokenBalance = async () => {
       if (isConnected && address) {
@@ -498,11 +508,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
     updateTokenBalance();
   }, [address, isConnected, product.productId]); // Dependencies array includes address and product ID
-  console.log(
-    "---product",
-    `${process.env.R2_BUCKET_URL}/product_images/${product.images.uploadedFiles[0]}`
-  );
-  console.log("product", product);
+
   return (
     <main className="p-8 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -538,34 +544,50 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 <p className="text-lightBlueColor/80 text-sm">Days to Go</p>
                 <p className="text-3xl font-bold">{daysToGo}</p>
               </div>
-              <Link href="" className="w-full md:w-auto">
-                <CustomButton
-                  onClick={handleBackProject}
-                  disabled={isLoading || isApproving}
-                  className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-auto mt-2 ${
-                    isLoading || isApproving
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
-                >
-                  {isApproving
-                    ? "Approving USDC..."
-                    : isLoading
-                    ? "Processing..."
-                    : "Back this Project"}
-                </CustomButton>
-              </Link>
-              {tokenBalance > 0 && (
-                <CustomButton
-                  onClick={handleRefund}
-                  disabled={isRefunding}
-                  className={`py-2 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto mt-2 ${
-                    isRefunding ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {isRefunding ? "Processing Refund..." : "Request Refund"}
-                </CustomButton>
-              )}
+              <div>
+                <Input
+                  placeholder="Enter the desired amount for the product"
+                  className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 "
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  step="1"
+                  type="number"
+                  min="0"
+                  value={productQuantity === 0 ? "" : productQuantity}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Link href="" className="w-full md:w-auto">
+                  <CustomButton
+                    onClick={handleBackProject}
+                    disabled={isLoading || isApproving}
+                    className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-auto mt-2 ${
+                      isLoading || isApproving
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    {isApproving
+                      ? "Approving USDC..."
+                      : isLoading
+                      ? "Processing..."
+                      : "Back this Project"}
+                  </CustomButton>
+                </Link>
+                {tokenBalance > 0 && (
+                  <CustomButton
+                    onClick={handleRefund}
+                    disabled={isRefunding}
+                    className={`py-2 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto mt-2 ${
+                      isRefunding ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {isRefunding ? "Processing Refund..." : "Request Refund"}
+                  </CustomButton>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -577,7 +599,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             tabPosition="left"
             items={items}
             defaultActiveKey="1"
-            className="campaign-details-tabs my-4"
+            className="campaign-details-tabs my-4 custom-tab"
           />
         </div>
       </div>
