@@ -77,6 +77,8 @@ interface SocialLinks {
 }
 export interface NewCampaignInfo {
   title: string;
+  email: string;
+  phoneNumber: string;
   description: string;
   one_liner: string;
   location: string;
@@ -87,6 +89,29 @@ export interface NewCampaignInfo {
   walletAddress: string;
   funding_type: FundingType;
   productOrService: ProductOrService;
+}
+export interface NewCampaignInfoResponse {
+  _id: string;
+  title: string;
+  email: string;
+  phoneNumber: string;
+  description: string;
+  one_liner: string;
+  location: string;
+  deadline: number;
+  social_links: SocialLinks;
+  logo: File;
+}
+export interface CampaignInfoUpdate {
+  title: string;
+  email: string;
+  phoneNumber: string;
+  description: string;
+  one_liner: string;
+  location: string;
+  deadline: number;
+  social_links: SocialLinks;
+  logo: File;
 }
 
 export interface FetchCampaignsProps {

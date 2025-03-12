@@ -85,10 +85,13 @@ export default function CreateProject() {
       formData.append("location", values.location);
       formData.append("wallet_address", values.walletAddress);
       formData.append("deadline", values.deadline.toString());
+      formData.append("email", values.email);
+      formData.append("phoneNumber", values.phoneNumber);
       formData.append("one_liner", values.one_liner);
       formData.append("social_links", values.social_links.toString());
       formData.append("funding_type", values.funding_type.toString());
       formData.append("product_or_service", values.productOrService.toString());
+      formData.append("walletAddress", values.walletAddress);
       console.log(formData);
       const firstResponse = await fetch("/api/createCampaign", {
         method: "POST",

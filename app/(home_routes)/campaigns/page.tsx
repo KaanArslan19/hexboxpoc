@@ -14,7 +14,7 @@ export default async function CampaignsPage() {
           <h1 className="text-4xl lg:text-5xl font-customFont_bold   mb-4 ">
             Explore Campaigns
           </h1>
-          <Link href="/create">
+          <Link href="/campaign/create">
             <CustomButton className="bg-none border-[1px] border-blueColor w-3/4 md:w-full">
               Create a Campaign
             </CustomButton>
