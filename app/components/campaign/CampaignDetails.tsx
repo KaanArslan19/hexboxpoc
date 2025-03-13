@@ -17,7 +17,7 @@ import { TbWorld } from "react-icons/tb";
 import Link from "next/link";
 import formatPrice from "@/app/utils/formatPrice";
 import CampaignProducts from "./CampaignProducts";
-
+import CustomButton from "../ui/CustomButton";
 import { checkServerAuth } from "@/app/utils/CheckServerAuth";
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
@@ -58,8 +58,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
 
   */
 
-  const { isAuthenticated } = await checkServerAuth();
-  console.log("isAuth--", isAuthenticated);
+  const { isAuthenticated, address } = await checkServerAuth();
   const modifiedProps: TokenDetailsProps &
     WalletDetails & { wallet_address: string } = {
     name: "test", //tokenDetails!.name,
@@ -142,7 +141,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     "0%": "#FFC629",
     "100%": "#CE0E2D",
   };
-  console.log("------", user_id);
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative w-full h-[400px]">
@@ -183,6 +181,11 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
               {formatPrice(fund_amount)}
             </p>
           </div>
+          <Link href={`/campaign/update?campaignId=${_id}`}>
+            <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
+              Update Product{" "}
+            </CustomButton>
+          </Link>
         </div>
 
         <div className="flex flex-col items-end gap-4">

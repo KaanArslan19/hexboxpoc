@@ -20,7 +20,6 @@ export const getProducts = async (
       );
       return [];
     }
-    console.log("getProducts----", products);
 
     const formattedProducts: ProductFetch[] = products.map((product) => ({
       id: product._id.toString(),

@@ -1,4 +1,3 @@
-import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getCampaign } from "@/app/utils/getCampaign";
@@ -16,7 +15,6 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
       console.log(session.address);
     } */
 
-    console.log(req.nextUrl.searchParams);
     if (!req.nextUrl.searchParams.has("campaignId")) {
       return NextResponse.json(
         { error: "Campaign ID is required" },
@@ -31,7 +29,6 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
-    console.log(campaignId);
 
     const campaign = await getCampaign(campaignId as string);
     if (!campaign) {

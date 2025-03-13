@@ -103,13 +103,7 @@ export default function CreateProject() {
         throw new Error("Failed to create campaign");
       }
 
-      // Store the response data
-      console.log("responseData");
-      console.log(responseData);
-      console.log("----");
       setData(responseData);
-      console.log("data");
-      console.log(data);
 
       // Pass both transaction and response data
       await sendTransaction(

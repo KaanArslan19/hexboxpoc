@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import ProductForm from "@/app/components/ProductForm";
 import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
-import { getCampaign } from "@/app/utils/getCampaign";
 
 interface Props {
   searchParams: { campaignId: string };

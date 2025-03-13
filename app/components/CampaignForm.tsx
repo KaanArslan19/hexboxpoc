@@ -11,6 +11,9 @@ import { useAccount } from "wagmi";
 import { TiAttachment } from "react-icons/ti";
 import FundingTypeSelector from "./ui/FundingTypeSelector";
 import { productServiceDisplayNames } from "../lib/auth/utils/productServiceDisplayNames";
+
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 const steps = [
   { title: "Project Info" },
   { title: "Description" },
@@ -44,6 +47,8 @@ const validationSchema = [
     deadline: Yup.date()
       .required("Project Deadline date is required")
       .min(new Date(), "Deadline must be in the future"),
+    email: Yup.string().required("Email is required"),
+    phoneNumber: Yup.string().required("Phone Number is required"),
   }),
   Yup.object({
     fundAmount: Yup.number()
@@ -72,6 +77,8 @@ const validationSchema = [
 const initialValues = {
   title: "",
   description: "",
+  email: "",
+  phoneNumber: "",
   fundAmount: 0,
   logo: null,
   deadline: "",
@@ -85,7 +92,6 @@ const initialValues = {
   funding_type: FundingType.Limitless,
   productOrService: ProductOrService.ProductOnly,
 };
-console.log("Product OR Service--", initialValues.productOrService);
 interface Props {
   onSubmit(values: NewCampaignInfo): void;
   onImageRemove?(source: string): void;
@@ -120,6 +126,8 @@ export default function CampaignForm(props: Props) {
     const projectData: NewCampaignInfo = {
       title: values.title,
       description: values.description,
+      email: values.email,
+      phoneNumber: values.phoneNumber,
       fundAmount: Number(values.fundAmount),
       logo: values.logo!,
       deadline: Date.parse(values.deadline),
@@ -157,6 +165,10 @@ export default function CampaignForm(props: Props) {
           onSubmit={(e) => e.preventDefault()}
           className="p-6 max-w-2xl mx-auto"
         >
+          <div>
+            <p>Email: {values.email}</p>
+            <p>Phone: {values.phoneNumber}</p>
+          </div>
           <h1 className="text-3xl text-center mb-4">Create Your Campaign</h1>
           <div className="mb-6">
             <Steps
@@ -229,23 +241,37 @@ export default function CampaignForm(props: Props) {
             <div>
               <h2 className="text-2xl mb-2">Details</h2>
               <p className="text-md mb-8 font-thin">
-                Enter the desired fund amount for your campaign. This is the
-                total funding goal you`d like to reach to support your project`s
-                objectives. Ensure the amount accurately reflects the resources
-                needed to bring your project to life.
+                Provide the essential details about your campaign including
+                project description, location, deadline, and contact
+                information. These details help potential supporters understand
+                your project and how to reach you.
               </p>
-              <h3 className="text-xl mb-2">Projects Description</h3>
-              <Field
-                as="textarea"
-                name="description"
-                placeholder="Description"
-                className="block w-full p-2 border border-gray-300 rounded h-32 mb-8 focus:outline-none focus:border-blueColor"
-              />
-              <ErrorMessage
-                name="description"
-                component="div"
-                className="text-redColor/80 mb-2"
-              />
+              <div className="mb-2">
+                <h3 className="text-xl mb-2">Projects Description</h3>
+
+                <Field
+                  as="textarea"
+                  name="description"
+                  placeholder="Write your description using Markdown..."
+                  className="block w-full p-2 border border-gray-300 rounded h-32 mb-4 focus:outline-none focus:border-blue-500"
+                />
+
+                <ErrorMessage
+                  name="description"
+                  component="div"
+                  className="text-red-500 mb-2"
+                />
+
+                <div className="border border-gray-300 p-4 rounded bg-gray-50">
+                  <h4 className="font-semibold mb-2">Preview:</h4>
+                  <div className="prose max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {values.description}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              </div>
+
               <h3 className="text-xl mb-2">Projects Location</h3>
               <Field
                 name="location"
@@ -266,6 +292,28 @@ export default function CampaignForm(props: Props) {
               />
               <ErrorMessage
                 name="deadline"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+              <h3 className="text-xl mb-2">Contact Information</h3>
+              <Field
+                name="email"
+                type="email"
+                placeholder="Email Address"
+                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              />
+              <ErrorMessage
+                name="email"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+              <Field
+                name="phoneNumber"
+                placeholder="Phone Number"
+                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              />
+              <ErrorMessage
+                name="phoneNumber"
                 component="div"
                 className="text-redColor/80 mb-2"
               />

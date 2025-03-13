@@ -1,9 +1,5 @@
-import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { uploadImageToR2 } from "@/app/utils/imageUpload";
-import { ObjectId } from "mongodb";
-import { getCampaign } from "@/app/utils/getCampaign";
+
 import { buyToken } from "@/app/utils/poc_utils/buyToken";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {

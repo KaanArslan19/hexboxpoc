@@ -22,12 +22,10 @@ export default async function ProductDetailsPage({ searchParams }: Props) {
     return <div>Product not found</div>;
   }
   const campaign = await fetchSingleCampaign(product.campaignId);
-  console.log(campaign);
   const plainCampaign = {
     ...campaign,
     _id: campaign._id.toString(),
     created_timestamp: campaign.created_timestamp?.toISOString(),
   };
-  console.log("campaign---", plainCampaign);
   return <ProductDetails campaign={plainCampaign} product={product} />;
 }
