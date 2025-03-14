@@ -19,6 +19,8 @@ import formatPrice from "@/app/utils/formatPrice";
 import CampaignProducts from "./CampaignProducts";
 import CustomButton from "../ui/CustomButton";
 import { checkServerAuth } from "@/app/utils/CheckServerAuth";
+import getCampaignTransactions from "@/app/utils/poc_utils/getCampaignTransactions";
+
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
   deadline,
@@ -35,7 +37,11 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   user_id,
   products,
   product_or_service,
+  transactions,
+  fundraiser_address,
 }) => {
+  //const transactions = await getCampaignTransactions(_id);
+  
   /*   
   const tokenDetails = await getTokenDetails(token_address); 
   const mappedTransactions = tokenDetails!.transactions.map((item: any) => ({
@@ -59,16 +65,19 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   */
 
   const { isAuthenticated, address } = await checkServerAuth();
-  const modifiedProps: TokenDetailsProps &
+  const modifiedProps: any &
     WalletDetails & { wallet_address: string } = {
     name: "test", //tokenDetails!.name,
     supply: 1000000, //tokenDetails!.supply,
     available_supply: 1000000, //tokenDetails!.available_supply,
     price: 1, //tokenDetails!.price,
     holders: [{ address: "0x123", balance: 1000000 }], //mappedHolders,
-    transactions: [
-      { address: "0x123", type: "buy", amount: 1000000, timestamp: new Date() },
-    ], //mappedTransactions,
+    transactions: transactions,
+    fundraiser_address: fundraiser_address,
+    // transactions: 
+    // [
+    //   { address: "0x123", type: "buy", amount: 1000000, timestamp: new Date() },
+    // ], //mappedTransactions,
     _id: "123", //tokenDetails!._id.toString(),
     wallet_address: "0x123", //walletDetails!.wallet_address,
     total_funds: 1000000, //walletDetails!.total_funds,

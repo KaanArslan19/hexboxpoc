@@ -48,6 +48,8 @@ export interface CampaignDetailsProps {
   wallet_address: string;
   status: Status;
   products: ProductFetch[];
+  transactions: any[];
+  fundraiser_address: string;
 }
 enum Status {
   Active = "active",
