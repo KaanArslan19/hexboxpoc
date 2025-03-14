@@ -461,7 +461,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       // Encode the refund function call
       const txData = contract.interface.encodeFunctionData("claimRefund", [
         BigInt(product.productId),
-        BigInt(1), // Refund 1 token for now, could be made variable
+        BigInt(productQuantity),
       ]);
 
       const hash = await walletClient.sendTransaction({
