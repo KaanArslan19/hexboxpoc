@@ -188,12 +188,14 @@ interface Props {
   productOrService: string;
   onSubmit(values: ProductNew): void;
   onImageRemove?(source: string): void;
+  isSubmitting?: boolean;
 }
 
 export default function ProductForm({
   onSubmit,
   onImageRemove,
   productOrService,
+  isSubmitting = false,
 }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [logo, setLogo] = useState<File | null>(null);
@@ -732,15 +734,15 @@ export default function ProductForm({
               <button
                 type="submit"
                 onClick={() => {
-                  if (!isPending) {
+                  if (!isPending && !isSubmitting) {
                     setSubmitError(null);
                     submitForm();
                   }
                 }}
-                disabled={isPending}
+                disabled={isPending || isSubmitting}
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
               >
-                {isPending ? (
+                {isPending || isSubmitting ? (
                   <div className="flex items-center text-white">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"

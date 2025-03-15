@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import ProductForm from "@/app/components/ProductForm";
-import { useAccount } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface Props {
   searchParams: { campaignId: string };
@@ -13,7 +14,11 @@ export default function CreateProductPage({ searchParams }: Props) {
 
   const router = useRouter();
   const userId = useAccount().address;
+  const { data: walletClient } = useWalletClient();
   const [productOrService, setProductOrService] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
@@ -30,11 +35,20 @@ export default function CreateProductPage({ searchParams }: Props) {
 
     fetchCampaign();
   }, [campaignId, router]);
+
   const handleCreateProduct = async (values: any) => {
     try {
       if (!userId) {
         throw new Error("User not authenticated");
       }
+      
+      if (!walletClient) {
+        throw new Error("Wallet not connected");
+      }
+
+      setIsSubmitting(true);
+      setTransactionStatus("Preparing product data...");
+
       const formData = new FormData();
       formData.append("campaignId", campaignId);
       formData.append("userId", userId);
@@ -64,25 +78,50 @@ export default function CreateProductPage({ searchParams }: Props) {
       );
 
       console.log("formDataPages---", formData);
+      setTransactionStatus("Saving product to database...");
       const response = await fetch("/api/create-product", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create product");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create product");
       }
 
+      // Success - redirect to campaign page
+      setTransactionStatus("Success! Redirecting...");
+      toast.success("Product created successfully!", {
+        position: "top-center",
+        autoClose: 5000,
+      });
+      setIsSubmitting(false); 
       router.push("/campaign?campaignId=" + campaignId);
-    } catch (error) {
-      console.error("Error creating product:", error);
-      alert("Error creating product. Please try again.");
+    } catch (txError: any) {
+      console.error("Transaction error:", txError);
+      toast.error(`Transaction error: ${txError.message || "Unknown error"}`, {
+        position: "top-center",
+        autoClose: 5000,
+      });
+      setTransactionStatus(null);
+      throw new Error(`Transaction failed: ${txError.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+  
   return (
-    <ProductForm
-      productOrService={productOrService}
-      onSubmit={handleCreateProduct}
-    />
+    <div>
+      {transactionStatus && (
+        <div className="fixed top-0 left-0 w-full bg-blue-500 text-white p-4 z-50 text-center">
+          {transactionStatus}
+        </div>
+      )}
+      <ProductForm
+        productOrService={productOrService}
+        onSubmit={handleCreateProduct}
+        isSubmitting={isSubmitting}
+      />
+    </div>
   );
 }
