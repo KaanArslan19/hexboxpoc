@@ -41,7 +41,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   fundraiser_address,
 }) => {
   //const transactions = await getCampaignTransactions(_id);
-  
+
   /*   
   const tokenDetails = await getTokenDetails(token_address); 
   const mappedTransactions = tokenDetails!.transactions.map((item: any) => ({
@@ -65,8 +65,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   */
 
   const { isAuthenticated, address } = await checkServerAuth();
-  const modifiedProps: any &
-    WalletDetails & { wallet_address: string } = {
+  console.log("address", address);
+  const campaignOwner = address === user_id;
+  const modifiedProps: any & WalletDetails & { wallet_address: string } = {
     name: "test", //tokenDetails!.name,
     supply: 1000000, //tokenDetails!.supply,
     available_supply: 1000000, //tokenDetails!.available_supply,
@@ -74,7 +75,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     holders: [{ address: "0x123", balance: 1000000 }], //mappedHolders,
     transactions: transactions,
     fundraiser_address: fundraiser_address,
-    // transactions: 
+    // transactions:
     // [
     //   { address: "0x123", type: "buy", amount: 1000000, timestamp: new Date() },
     // ], //mappedTransactions,
@@ -190,11 +191,13 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
               {formatPrice(fund_amount)}
             </p>
           </div>
-          <Link href={`/campaign/update?campaignId=${_id}`}>
-            <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
-              Update Product{" "}
-            </CustomButton>
-          </Link>
+          {campaignOwner && (
+            <Link href={`/campaign/update?campaignId=${_id}`}>
+              <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
+                Update Campaign
+              </CustomButton>
+            </Link>
+          )}
         </div>
 
         <div className="flex flex-col items-end gap-4">

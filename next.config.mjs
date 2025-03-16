@@ -18,6 +18,8 @@ const nextConfig = {
     NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:
       process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
     JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+    NEXT_PUBLIC_TESTNET_RPC_URL: process.env.NEXT_PUBLIC_TESTNET_RPC_URL,
+    DEPLOYER_PRIVATE_KEY: process.env.DEPLOYER_PRIVATE_KEY,
   },
   images: {
     remotePatterns: [

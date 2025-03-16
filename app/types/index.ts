@@ -61,6 +61,11 @@ export enum FundingType {
   AllOrNothing = "AllOrNothing",
   Flexible = "Flexible",
 }
+export enum ProductOrService {
+  ProductOnly = "ProductOnly",
+  ServiceOnly = "ServiceOnly",
+  ProductAndService = "ProductAndService",
+}
 
 export interface CampaignItemProps {
   id: string;
@@ -103,6 +108,10 @@ export interface NewCampaignInfoResponse {
   deadline: number;
   social_links: SocialLinks;
   logo: File;
+  fund_amount: number;
+  funding_type: FundingType;
+  product_or_service: ProductOrService;
+  wallet_address: string;
 }
 export interface CampaignInfoUpdate {
   title: string;
@@ -113,7 +122,11 @@ export interface CampaignInfoUpdate {
   location: string;
   deadline: number;
   social_links: SocialLinks;
-  logo: File;
+  logo: File | string;
+  fund_amount: number;
+  funding_type: FundingType;
+  product_or_service: ProductOrService;
+  wallet_address: string;
 }
 
 export interface FetchCampaignsProps {
@@ -206,11 +219,6 @@ export interface NewProductInfo {
   supply: number;
 }
 
-export enum ProductOrService {
-  ProductOnly = "ProductOnly",
-  ServiceOnly = "ServiceOnly",
-  ProductAndService = "ProductAndService",
-}
 export enum ProductCategory {
   TECH = "Tech & Innovation",
   ART = "Art & Creative",
@@ -263,5 +271,4 @@ export interface ProductNew {
   images: File[];
 
   status: string;
-  supply: number;
 }

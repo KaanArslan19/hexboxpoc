@@ -6,7 +6,6 @@ import { Steps } from "antd";
 import ImageSelector from "./ui/ImageSelector";
 import { NewCampaignInfo, FundingType, ProductOrService } from "../types";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { TiAttachment } from "react-icons/ti";
 import FundingTypeSelector from "./ui/FundingTypeSelector";
@@ -189,13 +188,13 @@ export default function CampaignForm(props: Props) {
 
           {currentStep === 0 && (
             <div>
-              <h2 className="text-2xl mb-2">Project Info</h2>
+              <h2 className="text-2xl mb-2">Campaign Info</h2>
               <p className="text-md mb-8 font-thin">
-                Enter your project`s details. Only the sections marked as
+                Enter your campaign`s details. Only the sections marked as
                 optional can be changed after deployment; all other information
                 will be fixed once submitted.
               </p>
-              <h3 className="text-xl mb-2">Projects Title</h3>
+              <h3 className="text-xl mb-2">Campaigns Title</h3>
               <Field
                 name="title"
                 type="text"
@@ -207,7 +206,7 @@ export default function CampaignForm(props: Props) {
                 component="div"
                 className="text-redColor/80 mb-2"
               />
-              <h3 className="text-xl mb-2">Projects One Liner</h3>
+              <h3 className="text-xl mb-2">Campaigns One Liner</h3>
               <Field
                 name="one_liner"
                 placeholder="One Liner"
@@ -242,12 +241,12 @@ export default function CampaignForm(props: Props) {
               <h2 className="text-2xl mb-2">Details</h2>
               <p className="text-md mb-8 font-thin">
                 Provide the essential details about your campaign including
-                project description, location, deadline, and contact
+                campaign description, location, deadline, and contact
                 information. These details help potential supporters understand
-                your project and how to reach you.
+                your campaign and how to reach you.
               </p>
               <div className="mb-2">
-                <h3 className="text-xl mb-2">Projects Description</h3>
+                <h3 className="text-xl mb-2">Campaign Description</h3>
 
                 <Field
                   as="textarea"
@@ -272,7 +271,7 @@ export default function CampaignForm(props: Props) {
                 </div>
               </div>
 
-              <h3 className="text-xl mb-2">Projects Location</h3>
+              <h3 className="text-xl mb-2">Campaigns Location</h3>
               <Field
                 name="location"
                 placeholder="Location"
@@ -283,7 +282,7 @@ export default function CampaignForm(props: Props) {
                 component="div"
                 className="text-redColor/80 mb-2"
               />
-              <h3 className="text-xl mb-2">Projects Deadline</h3>
+              <h3 className="text-xl mb-2">Campaigns Deadline</h3>
               <Field
                 name="deadline"
                 type="date"
@@ -420,7 +419,7 @@ export default function CampaignForm(props: Props) {
             <div>
               <h2 className="text-2xl mb-2">Choose Your Funding Type</h2>
               <p className="text-md mb-8 font-thin">
-                Select the funding model that best fits your project`s needs.
+                Select the funding model that best fits your campaign`s needs.
               </p>
 
               <FundingTypeSelector
