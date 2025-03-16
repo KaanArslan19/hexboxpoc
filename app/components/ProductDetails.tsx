@@ -375,27 +375,27 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       if (receipt?.status === 1) {
         alert("Successfully backed the project!");
         // Sync campaign data after successful transaction
-        try {
-          const syncResponse = await fetch("/api/sync", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              fundraiserAddress: _campaignAddress,
-            }),
-          });
-          console.log("Sync response:", syncResponse);
+        // try {
+        //   const syncResponse = await fetch("/api/sync", {
+        //     method: "POST",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({
+        //       fundraiserAddress: _campaignAddress,
+        //     }),
+        //   });
+        //   console.log("Sync response:", syncResponse);
 
-          if (!syncResponse.ok) {
-            console.error("Failed to sync campaign data after purchase");
-          } else {
-            const syncResult = await syncResponse.json();
-            console.log("Sync after purchase result:", syncResult);
-          }
-        } catch (syncError) {
-          console.error("Error syncing campaign after purchase:", syncError);
-        }
+        //   if (!syncResponse.ok) {
+        //     console.error("Failed to sync campaign data after purchase");
+        //   } else {
+        //     const syncResult = await syncResponse.json();
+        //     console.log("Sync after purchase result:", syncResult);
+        //   }
+        // } catch (syncError) {
+        //   console.error("Error syncing campaign after purchase:", syncError);
+        // }
         // Refresh token balance after successful purchase
         await checkTokenBalance(_campaignAddress);
       } else {

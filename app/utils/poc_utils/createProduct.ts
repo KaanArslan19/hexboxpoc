@@ -58,7 +58,7 @@ export async function createProduct(formData: FormData) {
     category: productEntries.category,
     returnPolicy: productEntries.productReturnPolicy,
     price: productEntries.price,
-    supply: productEntries.supply,
+    supply: JSON.parse(productEntries.inventory as string).stock_level,
     status: "available",
     timestamp: Date.now(),
   };

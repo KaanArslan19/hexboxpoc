@@ -2,6 +2,7 @@ import client from "@/app/utils/mongodb";
 import { ethers } from "ethers";
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
 import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import { ObjectId } from "mongodb";
 
 export async function syncExternalData(fundraiserAddress?: string) {
   try {
@@ -29,17 +30,24 @@ export async function syncExternalData(fundraiserAddress?: string) {
         );
 
         // Fetch on-chain data
-        let [isFinalized, deadline, minimumTarget, totalRaised] = await Promise.all([
+        let [isFinalized, deadline, minimumTarget, totalRaised, productIds] = await Promise.all([
           contract.finalized(),
           contract.deadline(),
           contract.minimumTarget(),
-          contract.totalRaised()
+          contract.totalRaised(),
+          contract.getProductIds(),
         ]);
 
         if (isFinalized == true) {
             isFinalized = "finalized";
         } else {
             isFinalized = "active";
+        }
+
+        // Get campaign from database
+        const campaign = await db.collection("campaigns").findOne({ fundraiser_address: address });
+        if (!campaign) {
+          throw new Error(`Campaign not found for fundraiser address: ${address}`);
         }
 
         // Update campaign in database
@@ -56,10 +64,14 @@ export async function syncExternalData(fundraiserAddress?: string) {
           }
         );
 
+        // Sync product stock levels
+        const productUpdates = await syncProductStockLevels(db, contract, productIds, campaign._id);
+
         return {
           address,
           success: true,
-          message: "Sync completed"
+          message: "Sync completed",
+          productUpdates
         };
       } catch (error) {
         console.error(`Error syncing fundraiser ${address}:`, error);
@@ -82,5 +94,96 @@ export async function syncExternalData(fundraiserAddress?: string) {
   } catch (error) {
     console.error("Sync error:", error);
     return { success: false, error: String(error) };
+  }
+}
+
+async function syncProductStockLevels(db: any, contract: any, productIds: any, campaignId: any) {
+  try {
+    const productUpdates = [];
+    console.log(`Syncing product stock levels for campaign: ${campaignId}`);
+    console.log(`Product IDs: ${productIds}`);
+    // Get all products for this campaign
+    const products = await db.collection("products").find({
+      campaignId: campaignId.toString(),
+    }).toArray();
+
+    // Create a map of productId to product for quick lookup
+    const productMap: { [key: string]: any } = {};
+    products.forEach((product: any) => {
+      console.log(`Product: ${JSON.stringify(product)}`);
+      if (product.productId) {
+        productMap[product.productId] = product;
+      }
+    });
+
+    // Process each product ID from the blockchain
+    for (const productId of productIds) {
+      try {
+        // Get product sold count from blockchain
+        const soldCount = await contract.productSoldCount(productId);
+        
+        // Get product config to check supply limit
+        const productConfig = await contract.products(productId);
+        const supplyLimit = productConfig.supplyLimit;
+        
+        // Find the corresponding product in our database
+        const product = productMap[productId.toString()];
+        console.log(`Product map: ${JSON.stringify(productMap)}`);
+        
+        if (product) {
+          // Calculate remaining stock
+          let remainingStock = 0;
+          
+          if (supplyLimit.toString() === "0") {
+            // If supplyLimit is 0, it means unlimited supply
+            remainingStock = -1; // Use -1 to represent unlimited
+          } else {
+            remainingStock = Number(supplyLimit) - Number(soldCount);
+            if (remainingStock < 0) remainingStock = 0;
+          }
+
+          console.log(`Remaining stock for product ${productId}: ${remainingStock}`);
+          const inventoryUpdateString = JSON.stringify({
+            stock_level: remainingStock
+          });
+
+          // Update the product in the database
+          await db.collection("products").updateOne(
+            { _id: new ObjectId(product._id) },
+            {
+              $set: {
+                inventory: inventoryUpdateString,
+                last_synced: Date.now(),
+                sold_count: soldCount.toString()
+              }
+            }
+          );
+          
+          productUpdates.push({
+            lastSync: Date.now(),
+            productId: product._id,
+            productTokenId: productId.toString(),
+            soldCount: Number(soldCount),
+            remainingStock,
+            supplyLimit: supplyLimit.toString()
+          });
+
+          console.log(`Product updates: ${JSON.stringify(productUpdates)}`);
+        } else {
+          console.log(`Product not found for productId: ${productId}`);
+        }
+      } catch (error) {
+        console.error(`Error syncing product ${productId}:`, error);
+        productUpdates.push({
+          productTokenId: productId.toString(),
+          error: String(error)
+        });
+      }
+    }
+    
+    return productUpdates;
+  } catch (error) {
+    console.error("Error syncing product stock levels:", error);
+    return { error: String(error) };
   }
 } 

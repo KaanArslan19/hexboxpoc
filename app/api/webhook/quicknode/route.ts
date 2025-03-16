@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { getAllCampaignFundraisers } from "@/app/utils/poc_utils/getAllCampaignFundraisers";
 import { ethers } from "ethers";
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
-
+import { syncExternalData } from "@/app/utils/sync/syncExternalData";
 const WEBHOOK_SECRET = "jhsdhsdah" //process.env.WEBHOOK_SECRET;
 
 export async function POST(req: NextRequest) {
@@ -120,6 +120,9 @@ export async function POST(req: NextRequest) {
                     { upsert: true }
                 );
                 console.log(`Updated transactions for campaign: ${campaignAddress}`);
+                // Sync product stock levels
+                const productUpdates = await syncExternalData(campaignAddress);
+                console.log(`Product updates: ${JSON.stringify(productUpdates)}`);
             } catch (error) {
                 console.error(`Failed to update transactions for campaign ${campaignAddress}:`, error);
             }
