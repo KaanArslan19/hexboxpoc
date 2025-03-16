@@ -169,7 +169,6 @@ const productInitialValues: ProductNew = {
   logo: "",
   images: [],
   status: "draft",
-  supply: 1,
 };
 
 const serviceInitialValues = {
