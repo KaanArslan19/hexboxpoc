@@ -4,6 +4,26 @@ import { CONTRACTS } from "@/app/utils/contracts/contracts";
 import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 import { ObjectId } from "mongodb";
 
+/**
+ * Format a blockchain amount (in smallest unit) to a human-readable format
+ * Converts from the smallest unit (e.g., 1000000 for USDC) to a decimal value (e.g., 1.0)
+ * Removes trailing zeros and decimal point if it's a whole number
+ * @param amount The amount in smallest unit (e.g., 1000000 for 1 USDC)
+ * @param decimals The number of decimal places (default: 6 for USDC)
+ * @returns Formatted string representation
+ */
+function formatAmount(amount: string | number, decimals: number = 6): string {
+  // Convert to a decimal number by dividing by 10^decimals
+  const value = Number(amount) / Math.pow(10, decimals);
+  
+  // Convert to string and remove trailing zeros
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+    useGrouping: false
+  });
+}
+
 export async function syncExternalData(fundraiserAddress?: string) {
   try {
     const db = client.db("hexbox_poc");
@@ -44,6 +64,13 @@ export async function syncExternalData(fundraiserAddress?: string) {
             isFinalized = "active";
         }
 
+        // Format the amounts for human readability
+        const formattedTotalRaised = formatAmount(totalRaised);
+        const formattedMinimumTarget = formatAmount(minimumTarget);
+
+        console.log(`Total raised: ${totalRaised} -> ${formattedTotalRaised}`);
+        console.log(`Minimum target: ${minimumTarget} -> ${formattedMinimumTarget}`);
+
         // Get campaign from database
         const campaign = await db.collection("campaigns").findOne({ fundraiser_address: address });
         if (!campaign) {
@@ -57,9 +84,9 @@ export async function syncExternalData(fundraiserAddress?: string) {
             $set: {
               status: isFinalized,
               deadline: deadline.toString(),
-              minimum_target: minimumTarget.toString(),
-              total_raised: totalRaised.toString(),
-              last_synced: new Date()
+              fund_amount: formattedMinimumTarget,
+              total_raised: formattedTotalRaised,
+              last_synced: Date.now()
             }
           }
         );
