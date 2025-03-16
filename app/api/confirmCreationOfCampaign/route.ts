@@ -262,7 +262,7 @@ export const POST = async (req: NextRequest) => {
             $set: {
               configured: true,
               upkeep_id: upkeepID.toString(),
-              fundraiser_address: fundraiserAddress,
+              fundraiser_address: fundraiserAddress.toLowerCase(),
             },
           }
         );

@@ -61,6 +61,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       product_or_service: campaignEntries.product_or_service,
       evm_wa: campaignEntries.wallet_address,
       configured: false,
+      transactions: [],
     };
 
     // console.log(campaign);
