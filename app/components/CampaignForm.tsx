@@ -13,6 +13,21 @@ import { productServiceDisplayNames } from "../lib/auth/utils/productServiceDisp
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+// Add a reverse mapping from display names to actual enum values
+const productServiceEnumMap: Record<string, ProductOrService> = {
+  "Only Product": ProductOrService.ProductOnly,
+  "Only Service": ProductOrService.ServiceOnly,
+  "Product and Service": ProductOrService.ProductAndService
+};
+
+// Add a mapping from enum values to display names for initialValues
+const enumToDisplayName: Record<string, string> = {
+  [ProductOrService.ProductOnly]: "Only Product",
+  [ProductOrService.ServiceOnly]: "Only Service",
+  [ProductOrService.ProductAndService]: "Product and Service"
+};
+
 const steps = [
   { title: "Project Info" },
   { title: "Description" },
@@ -56,13 +71,13 @@ const validationSchema = [
       .min(0.0000001, "Fund amount must be greater than 0"),
     productOrService: Yup.string()
       .required("Product/Service type is required")
-      .oneOf(
-        [
-          ProductOrService.ProductOnly,
-          ProductOrService.ServiceOnly,
-          ProductOrService.ProductAndService,
-        ],
-        "Invalid product/service type"
+      .test(
+        'is-valid-product-service',
+        'Invalid product/service type',
+        (value) => {
+          // Check if the display name maps to a valid enum value
+          return !!productServiceEnumMap[value];
+        }
       ),
     walletAddress: Yup.string().required("Wallet address is required"),
   }),
@@ -89,7 +104,7 @@ const initialValues = {
   website: "",
   linkedIn: "",
   funding_type: FundingType.Limitless,
-  productOrService: ProductOrService.ProductOnly,
+  productOrService: enumToDisplayName[ProductOrService.ProductOnly],  // Use display name here
 };
 interface Props {
   onSubmit(values: NewCampaignInfo): void;
@@ -114,13 +129,16 @@ export default function CampaignForm(props: Props) {
     FundingType.Limitless
   );
   const [selectedProductService, setSelectedProductService] =
-    useState<ProductOrService>(initialValues.productOrService);
+    useState<ProductOrService>(ProductOrService[initialValues.productOrService as keyof typeof ProductOrService]);
   const { address } = useAccount();
 
   const handleSubmit = async (values: typeof initialValues) => {
     console.log(values);
     setIsPending(true);
     setSubmitError(null);
+
+    // Map the display name to the actual enum value
+    const productOrServiceEnum = productServiceEnumMap[values.productOrService] || ProductOrService.ProductOnly;
 
     const projectData: NewCampaignInfo = {
       title: values.title,
@@ -140,7 +158,7 @@ export default function CampaignForm(props: Props) {
       },
       walletAddress: values.walletAddress,
       funding_type: values.funding_type as FundingType,
-      productOrService: values.productOrService as ProductOrService,
+      productOrService: productOrServiceEnum,
     };
 
     try {
@@ -363,16 +381,20 @@ export default function CampaignForm(props: Props) {
               <Field
                 as="select"
                 name="productOrService"
-                className="block w-full p-2 border border-gray-300  rounded mb-2 focus:outline-none"
+                className="block w-full p-2 border border-gray-300 rounded mb-2 focus:outline-none"
                 value={values.productOrService}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setFieldValue("productOrService", e.target.value);
-                  setSelectedProductService(e.target.value as ProductOrService);
+                  const displayName = e.target.value;
+                  setFieldValue("productOrService", displayName);
+                  
+                  // Convert display name to enum value for the description
+                  const enumValue = productServiceEnumMap[displayName];
+                  setSelectedProductService(enumValue);
                 }}
               >
-                {Object.values(productServiceDisplayNames).map((type) => (
-                  <option key={type} value={type}>
-                    {type}
+                {Object.values(enumToDisplayName).map((displayName) => (
+                  <option key={displayName} value={displayName}>
+                    {displayName}
                   </option>
                 ))}
               </Field>
