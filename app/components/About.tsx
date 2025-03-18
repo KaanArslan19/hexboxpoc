@@ -83,7 +83,7 @@ export default function About() {
               />
             </div>
             <div className="flex-1 p-6 flex flex-col">
-              <h4 className="text-2xl font-semibold text-center mb-4">
+              <h4 className="text-2xl font-customFont_regular text-center mb-4 text-orangeColor">
                 {item.header}
               </h4>
               <div className="flex-1 overflow-y-auto">

@@ -57,7 +57,8 @@ const OurStory = () => {
           </div>
         </div>
         <div className="w-full lg:w-2/3">
-          <h2 className="text-4xl xl:text-6xl font-light mb-8 text-center ">
+          <h2 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont text-blueColor tracking-tight">
+            {" "}
             Our Story
           </h2>
           <div className="relative h-[500px] md:h-[300px] lg:h-[300px] w-full">
