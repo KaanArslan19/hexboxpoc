@@ -177,3 +177,11 @@ h2 {
 :where(.css-dev-only-do-not-override-ni1kz0).ant-tabs .ant-tabs-ink-bar {
   background-color: #e94e1b !important;
 }
+
+[data-rk] .ju367v9i {
+  background-color: #002d5d !important;
+}
+
+.animate-spin-slow {
+  animation: spin 2s linear infinite;
+}
