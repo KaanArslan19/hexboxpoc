@@ -238,8 +238,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     return data.campaign.fundraiser_address;
   };
 
-  const checkAllowance = async (_campaignAddress: string) => {
+  const checkUSDCBalance = async () => {
     try {
+      if (!address) return false;
+      
       const provider = new ethers.JsonRpcProvider(
         process.env.NEXT_PUBLIC_TESTNET_RPC_URL
       );
@@ -249,23 +251,13 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         provider
       );
 
-      const allowance = await usdcContract.allowance(
-        address!,
-        _campaignAddress
-      );
-
-      // Convert product.price to same decimals as USDC for comparison
-      const requiredAmount = ethers.parseUnits(
-        product.price.amount.toString(),
-        6
-      ); // USDC has 6 decimals
-      console.log("allowance", allowance);
-      console.log("requiredAmount", requiredAmount);
-      console.log("allowance >= requiredAmount", allowance >= requiredAmount);
-      return allowance >= requiredAmount;
+      const balance = await usdcContract.balanceOf(address);
+      console.log("User USDC balance:", ethers.formatUnits(balance, 6));
+      
+      return balance;
     } catch (error) {
-      console.error("Error checking allowance:", error);
-      return false;
+      console.error("Error checking USDC balance:", error);
+      return BigInt(0);
     }
   };
 
@@ -287,11 +279,29 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         provider
       );
 
-      // Approve maximum amount (or you can approve exact amount needed)
-      const maxAmount = ethers.MaxUint256;
+      const getCalculatedPrice = await fetch(`/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const calculatedPrice = await getCalculatedPrice.json();
+      console.log("Calculated price:", calculatedPrice);
+      const totalPrice = ethers.parseUnits(calculatedPrice.totalPrice.toString(), 6);
+      
+      // Check if user has enough USDC
+      const usdcBalance = await checkUSDCBalance();
+      if (usdcBalance < totalPrice) {
+        const formattedBalance = ethers.formatUnits(usdcBalance, 6);
+        const formattedPrice = ethers.formatUnits(totalPrice, 6);
+        throw new Error(`Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`);
+      }
+
+      // Approve exact amount needed
       const txData = usdcContract.interface.encodeFunctionData("approve", [
         _campaignAddress,
-        maxAmount,
+        totalPrice,
       ]);
 
       const hash = await walletClient.sendTransaction({
@@ -309,7 +319,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       }
     } catch (error) {
       console.error("Error approving USDC:", error);
-      alert("Failed to approve USDC spending. Please try again.");
+      alert(error instanceof Error ? error.message : "Failed to approve USDC spending. Please try again.");
       return false;
     } finally {
       setIsApproving(false);
@@ -321,18 +331,39 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       alert("Please connect your wallet first");
       return;
     }
+    
+    if (productQuantity <= 0) {
+      alert("Please enter a valid quantity");
+      return;
+    }
 
     try {
       const _campaignAddress = await getCampaignAddress();
       console.log("Campaign address:", _campaignAddress);
+      
+      // Get the calculated price first
+      const getCalculatedPrice = await fetch(`/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-      // Check USDC allowance first
-      //const hasAllowance = await checkAllowance(_campaignAddress);
-      //console.log("hasAllowance", hasAllowance);
-      //if (!hasAllowance) {
+      const calculatedPrice = await getCalculatedPrice.json();
+      const totalPrice = ethers.parseUnits(calculatedPrice.totalPrice.toString(), 6);
+      
+      // Check if user has enough USDC
+      const usdcBalance = await checkUSDCBalance();
+      if (usdcBalance < totalPrice) {
+        const formattedBalance = ethers.formatUnits(usdcBalance, 6);
+        const formattedPrice = ethers.formatUnits(totalPrice, 6);
+        alert(`Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`);
+        return;
+      }
+
+      // Proceed with approval and transaction
       const approved = await handleApprove(_campaignAddress);
       if (!approved) return;
-      //}
 
       setIsLoading(true);
 
