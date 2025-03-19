@@ -37,7 +37,7 @@ const ProductCard: React.FC<ProductFetch> = ({
         ${price.amount.toLocaleString()}
       </span>
       <span className="text-sm text-lightBlueColor">
-        Supply: {supply.toLocaleString()}
+        Supply: {supply == 0 ? "Unlimited" : supply.toLocaleString()}
       </span>
     </div>
   );
