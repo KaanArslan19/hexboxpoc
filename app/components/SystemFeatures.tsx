@@ -7,10 +7,10 @@ export default function SystemFeatures() {
   return (
     <div className="pt-16">
       <div className="text-center">
-        <h2 className="text-3xl md:text-5xl font-customFont_bold mb-4 text-blueColor">
+        <h2 className="text-3xl md:text-5xl font-customFont_bold mb-4 text-blueColorDull">
           Here for Innovators like you
         </h2>
-        <p className="text-lg lg:text-xl text-black/80">
+        <p className="text-lg lg:text-xl text-textPrimary">
           Hexbox is an antifraudulent multisignature wallet tied to a
           crowdfunding platform for business organizations in Australia and
           globally.
@@ -29,10 +29,10 @@ export default function SystemFeatures() {
                 className="object-cover"
               />
             </div>
-            <h4 className="text-xl font-semibold mb-4 text-black/90">
+            <h4 className="text-xl font-semibold mb-4 text-blackColorDull">
               {item.header}
             </h4>
-            <p className="text-base lg:text-lg text-black/80">
+            <p className="text-base lg:text-lg text-textMuted">
               {item.description}
             </p>
           </div>

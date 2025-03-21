@@ -60,18 +60,18 @@ export default function About() {
   ];
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont_bold text-blueColor">
+      <h1 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont_bold text-blueColorDull">
         Involve in Hexbox world <br className="hidden sm:inline " />
         just in a Minute
       </h1>
-      <p className="mb-8 text-lg lg:text-xl text-center ">
+      <p className="mb-8 text-lg lg:text-xl text-center text-textPrimary">
         Follow these steps to launch your own project
       </p>
       <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-items-center">
         {ABOUT_DATA.map((item, index) => (
           <li
             key={index}
-            className="w-full max-w-sm h-[28rem] flex flex-col bg-gradient-to-bl from-yellowColor/50 via-orangeColor/40 to-blueColor/30 rounded-2xl overflow-hidden shadow-lg"
+            className="w-full max-w-sm h-[28rem] flex flex-col bg-gradient-to-bl from-yellowColor/40 via-orangeColor/50 to-blueColor/20 rounded-2xl overflow-hidden shadow-lg"
           >
             <div className="h-48 flex items-center justify-center p-4">
               <Image
@@ -87,7 +87,7 @@ export default function About() {
                 {item.header}
               </h4>
               <div className="flex-1 overflow-y-auto">
-                <p className="text-base lg:text-lg text-black/80 ">
+                <p className="text-base lg:text-lg text-textPrimary ">
                   {item.description}
                 </p>
               </div>

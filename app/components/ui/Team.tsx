@@ -8,7 +8,7 @@ const Team = () => {
     <div className="container mx-auto px-4 py-16">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {TeamDetails.map((member) => (
-          <div key={member.name} className="   overflow-hidden  ">
+          <div key={member.name} className="overflow-hidden">
             <div className="flex justify-center items-center p-6">
               <div className="relative w-48 h-48 rounded-full overflow-hidden">
                 <Image
@@ -22,7 +22,7 @@ const Team = () => {
             </div>
 
             <div className="p-6">
-              <h3 className="text-2xl font-bold text-gray-800 text-center mb-4">
+              <h3 className="text-2xl font-bold text-textPrimary text-center mb-4">
                 {member.name}
               </h3>
 
@@ -31,7 +31,7 @@ const Team = () => {
                   href={member.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-blue-500 transition-colors duration-300"
+                  className="icon-hover"
                 >
                   <LuTwitter className="w-6 h-6" />
                 </a>
@@ -39,9 +39,9 @@ const Team = () => {
                   href={member.linkedIn}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-blue-700 transition-colors duration-300"
+                  className=""
                 >
-                  <LuLinkedin className="w-6 h-6" />
+                  <LuLinkedin className="w-6 h-6 " />
                 </a>
               </div>
             </div>

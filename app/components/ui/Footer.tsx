@@ -23,7 +23,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blueColor  mb-4">
+            <h3 className="text-lg font-semibold text-blueColorDull  mb-4">
               HexBox
             </h3>
             <p className="text-gray-600 text-sm mb-4">
@@ -40,7 +40,7 @@ export const Footer = () => {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blueColor mb-4">
+            <h3 className="text-lg font-semibold text-blueColorDull mb-4">
               Explore
             </h3>
             <ul className="space-y-2">
@@ -48,7 +48,7 @@ export const Footer = () => {
                 <li key={item.label}>
                   <Link
                     href={item.href}
-                    className="text-gray-600 hover:text-blueColor/80 text-sm"
+                    className="text-gray-600 hover:text-blueColorDull text-sm"
                   >
                     {item.label}
                   </Link>
@@ -58,7 +58,7 @@ export const Footer = () => {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blueColor mb-4">
+            <h3 className="text-lg font-semibold text-blueColorDull mb-4">
               Support
             </h3>
             <ul className="space-y-2">
@@ -78,7 +78,7 @@ export const Footer = () => {
                   <Link
                     href={item.href}
                     target="_blank"
-                    className="text-gray-600 hover:text-blueColor/80 text-sm"
+                    className="text-gray-600 hover:text-blueColor text-sm"
                   >
                     {item.label}
                   </Link>
@@ -88,7 +88,7 @@ export const Footer = () => {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blueColor mb-4">
+            <h3 className="text-lg font-semibold text-blueColorDull mb-4">
               Resources
             </h3>
             <ul className="space-y-2">

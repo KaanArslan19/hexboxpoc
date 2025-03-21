@@ -11,10 +11,25 @@ module.exports = withMT({
     extend: {
       colors: {
         blueColor: "#002D5D",
+        blueColorDull: "#1A456F",
         lightBlueColor: "#002d5d25",
+        lightBlueColorDull: "#1A456F40",
+
         orangeColor: "#E94E1B",
+        orangeColorDull: "#D04A22",
+
         yellowColor: "#FFC629",
+        yellowColorDull: "#E5B226",
+
         redColor: "#CE0E2D",
+        redColorDull: "#B21C38",
+        blackColor: "#121212",
+        blackColorDull: "#2A2A2A",
+
+        textPrimary: "#4A4A4A",
+        textMuted: "#6A6A6A",
+        blueText: "#1F567D",
+        orangeText: "#D65C33",
       },
       fontFamily: {
         customFont_outline_light: ['"customFont_outline_light"', "sans-serif"],
