@@ -4,7 +4,7 @@ import { getAllCampaignFundraisers } from "@/app/utils/poc_utils/getAllCampaignF
 import { ethers } from "ethers";
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 import { syncExternalData } from "@/app/utils/sync/syncExternalData";
-const WEBHOOK_SECRET = "jhsdhsdah" //process.env.WEBHOOK_SECRET;
+const WEBHOOK_SECRET = "jhsdhsdah"; //process.env.WEBHOOK_SECRET;
 
 export async function POST(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -36,6 +36,9 @@ export async function POST(req: NextRequest) {
     const transactions = reqData.data[0].transactions;
     //console.log("Transactions:", transactions);
 
+    // Initialize provider for checking transaction receipts
+    const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_TESTNET_RPC_URL);
+
     // Group transactions by campaign address
     const campaignTransactions: { [key: string]: any[] } = {};
 
@@ -51,9 +54,36 @@ export async function POST(req: NextRequest) {
                 : null;
 
         if (relevantAddress) {
+            // Get transaction receipt to check status
+            let receipt;
+            try {
+                receipt = await provider.getTransactionReceipt(transaction.hash);
+                
+                // Skip if no receipt yet (transaction still pending)
+                if (!receipt) {
+                    console.log(`Transaction ${transaction.hash} is still pending. Skipping.`);
+                    continue;
+                }
+                
+                // Skip failed transactions
+                if (receipt.status === 0) {
+                    console.log(`Transaction ${transaction.hash} failed. Skipping.`);
+                    continue;
+                }
+                
+                // Only proceed with successful transactions
+                console.log(`Transaction ${transaction.hash} was successful.`);
+            } catch (error) {
+                console.error(`Failed to get receipt for transaction ${transaction.hash}:`, error);
+                continue;
+            }
+
+            // Initialize campaign transactions array if needed
             if (!campaignTransactions[relevantAddress]) {
                 campaignTransactions[relevantAddress] = [];
             }
+
+            console.log("Processing successful transaction:", transaction.hash);
 
             // Create interface for decoding
             const iface = new ethers.Interface(USDCFundraiserABI.abi);
@@ -73,6 +103,8 @@ export async function POST(req: NextRequest) {
                     from: transaction.from,
                     to: transaction.to,
                     input: transaction.input,
+                    status: "success",
+                    gasUsed: receipt.gasUsed.toString(),
                     decodedFunction: {
                         name: decodedData?.name,
                         args: decodedData?.args.map(arg => 
@@ -86,7 +118,7 @@ export async function POST(req: NextRequest) {
                 };
                 campaignTransactions[relevantAddress].push(transactionData);
             } catch (error) {
-                console.log("Failed to decode input for transaction:", transaction.transactionHash);
+                console.log("Failed to decode input for transaction:", transaction.hash);
                 const transactionData = {
                     transactionHash: transaction.hash,
                     blockNumber: BigInt(reqData.data[0].number),
@@ -94,6 +126,8 @@ export async function POST(req: NextRequest) {
                     from: transaction.from,
                     to: transaction.to,
                     input: transaction.input,
+                    status: "success",
+                    gasUsed: receipt.gasUsed.toString(),
                     decodedFunction: null
                 };
                 campaignTransactions[relevantAddress].push(transactionData);
@@ -120,7 +154,9 @@ export async function POST(req: NextRequest) {
                     { upsert: true }
                 );
                 console.log(`Updated transactions for campaign: ${campaignAddress}`);
-                // Sync product stock levels
+                
+                // All transactions at this point are successful, so sync product stock levels
+                console.log(`Syncing external data for campaign: ${campaignAddress}`);
                 const productUpdates = await syncExternalData(campaignAddress);
                 console.log(`Product updates: ${JSON.stringify(productUpdates)}`);
             } catch (error) {

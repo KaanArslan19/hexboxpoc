@@ -88,7 +88,7 @@ export default function CreateProject() {
       formData.append("email", values.email);
       formData.append("phoneNumber", values.phoneNumber);
       formData.append("one_liner", values.one_liner);
-      formData.append("social_links", values.social_links.toString());
+      formData.append("social_links", JSON.stringify(values.social_links));
       formData.append("funding_type", values.funding_type.toString());
       formData.append("product_or_service", values.productOrService.toString());
       formData.append("walletAddress", values.walletAddress);

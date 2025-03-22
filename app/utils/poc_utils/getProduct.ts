@@ -50,6 +50,7 @@ export const getProduct = async (
       images: product.images || [],
       status: product.status || "",
       supply: Number(product.supply) || 0,
+      sold_count: Number(product.sold_count) || 0,
     };
 
     return formattedProduct;

@@ -209,6 +209,7 @@ export interface ProductFetch {
 
   status: string;
   supply: number;
+  sold_count: number;
 }
 
 export interface NewProductInfo {
