@@ -37,6 +37,7 @@ interface Campaign {
   product_or_service: string;
   evm_wa: string;
   created_timestamp?: number;
+  total_raised: string;
 }
 
 interface CampaignProductsProps {
@@ -61,6 +62,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
   //const [campaignAddress, setCampaignAddress] = useState<string | null>(null);
+
+  // Add a new state for transaction verification
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const items = [
     {
@@ -312,7 +316,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       const receipt = await provider.waitForTransaction(hash as `0x${string}`);
 
       if (receipt?.status === 1) {
-        alert("Successfully approved USDC spending!");
+        //alert("Successfully approved USDC spending!");
         return true;
       } else {
         throw new Error("Approval transaction failed");
@@ -398,13 +402,17 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         data: data.data as `0x${string}`,
       });
 
+      // Set verifying state after transaction is submitted
+      setIsLoading(false);
+      setIsVerifying(true);
+
       const provider = new ethers.JsonRpcProvider(
         process.env.NEXT_PUBLIC_TESTNET_RPC_URL
       );
       const receipt = await provider.waitForTransaction(hash);
 
       if (receipt?.status === 1) {
-        alert("Successfully backed the project!");
+        //alert("Successfully backed the project!");
         // Sync campaign data after successful transaction
         // try {
         //   const syncResponse = await fetch("/api/sync", {
@@ -437,6 +445,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       alert("Failed to back project. Please try again.");
     } finally {
       setIsLoading(false);
+      setIsVerifying(false);
     }
   };
 
@@ -467,6 +476,11 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const handleRefund = async () => {
     if (!isConnected || !walletClient) {
       alert("Please connect your wallet first");
+      return;
+    }
+
+    if (productQuantity <= 0) {
+      alert("Please enter a valid quantity");
       return;
     }
 
@@ -542,6 +556,14 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
   return (
     <main className="p-8 bg-white">
+      {/* {isLoading && (
+        <>
+          <div className="fixed top-0 left-0 w-full bg-blue-500 text-white p-2 text-center z-50">
+            Transaction in progress...
+          </div>
+          <div className="absolute inset-0 bg-white/50 cursor-not-allowed z-40" />
+        </>
+      )} */}
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
@@ -562,14 +584,14 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             <div className="space-y-6">
               <div>
                 <p className="text-gray-600 text-sm">Funds Pledged</p>
-                <p className="text-3xl font-bold">AU$676,830</p>
+                <p className="text-3xl font-bold">${campaign.total_raised}</p>
                 <p className="text-sm text-gray-600">
-                  Pledged of {campaign.fund_amount} campaign goal
+                  Pledged of ${campaign.fund_amount} campaign goal
                 </p>
               </div>
               <div>
-                <p className="text-gray-600 text-sm">Backers</p>
-                <p className="text-3xl font-bold">2,714</p>
+                <p className="text-gray-600 text-sm">Sold</p>
+                <p className="text-3xl font-bold">{product.sold_count}</p>
               </div>
               <div>
                 <p className="text-lightBlueColor/80 text-sm">Days to Go</p>
@@ -593,9 +615,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 <Link href="" className="w-full md:w-auto">
                   <CustomButton
                     onClick={handleBackProject}
-                    disabled={isLoading || isApproving}
+                    disabled={isLoading || isApproving || isVerifying || isRefunding}
                     className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-auto mt-2 ${
-                      isLoading || isApproving
+                      isLoading || isApproving || isVerifying
                         ? "opacity-50 cursor-not-allowed"
                         : ""
                     }`}
@@ -603,19 +625,21 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     {isApproving
                       ? "Approving USDC..."
                       : isLoading
-                      ? "Processing..."
+                      ? "Generating transaction..."
+                      : isVerifying
+                      ? "Verifying..."
                       : "Back this Project"}
                   </CustomButton>
                 </Link>
                 {tokenBalance > 0 && (
                   <CustomButton
                     onClick={handleRefund}
-                    disabled={isRefunding}
+                    disabled={isRefunding || isVerifying}
                     className={`py-2 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto mt-2 ${
-                      isRefunding ? "opacity-50 cursor-not-allowed" : ""
+                      isRefunding || isVerifying ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
-                    {isRefunding ? "Processing Refund..." : "Request Refund"}
+                    {isRefunding || isVerifying ? "Processing..." : "Request Refund"}
                   </CustomButton>
                 )}
               </div>

@@ -39,6 +39,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   product_or_service,
   transactions,
   fundraiser_address,
+  total_raised
 }) => {
   //const transactions = await getCampaignTransactions(_id);
 
@@ -139,11 +140,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       ),
     }, */
   ];
-  const raisedFunds =
-    fund_amount - modifiedProps.available_supply * modifiedProps.price;
 
   const remainingFundAmountPercentage = (
-    (raisedFunds / fund_amount) *
+    (Number(total_raised) / fund_amount) *
     100
   ).toFixed(0);
 
@@ -256,7 +255,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
               strokeColor={twoColors}
               className="w-full"
             />
-            <p className="text-sm">(${raisedFunds.toLocaleString()})</p>
+            <p className="text-sm">(${total_raised.toLocaleString()})</p>
           </div>
         </div>
       )}

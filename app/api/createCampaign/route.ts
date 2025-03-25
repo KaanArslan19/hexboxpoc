@@ -48,6 +48,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       timestamp: Date.now(),
       status: "active",
       fund_amount: campaignEntries.fund_amount,
+      total_raised: 0,
       one_liner: campaignEntries.one_liner,
       social_links: campaignEntries.social_links,
       location: campaignEntries.location,

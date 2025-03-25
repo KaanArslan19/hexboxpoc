@@ -50,6 +50,7 @@ export interface CampaignDetailsProps {
   products: ProductFetch[];
   transactions: any[];
   fundraiser_address: string;
+  total_raised: number;
 }
 enum Status {
   Active = "active",
@@ -209,6 +210,7 @@ export interface ProductFetch {
 
   status: string;
   supply: number;
+  sold_count: number;
 }
 
 export interface NewProductInfo {
