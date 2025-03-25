@@ -73,7 +73,6 @@
 }
 
 * {
-  color: black;
 }
 
 ul,
@@ -184,22 +183,4 @@ h2 {
 
 .animate-spin-slow {
   animation: spin 2s linear infinite;
-}
-
-/* globals.css */
-a .icon-hover {
-  color: #4a4a4a !important; /* default color */
-  transition: color 0.3s ease-in-out !important;
-}
-
-a .icon-hover:hover {
-  color: #1d4ed8 !important; /* hover color */
-}
-
-a .icon-hover.linkedin:hover {
-  color: #1d5f73 !important; /* LinkedIn hover color */
-}
-
-.fill-current {
-  fill: currentColor;
 }

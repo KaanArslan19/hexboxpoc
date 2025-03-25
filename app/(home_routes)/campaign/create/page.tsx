@@ -4,18 +4,16 @@ import CampaignForm from "@/app/components/CampaignForm";
 import useIsAuth from "@/app/lib/auth/hooks/useIsAuth";
 import { NewCampaignInfo } from "@/app/types";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { useAccount, useWalletClient, usePublicClient } from "wagmi";
+import React from "react";
+import { useAccount } from "wagmi";
 import { createCampaignTransaction } from "@/app/utils/poc_utils/campaignCreationTransaction";
 import { useTransaction } from "@/app/hooks/useTransaction";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function CreateProject() {
   const router = useRouter();
   const { isAuth } = useIsAuth();
   const { address } = useAccount();
-  //const { data: walletClient } = useWalletClient();
-  //const publicClient = usePublicClient();
-  const [data, setData] = useState<any>(null); // Store API response data
 
   const { sendTransaction, isLoading, error } = useTransaction({
     onSuccess: async (hash, responseData) => {
@@ -25,7 +23,7 @@ export default function CreateProject() {
       });
 
       if (campaignCreationData.success) {
-        router.push("/campaigns");
+        router.push(`/thank-you?campaignId=${responseData.campaignId}`);
       }
     },
     onError: async (error, responseData) => {
@@ -66,11 +64,13 @@ export default function CreateProject() {
 
   if (!isAuth) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <h1 className="text-2xl font-bold">
-          To continue, please sign in by clicking{" "}
-          <span className="text-orangeColor">Connect Wallet</span>
-        </h1>
+      <div className="flex items-center justify-center h-screen gap-4">
+        <h1 className="text-2xl ">To continue, please sign in by clicking </h1>
+        <ConnectButton
+          showBalance={false}
+          accountStatus="address"
+          chainStatus="icon"
+        />
       </div>
     );
   }
@@ -78,6 +78,8 @@ export default function CreateProject() {
   const handleCreateProject = async (values: NewCampaignInfo) => {
     try {
       const formData = new FormData();
+
+      // Append all form data
       formData.append("title", values.title);
       formData.append("description", values.description);
       formData.append("fund_amount", values.fundAmount.toString());
@@ -92,20 +94,19 @@ export default function CreateProject() {
       formData.append("funding_type", values.funding_type.toString());
       formData.append("product_or_service", values.productOrService.toString());
       formData.append("walletAddress", values.walletAddress);
-      console.log(formData);
+
       const firstResponse = await fetch("/api/createCampaign", {
         method: "POST",
         body: formData,
       });
 
       const responseData = await firstResponse.json();
+
       if (!responseData.transaction) {
         throw new Error("Failed to create campaign");
       }
 
-      setData(responseData);
-
-      // Pass both transaction and response data
+      // Send transaction
       await sendTransaction(
         {
           ...responseData.transaction,
@@ -115,6 +116,7 @@ export default function CreateProject() {
       );
     } catch (error) {
       console.error("Error creating campaign:", error);
+      throw error; // Re-throw to allow form to handle the error
     }
   };
 
@@ -123,7 +125,7 @@ export default function CreateProject() {
       {error && <div className="text-red-500 mb-4">{error}</div>}
       {isLoading && (
         <>
-          <div className="fixed top-0 left-0 w-full bg-blue-500 text-white p-2 text-center z-50">
+          <div className="fixed top-0 left-0 w-full bg-blueColor text-white p-2 text-center z-50">
             Transaction in progress...
           </div>
           <div className="absolute inset-0 bg-white/50 cursor-not-allowed z-40" />

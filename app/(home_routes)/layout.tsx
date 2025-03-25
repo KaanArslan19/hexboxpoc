@@ -6,10 +6,12 @@ interface Props {
 }
 export default function HomeLayout({ children }: Props) {
   return (
-    <div className="max-w-screen-[80vh] ">
-      <div className="mx-auto p-4">
-        <Navbar />
-        {children}
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-grow">
+        <div className=" mx-auto p-4">
+          <Navbar />
+          {children}
+        </div>
       </div>
       <Footer />
     </div>
