@@ -26,7 +26,6 @@ export async function POST(request: Request) {
       cookieValue: nonceCookie?.value ? "exists" : "not found",
       allCookies: cookieStore.getAll().map(c => ({
         name: c.name,
-        path: c.path,
         value: c.value ? "exists" : "not found"
       }))
     });
