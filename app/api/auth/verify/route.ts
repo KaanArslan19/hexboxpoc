@@ -20,6 +20,17 @@ export async function POST(request: Request) {
     const cookieStore = cookies();
     const nonceCookie = cookieStore.get(COOKIE_KEYS.NONCE);
     
+    console.log("Cookie check:", {
+      hasNonceCookie: !!nonceCookie,
+      cookieName: COOKIE_KEYS.NONCE,
+      cookieValue: nonceCookie?.value ? "exists" : "not found",
+      allCookies: cookieStore.getAll().map(c => ({
+        name: c.name,
+        path: c.path,
+        value: c.value ? "exists" : "not found"
+      }))
+    });
+    
     if (!nonceCookie?.value) {
       console.error("No nonce cookie found");
       return NextResponse.json(
@@ -72,7 +83,7 @@ export async function POST(request: Request) {
         name: COOKIE_KEYS.JWT,
         value: jwt,
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true, // Always use secure in production
         sameSite: 'lax',
         path: '/',
         maxAge: 60 * 60 * 24 // 24 hours
@@ -80,6 +91,12 @@ export async function POST(request: Request) {
 
       // Delete the nonce cookie since it's no longer needed
       response.cookies.delete(COOKIE_KEYS.NONCE);
+
+      console.log("Authentication successful:", {
+        address: fields.address,
+        chainId: fields.chainId,
+        domain: fields.domain
+      });
 
       return response;
     } catch (jwtError) {

@@ -93,10 +93,16 @@ export const handleSignOut = async () => {
   try {
     const response = await fetch("/api/auth/logout", {
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+    
     if (!response.ok) {
-      throw new Error("Failed to sign out");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to sign out");
     }
+    
     await signOutAction();
     eventEmitter.emit(EMITTER_EVENTS.SIGN_OUT);
   } catch (error) {
