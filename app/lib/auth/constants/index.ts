@@ -1,5 +1,6 @@
 export const COOKIE_KEYS = {
-  JWT: 'jwt'
+  JWT: 'jwt',
+  NONCE: 'nonce'
 };
 
 export const EMITTER_EVENTS = {

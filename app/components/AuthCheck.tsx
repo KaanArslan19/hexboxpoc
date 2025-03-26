@@ -14,35 +14,32 @@ export function AuthCheck() {
   useEffect(() => {
     const checkAuth = async () => {
       if (isConnected) {
-        const jwt = document.cookie.includes(COOKIE_KEYS.JWT);
-        if (jwt) {
-          try {
-            const response = await fetch('/api/auth/check', {
-              credentials: 'include'
-            });
-            if (!response.ok) {
-              setShowReauthModal(true);
-              setReauthStatus('pending');
-              try {
-                await handleReauth(address as string, signMessageAsync);
-                setReauthStatus('success');
-                setTimeout(() => {
-                  setShowReauthModal(false);
-                  setReauthStatus('idle');
-                }, 2000);
-              } catch (error) {
-                console.error('Reauth failed:', error);
-                setReauthStatus('error');
-                setTimeout(() => {
-                  disconnect();
-                  setShowReauthModal(false);
-                  setReauthStatus('idle');
-                }, 3000);
-              }
+        try {
+          const response = await fetch('/api/auth/check', {
+            credentials: 'include'
+          });
+          if (!response.ok) {
+            setShowReauthModal(true);
+            setReauthStatus('pending');
+            try {
+              await handleReauth(address as string, signMessageAsync);
+              setReauthStatus('success');
+              setTimeout(() => {
+                setShowReauthModal(false);
+                setReauthStatus('idle');
+              }, 2000);
+            } catch (error) {
+              console.error('Reauth failed:', error);
+              setReauthStatus('error');
+              setTimeout(() => {
+                disconnect();
+                setShowReauthModal(false);
+                setReauthStatus('idle');
+              }, 3000);
             }
-          } catch (error) {
-            console.error('Auth check failed:', error);
           }
+        } catch (error) {
+          console.error('Auth check failed:', error);
         }
       }
     };

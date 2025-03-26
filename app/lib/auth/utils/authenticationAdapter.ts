@@ -6,10 +6,19 @@ import { EMITTER_EVENTS } from "../constants";
 
 export const authenticationAdapter = createAuthenticationAdapter({
   getNonce: async () => {
-    const response = await fetch("/api/auth/nonce");
-    const data: { nonce: string } = await response.json();
-
-    return new Promise((resolve) => resolve(data.nonce));
+    try {
+      const response = await fetch("/api/auth/nonce", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to get nonce");
+      }
+      const data = await response.json();
+      return data.nonce;
+    } catch (error) {
+      console.error("Error getting nonce:", error);
+      throw error;
+    }
   },
   createMessage: ({ nonce, address, chainId }) => {
     return new SiweMessage({
@@ -26,27 +35,72 @@ export const authenticationAdapter = createAuthenticationAdapter({
     return message.prepareMessage();
   },
   verify: async ({ message, signature }) => {
-    const response = await fetch("/api/auth/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, signature }),
-      credentials: "include",
-    });
+    try {
+      const response = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, signature }),
+        credentials: "include",
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to verify signature");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to verify signature");
+      }
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error("Verification failed");
+      }
+
+      await signInAction({ jwt: data.jwt });
+      eventEmitter.emit(EMITTER_EVENTS.SIGN_IN);
+      return true;
+    } catch (error) {
+      console.error("Verification error:", error);
+      throw error;
     }
-    const data = await response.json();
-
-    await signInAction({ jwt: data.jwt });
-
-    eventEmitter.emit(EMITTER_EVENTS.SIGN_IN);
-
-    return true;
   },
   signOut: async () => {
-    await fetch("/api/auth/logout");
-    await signOutAction();
-    eventEmitter.emit(EMITTER_EVENTS.SIGN_OUT);
+    try {
+      const response = await fetch("/api/auth/logout", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to sign out");
+      }
+      await signOutAction();
+      eventEmitter.emit(EMITTER_EVENTS.SIGN_OUT);
+    } catch (error) {
+      console.error("Sign out error:", error);
+      throw error;
+    }
   },
 });
+
+export const handleSignIn = async () => {
+  try {
+    await signInAction({ jwt: "dummy-jwt" }); // You might want to get a real JWT here
+    eventEmitter.emit(EMITTER_EVENTS.SIGN_IN);
+    return true;
+  } catch (error) {
+    console.error("Sign in error:", error);
+    throw error;
+  }
+};
+
+export const handleSignOut = async () => {
+  try {
+    const response = await fetch("/api/auth/logout", {
+      credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to sign out");
+    }
+    await signOutAction();
+    eventEmitter.emit(EMITTER_EVENTS.SIGN_OUT);
+  } catch (error) {
+    console.error("Sign out error:", error);
+    throw error;
+  }
+};

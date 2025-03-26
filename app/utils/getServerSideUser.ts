@@ -1,7 +1,7 @@
 import { getIronSession } from "iron-session";
 import { cookies, headers } from "next/headers";
 import { jwtVerify } from "jose";
-import { IRON_OPTIONS } from "@/app/lib/auth/config/session";
+//import { IRON_OPTIONS } from "@/app/lib/auth/config/session";
 import { COOKIE_KEYS } from "@/app/lib/auth/constants";
 import { NextRequest } from "next/server";
 

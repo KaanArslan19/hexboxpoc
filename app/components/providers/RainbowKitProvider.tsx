@@ -2,17 +2,12 @@
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { State, WagmiProvider, useAccount } from "wagmi";
-import {
-  RainbowKitProvider as NextRainbowKitProvider,
-  RainbowKitAuthenticationProvider,
-} from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider as NextRainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { ReactNode, useState, useEffect } from "react";
 import ReactQueryProvider from "./ReactQueryProvider";
 
 import { EMITTER_EVENTS } from "@/app/lib/auth/constants";
-import { authenticationAdapter } from "@/app/lib/auth/utils/authenticationAdapter";
-import useAsyncEffect from "@/app/lib/auth/hooks/useAsyncEffect";
-import { isAuthAction } from "@/app/lib/auth/actions/auth";
+import { isAuthAction, signOutAction } from "@/app/lib/auth/actions/auth";
 import { eventEmitter } from "@/app/lib/auth/config/clients/eventEmitter";
 import { Optional } from "@/app/lib/auth/types/common";
 import wagmiConfig from "@/app/lib/auth/config/wagmi";
@@ -22,24 +17,18 @@ function WalletWatcher() {
   const { isConnected } = useAccount();
 
   useEffect(() => {
-    if (!isConnected) {
-      authenticationAdapter.signOut();
-    }
-  }, [isConnected]);
-  const { address } = useAccount();
-
-  useEffect(() => {
-    if (isConnected && address) {
-      console.log("Wallet address:", address);
-    }
-  }, [isConnected, address]);
-  useAsyncEffect(async () => {
-    if (isConnected) {
-      const { isAuth } = await isAuthAction();
-      if (isAuth) {
-        eventEmitter.emit(EMITTER_EVENTS.SIGN_IN);
+    const handleDisconnect = async () => {
+      if (!isConnected) {
+        try {
+          await signOutAction();
+          eventEmitter.emit(EMITTER_EVENTS.SIGN_OUT);
+        } catch (error) {
+          console.error("Error signing out:", error);
+        }
       }
-    }
+    };
+
+    handleDisconnect();
   }, [isConnected]);
 
   return null;
@@ -58,11 +47,24 @@ export default function RainbowKitProvider({
   const [isAuth, setIsAuth] = useState<Optional<boolean>>();
   const router = useRouter();
 
-  useAsyncEffect(async () => {
-    const { isAuth } = await isAuthAction();
-    setIsAuth(isAuth);
-    setIsLoading(false);
+  // Initial auth check
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { isAuth } = await isAuthAction();
+        setIsAuth(isAuth);
+      } catch (error) {
+        console.error("Error checking auth:", error);
+        setIsAuth(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
     const handleSignIn = () => setIsAuth(true);
     const handleSignOut = () => setIsAuth(false);
 
@@ -74,29 +76,20 @@ export default function RainbowKitProvider({
       eventEmitter.off(EMITTER_EVENTS.SIGN_OUT, handleSignOut);
     };
   }, []);
+
   useEffect(() => {
     if (isAuth) {
       router.refresh();
     }
   }, [isAuth, router]);
-  const status = isLoading
-    ? "loading"
-    : isAuth
-    ? "authenticated"
-    : "unauthenticated";
 
   return (
     <WagmiProvider config={wagmiConfig} initialState={initialState}>
       <ReactQueryProvider>
-        <RainbowKitAuthenticationProvider
-          adapter={authenticationAdapter}
-          status={status}
-        >
-          <NextRainbowKitProvider coolMode>
-            <WalletWatcher />
-            {children}
-          </NextRainbowKitProvider>
-        </RainbowKitAuthenticationProvider>
+        <NextRainbowKitProvider coolMode>
+          <WalletWatcher />
+          {children}
+        </NextRainbowKitProvider>
       </ReactQueryProvider>
     </WagmiProvider>
   );
