@@ -6,6 +6,9 @@ import { SiweMessage } from "siwe";
 import { SignJWT, jwtVerify } from "jose";
 import { env } from "@lib/auth/config/env";
 import { COOKIE_KEYS, JWT_CONFIG } from "@/app/lib/auth/constants";
+import { nonceTracker } from "@/app/lib/auth/utils/nonceTracker";
+import { sessionManager } from "@/app/lib/auth/utils/sessionManager";
+import { mongoSessionStore } from "@/app/lib/auth/utils/mongoSessionStore";
 
 export async function POST(request: Request) {
   try {
@@ -46,17 +49,31 @@ export async function POST(request: Request) {
       );
       console.log("Nonce JWT verification successful, payload:", payload);
 
-      // Verify the nonce matches
-      if (payload.nonce !== fields.nonce) {
-        console.error("Nonce mismatch:", { 
-          expected: payload.nonce, 
-          received: fields.nonce 
-        });
+      // Track the nonce usage
+      try {
+        nonceTracker.addNonce(fields.address, fields.nonce);
+      } catch (error) {
+        console.error("Nonce tracking error:", error);
         return NextResponse.json(
-          { error: "Invalid nonce. Please try connecting again." },
+          { error: "Nonce has already been used. Please try connecting again." },
           { status: 401 }
         );
       }
+
+      // Create a new session
+      const { jwt: sessionJwt, jti: sessionJti } = await sessionManager.createSession(fields.address, request);
+      
+      // Verify the session JWT
+      const { payload: sessionPayload } = await jwtVerify(
+        sessionJwt,
+        new TextEncoder().encode(process.env.JWT_SECRET_KEY)
+      );
+      
+      console.log("Created new session:", { 
+        address: fields.address, 
+        sessionJti,
+        deviceId: sessionPayload.deviceId 
+      });
 
       // Create the main JWT for authentication
       const jwt = await new SignJWT({
@@ -64,6 +81,8 @@ export async function POST(request: Request) {
         chainId: fields.chainId,
         domain: fields.domain,
         nonce: fields.nonce,
+        jti: sessionJti, // Use the extracted JTI
+        deviceId: sessionPayload.deviceId // Include device ID for additional security
       })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
@@ -82,7 +101,7 @@ export async function POST(request: Request) {
         name: COOKIE_KEYS.JWT,
         value: jwt,
         httpOnly: true,
-        secure: true, // Always use secure in production
+        secure: true,
         sameSite: 'lax',
         path: '/',
         maxAge: 60 * 60 * 24 // 24 hours
@@ -94,7 +113,8 @@ export async function POST(request: Request) {
       console.log("Authentication successful:", {
         address: fields.address,
         chainId: fields.chainId,
-        domain: fields.domain
+        domain: fields.domain,
+        jti: sessionJti
       });
 
       return response;

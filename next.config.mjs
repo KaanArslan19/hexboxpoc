@@ -5,6 +5,9 @@ const nextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  experimental: {
+    esmExternals: true,
+  },
   env: {
     RAINBOWKIT_PROJECT_ID: process.env.RAINBOWKIT_PROJECT_ID,
     R2_BUCKET_URL: process.env.R2_BUCKET_URL,

@@ -1,48 +1,66 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { generateNonce } from "siwe";
 import { SignJWT } from "jose";
 import { COOKIE_KEYS } from "@/app/lib/auth/constants";
+import { withRateLimit } from "@/app/lib/auth/utils/rateLimiter";
+import { nonceTracker } from "@/app/lib/auth/utils/nonceTracker";
 
-export async function GET() {
+async function generateNonceHandler(request: Request) {
   try {
-    const nonce = generateNonce();
-    console.log("Generated nonce:", nonce);
+    // For GET requests, use a default address
+    // For POST requests, get address from body
+    const address = request.method === 'GET' 
+      ? 'default' 
+      : (await request.json()).address;
     
-    // Create a temporary JWT with the nonce
-    const nonceJwt = await new SignJWT({ nonce })
+    if (!address) {
+      return NextResponse.json(
+        { error: "Address is required" },
+        { status: 400 }
+      );
+    }
+
+    // Create a temporary JWT with a placeholder nonce
+    // The actual nonce will be verified in the verify route
+    const tempJwt = await new SignJWT({ 
+      address,
+      nonce: "pending" // This will be updated in the verify route
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('5m')
       .sign(new TextEncoder().encode(process.env.JWT_SECRET_KEY));
 
-    // Set the nonce cookie with proper settings
-    const response = NextResponse.json({ nonce });
+    // Set the nonce as a cookie
+    const response = NextResponse.json({ success: true });
+    
     response.cookies.set({
       name: COOKIE_KEYS.NONCE,
-      value: nonceJwt,
-      httpOnly: true,
-      secure: true, // Always use secure in production
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 5 // 5 minutes
-    });
-
-    console.log("Set nonce cookie:", {
-      name: COOKIE_KEYS.NONCE,
-      value: "exists",
+      value: tempJwt,
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
       path: '/',
-      maxAge: 300
+      maxAge: 300 // 5 minutes
     });
 
     return response;
   } catch (error) {
-    console.error('Nonce generation error:', error);
+    console.error("Nonce generation error:", error);
     return NextResponse.json(
-      { error: "Failed to generate nonce" },
+      { error: "Failed to generate nonce. Please try again." },
       { status: 500 }
     );
   }
 }
+
+// Export both GET and POST handlers with rate limiting
+export const GET = (request: Request) => {
+  const identifier = request.headers.get("x-forwarded-for") || "unknown";
+  return withRateLimit(generateNonceHandler, identifier)(request);
+};
+
+export const POST = (request: Request) => {
+  const identifier = request.headers.get("x-forwarded-for") || "unknown";
+  return withRateLimit(generateNonceHandler, identifier)(request);
+};
