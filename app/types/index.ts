@@ -94,7 +94,7 @@ export interface NewCampaignInfo {
   social_links: SocialLinks;
   fundAmount: number;
   logo: File;
-  walletAddress: string;
+  wallet_address: string;
   funding_type: FundingType;
   productOrService: ProductOrService;
 }
@@ -174,7 +174,6 @@ export type WalletDetails = {
   total_funds: number;
   token_address: string;
 };
-
 export interface ProductFetch {
   id: string;
   productId: number;
@@ -182,8 +181,7 @@ export interface ProductFetch {
   name: string;
   type: ProductOrService;
   countryOfOrigin: string;
-  category: { name: ProductCategory };
-
+  category: { name: ProductCategory } | string;
   description: string;
   price: {
     amount: number;
@@ -194,12 +192,12 @@ export interface ProductFetch {
   inventory: {
     stock_level: number;
   };
-  freeShipping: boolean;
+  freeShipping: boolean | string;
   productReturnPolicy: {
     eligible: boolean;
     return_period_days: number;
     conditions: string;
-  };
+  } | null;
   campaignId: string;
   userId: string;
   logo: string;
@@ -207,12 +205,10 @@ export interface ProductFetch {
     uploadedFiles: string[];
     errors: string | null;
   };
-
   status: string;
   supply: number;
   sold_count: number;
 }
-
 export interface NewProductInfo {
   image: string;
   name: string;
