@@ -14,18 +14,16 @@ import { productServiceDisplayNames } from "../lib/auth/utils/productServiceDisp
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-// Add a reverse mapping from display names to actual enum values
 const productServiceEnumMap: Record<string, ProductOrService> = {
   "Only Product": ProductOrService.ProductOnly,
   "Only Service": ProductOrService.ServiceOnly,
-  "Product and Service": ProductOrService.ProductAndService
+  "Product and Service": ProductOrService.ProductAndService,
 };
 
-// Add a mapping from enum values to display names for initialValues
 const enumToDisplayName: Record<string, string> = {
   [ProductOrService.ProductOnly]: "Only Product",
   [ProductOrService.ServiceOnly]: "Only Service",
-  [ProductOrService.ProductAndService]: "Product and Service"
+  [ProductOrService.ProductAndService]: "Product and Service",
 };
 
 const steps = [
@@ -72,14 +70,13 @@ const validationSchema = [
     productOrService: Yup.string()
       .required("Product/Service type is required")
       .test(
-        'is-valid-product-service',
-        'Invalid product/service type',
+        "is-valid-product-service",
+        "Invalid product/service type",
         (value) => {
-          // Check if the display name maps to a valid enum value
           return !!productServiceEnumMap[value];
         }
       ),
-    walletAddress: Yup.string().required("Wallet address is required"),
+    wallet_address: Yup.string().required("Wallet address is required"),
   }),
   Yup.object({
     funding_type: Yup.string()
@@ -97,14 +94,14 @@ const initialValues = {
   logo: null,
   deadline: "",
   location: "",
-  walletAddress: "",
+  wallet_address: "",
   one_liner: "",
   telegram: "",
   discord: "",
   website: "",
   linkedIn: "",
   funding_type: FundingType.Limitless,
-  productOrService: enumToDisplayName[ProductOrService.ProductOnly],  // Use display name here
+  productOrService: enumToDisplayName[ProductOrService.ProductOnly],
 };
 interface Props {
   onSubmit(values: NewCampaignInfo): void;
@@ -125,11 +122,16 @@ export default function CampaignForm(props: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
     FundingType.Limitless
   );
   const [selectedProductService, setSelectedProductService] =
-    useState<ProductOrService>(ProductOrService[initialValues.productOrService as keyof typeof ProductOrService]);
+    useState<ProductOrService>(
+      ProductOrService[
+        initialValues.productOrService as keyof typeof ProductOrService
+      ]
+    );
   const { address } = useAccount();
 
   const handleSubmit = async (values: typeof initialValues) => {
@@ -138,7 +140,9 @@ export default function CampaignForm(props: Props) {
     setSubmitError(null);
 
     // Map the display name to the actual enum value
-    const productOrServiceEnum = productServiceEnumMap[values.productOrService] || ProductOrService.ProductOnly;
+    const productOrServiceEnum =
+      productServiceEnumMap[values.productOrService] ||
+      ProductOrService.ProductOnly;
 
     const projectData: NewCampaignInfo = {
       title: values.title,
@@ -156,7 +160,7 @@ export default function CampaignForm(props: Props) {
         website: values.website,
         linkedIn: values.linkedIn,
       },
-      walletAddress: values.walletAddress,
+      wallet_address: values.wallet_address,
       funding_type: values.funding_type as FundingType,
       productOrService: productOrServiceEnum,
     };
@@ -182,10 +186,6 @@ export default function CampaignForm(props: Props) {
           onSubmit={(e) => e.preventDefault()}
           className="p-6 max-w-2xl mx-auto"
         >
-          <div>
-            <p>Email: {values.email}</p>
-            <p>Phone: {values.phoneNumber}</p>
-          </div>
           <h1 className="text-3xl text-center mb-4">Create Your Campaign</h1>
           <div className="mb-6">
             <Steps
@@ -239,11 +239,21 @@ export default function CampaignForm(props: Props) {
               <h3 className="text-xl mb-2">Logo</h3>
               <ImageSelector
                 id="thumb"
-                images={logo ? [URL.createObjectURL(logo)] : []}
+                images={logoPreview ? [logoPreview] : []}
                 onChange={({ target }) => {
                   const file = target.files ? target.files[0] : null;
                   setFieldValue("logo", file);
-                  setLogo(target.files ? target.files[0] : null);
+                  setLogo(file);
+
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      const dataUrl = e.target?.result as string;
+
+                      setLogoPreview(dataUrl);
+                    };
+                    reader.readAsDataURL(file);
+                  }
                 }}
               />
               <ErrorMessage
@@ -386,7 +396,7 @@ export default function CampaignForm(props: Props) {
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                   const displayName = e.target.value;
                   setFieldValue("productOrService", displayName);
-                  
+
                   // Convert display name to enum value for the description
                   const enumValue = productServiceEnumMap[displayName];
                   setSelectedProductService(enumValue);
@@ -410,14 +420,14 @@ export default function CampaignForm(props: Props) {
               <h3 className="text-xl mb-2">Wallet Address for Funds</h3>
               <div className="flex gap-2 relative">
                 <Field
-                  name="walletAddress"
+                  name="wallet_address"
                   type="text"
                   placeholder="Wallet Address to receive funds"
                   className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
                 />
                 <button
                   type="button"
-                  onClick={() => setFieldValue("walletAddress", address)}
+                  onClick={() => setFieldValue("wallet_address", address)}
                   className="group relative px-2 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 h-[42px] flex items-center justify-center"
                 >
                   <TiAttachment
@@ -430,7 +440,7 @@ export default function CampaignForm(props: Props) {
                 </button>
               </div>
               <ErrorMessage
-                name="walletAddress"
+                name="wallet_address"
                 component="div"
                 className="text-redColor/80 mb-2"
               />
