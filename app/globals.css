@@ -184,3 +184,11 @@ h2 {
 .animate-spin-slow {
   animation: spin 2s linear infinite;
 }
+
+.ant-steps-icon-dot,
+.ant-steps
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #002d5d !important;
+}
