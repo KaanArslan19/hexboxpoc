@@ -10,8 +10,9 @@ const ProductCard: React.FC<ProductFetch> = ({
   name,
   description,
   price,
-  supply,
+  inventory,
   logo,
+  supply,
 }) => {
   const router = useRouter();
   return (

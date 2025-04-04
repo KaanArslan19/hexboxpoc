@@ -76,6 +76,7 @@ export default function CreateProject() {
   }
 
   const handleCreateProject = async (values: NewCampaignInfo) => {
+    console.log("values----", values);
     try {
       const formData = new FormData();
 
@@ -85,7 +86,7 @@ export default function CreateProject() {
       formData.append("fund_amount", values.fundAmount.toString());
       formData.append("logo", values.logo);
       formData.append("location", values.location);
-      formData.append("wallet_address", values.walletAddress);
+      formData.append("wallet_address", values.wallet_address);
       formData.append("deadline", values.deadline.toString());
       formData.append("email", values.email);
       formData.append("phoneNumber", values.phoneNumber);
@@ -93,7 +94,6 @@ export default function CreateProject() {
       formData.append("social_links", JSON.stringify(values.social_links));
       formData.append("funding_type", values.funding_type.toString());
       formData.append("product_or_service", values.productOrService.toString());
-      formData.append("walletAddress", values.walletAddress);
 
       const firstResponse = await fetch("/api/createCampaign", {
         method: "POST",

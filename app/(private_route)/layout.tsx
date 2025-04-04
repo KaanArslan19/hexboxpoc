@@ -8,7 +8,7 @@ interface Props {
 }
 export default async function PrivateLayout({ children }: Props) {
   return (
-    <div className="max-w-screen-xl mx-auto p-4 xl:p-0 ">
+    <div className="max-w-screen-[80vh] mx-auto p-4 ">
       <Navbar />
 
       {children}

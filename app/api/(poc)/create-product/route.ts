@@ -28,15 +28,27 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const campaign = await getCampaign(formData.get("campaignId") as string);
 
     if (!campaign) {
-      return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Campaign not found" },
+        { status: 404 }
+      );
     }
 
     if (campaign.user_id !== creatorWalletAddress) {
-      return NextResponse.json({ error: "You are not authorized to create a product for this campaign" }, { status: 403 });
+      return NextResponse.json(
+        {
+          error: "You are not authorized to create a product for this campaign",
+        },
+        { status: 403 }
+      );
     }
 
     const [productId, price, supply] = await createProduct(formData);
-    const product = {productId: BigInt(productId as string), price: ethers.parseUnits(price.toString(), 6), supplyLimit: BigInt(supply as string)  }
+    const product = {
+      productId: BigInt(productId as string),
+      price: ethers.parseUnits(price.toString(), 6),
+      supplyLimit: BigInt(supply as string),
+    };
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
       process.env.NEXT_PUBLIC_TESTNET_RPC_URL
@@ -69,7 +81,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     console.log("Transaction receipt:", receipt);
 
     return NextResponse.json({ productId });
-    //return NextResponse.json({ productId, price, supply });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: e }, { status: 500 });

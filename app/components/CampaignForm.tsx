@@ -228,7 +228,7 @@ export default function CampaignForm(props: Props) {
               <Field
                 name="one_liner"
                 placeholder="One Liner"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="one_liner"
@@ -286,7 +286,7 @@ export default function CampaignForm(props: Props) {
                 <ErrorMessage
                   name="description"
                   component="div"
-                  className="text-red-500 mb-2"
+                  className="text-redColor/80 mb-2"
                 />
 
                 <div className="border border-gray-300 p-4 rounded bg-gray-50">
@@ -303,7 +303,7 @@ export default function CampaignForm(props: Props) {
               <Field
                 name="location"
                 placeholder="Location"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4  focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="location"
@@ -315,7 +315,7 @@ export default function CampaignForm(props: Props) {
                 name="deadline"
                 type="date"
                 placeholder="Deadline"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="deadline"
@@ -327,7 +327,7 @@ export default function CampaignForm(props: Props) {
                 name="email"
                 type="email"
                 placeholder="Email Address"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="email"
@@ -337,7 +337,7 @@ export default function CampaignForm(props: Props) {
               <Field
                 name="phoneNumber"
                 placeholder="Phone Number"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <ErrorMessage
                 name="phoneNumber"
@@ -351,22 +351,22 @@ export default function CampaignForm(props: Props) {
               <Field
                 name="website"
                 placeholder="Website URL"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <Field
                 name="discord"
                 placeholder="Discord URL"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <Field
                 name="telegram"
                 placeholder="Telegram URL"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
               <Field
                 name="linkedIn"
                 placeholder="LinkedIn URL"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               />
             </div>
           )}

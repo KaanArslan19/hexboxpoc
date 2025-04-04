@@ -6,12 +6,12 @@ import { ethers } from "ethers";
 import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
-import { createProduct } from "@/app/utils/poc_utils/createProduct";
+import { createDonationProduct } from "@/app/utils/poc_utils/createDonationProduct";
 import { ProductCategory } from "@/app/types";
+import { log } from "console";
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
     const session = await getServerSideUser(req);
-    console.log("Server side session:", session);
 
     if (!session.isAuthenticated) {
       console.log("User not authenticated");
@@ -27,12 +27,14 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
+    console.log("formData-----", formData);
 
     // Get the logo file from form data
     const logoFile = formData.get("logo") as File;
     if (!logoFile) {
       return NextResponse.json({ error: "Logo is required" }, { status: 400 });
     }
+    console.log(logoFile, "logoFile");
 
     const logoFileName = await uploadImageToR2(logoFile);
     const campaignEntries = Object.fromEntries(formData.entries());
@@ -42,7 +44,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       user_id: creatorWalletAddress,
       title: campaignEntries.title,
       description: campaignEntries.description,
-      wallet_address: "",
+      wallet_address: campaignEntries.wallet_address,
       token_address: "",
       logo: logoFileName,
       timestamp: Date.now(),
@@ -64,6 +66,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       configured: false,
       transactions: [],
     };
+    console.log(campaign, "campaign");
 
     // console.log(campaign);
     // const totalTokenSupply = Number(campaignEntries.total_supply);
@@ -87,7 +90,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const mdbClient = client;
     const db = mdbClient.db("hexbox_poc");
     const result = await db.collection("campaigns").insertOne(campaign);
-    console.log(result);
     const campaignId = result.insertedId.toString();
 
     // Initialize provider
@@ -132,7 +134,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       supply: 1,
     };*/
 
-
     const donationProduct = new FormData();
     donationProduct.append("isDonationProduct", "true");
     donationProduct.append("manufacturerId", "");
@@ -141,15 +142,19 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     donationProduct.append("category", "");
     donationProduct.append("logo", logoFile);
     donationProduct.append("description", "");
-    donationProduct.append("price", JSON.stringify({
+    const priceString = JSON.stringify({
       amount: 1,
       tax_inclusive: false,
       gst_rate: 0,
       gst_amount: 0,
-    }));
-    donationProduct.append("inventory", JSON.stringify({
-      stock_level: 0,
-    }));
+    });
+    donationProduct.append("price", priceString);
+    donationProduct.append(
+      "inventory",
+      JSON.stringify({
+        stock_level: 0,
+      })
+    );
     donationProduct.append("freeShipping", "false");
     donationProduct.append("productReturnPolicy", "false");
     donationProduct.append("status", "available");
@@ -161,15 +166,36 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "description",
       `${campaignEntries.title} Donation product if you want to support the project without purchasing their products/services.`
     );
-    donationProduct.append("supply", "0"); 
+    donationProduct.append("supply", "0");
+    console.log(donationProduct, "donationProduct");
+    let productId, price, supply;
+    try {
+      const result = await createDonationProduct(donationProduct);
+      console.log("createProduct completed successfully, result:", result);
 
-    const [productId, price, supply] = await createProduct(donationProduct);
+      // Destructure the result
+      [productId, price, supply] = result;
+
+      // Validate the returned values
+      if (!productId || !price || supply === undefined) {
+        return NextResponse.json(
+          { error: "Invalid product data returned" },
+          { status: 400 }
+        );
+      }
+    } catch (e) {
+      console.error("Error in createProduct:", e);
+      return NextResponse.json(
+        { error: e?.toString() || "Unknown error" },
+        { status: 500 }
+      );
+    }
 
     const products = [
       {
-        productId: BigInt(productId as string),
+        productId: BigInt(productId.toString()), // Ensure it's a string before converting to BigInt
         price: ethers.parseUnits(price.toString(), 6), // 1 USDC
-        supplyLimit: BigInt(supply as string), // Limited to 100
+        supplyLimit: BigInt(0), // Always 0 for donations
       },
     ];
 

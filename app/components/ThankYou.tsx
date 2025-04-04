@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { MoveLeft } from "lucide-react";
+import { MoveRight } from "lucide-react";
 import ReactConfetti from "react-confetti";
 
 export default function ThankYou() {
@@ -66,7 +66,7 @@ export default function ThankYou() {
     }
   }, [campaign]);
   const handleGoBack = () => {
-    router.push("/");
+    router.push(`/campaign?campaignId=${campaignId}`);
   };
 
   if (!campaign) {
@@ -107,8 +107,8 @@ export default function ThankYou() {
            rounded-lg transform transition-all duration-300
            hover:from-orangeColor hover:to-redColor hover:scale-105 hover:shadow-lg"
         >
-          <MoveLeft className="w-5 h-5" color="white" />
-          <span className="text-white">Go Back</span>
+          <span className="text-white">Explore Your Campaign Page</span>
+          <MoveRight className="w-5 h-5" color="white" />
         </button>
       </div>
     </div>

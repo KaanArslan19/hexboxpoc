@@ -15,7 +15,7 @@ export default async function CampaignsPage() {
             Explore Campaigns
           </h1>
           <Link href="/campaign/create">
-            <CustomButton className="bg-none border-[1px] border-blueColor w-3/4 md:w-full">
+            <CustomButton className="bg-none border-[1px] border-blueColor w-3/4 hover:bg-lightBlueColor  md:w-full">
               Create a Campaign
             </CustomButton>
           </Link>
