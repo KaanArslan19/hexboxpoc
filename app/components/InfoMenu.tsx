@@ -22,7 +22,7 @@ export default function InfoMenu({ menuItems }: Props) {
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
       <MenuHandler>
         <button className="flex hover:text-blueColor items-center gap-1 py-0.5 pr-2 pl-0.5 lg:ml-auto">
-          <span className="mr-2 text-xl">Info</span>
+          <span className="mr-2 text-xl text-black">Info</span>
 
           <ChevronDownIcon
             strokeWidth={2.5}
@@ -40,7 +40,7 @@ export default function InfoMenu({ menuItems }: Props) {
               key={index}
               href={href}
               className="outline-none"
-              target="_blank"
+              target={label.toLowerCase() === "about" ? "_self" : "_blank"}
             >
               <MenuItem
                 onClick={closeMenu}

@@ -61,8 +61,8 @@ export default function About() {
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont_bold text-blueColorDull">
-        Involve in Hexbox world <br className="hidden sm:inline " />
-        just in a Minute
+        Explore the Hexbox World <br className="hidden sm:inline " />
+        In no time
       </h1>
       <p className="mb-8 text-lg lg:text-xl text-center text-textPrimary">
         Follow these steps to launch your own project
