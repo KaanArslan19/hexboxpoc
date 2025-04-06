@@ -1,0 +1,120 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "MockAutomationRegistrar",
+  "sourceName": "contracts/mocks/MockAutomationRegistrar.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "encryptedEmail",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "upkeepContract",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "gasLimit",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "adminAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "checkData",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint96",
+          "name": "amount",
+          "type": "uint96"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "source",
+          "type": "uint8"
+        }
+      ],
+      "name": "RegistrationRequested",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "encryptedEmail",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "upkeepContract",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "gasLimit",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "adminAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "checkData",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint96",
+          "name": "amount",
+          "type": "uint96"
+        },
+        {
+          "internalType": "uint8",
+          "name": "source",
+          "type": "uint8"
+        }
+      ],
+      "name": "register",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608080604052346015576102a6908161001b8239f35b600080fdfe6080604052600436101561001257600080fd5b60003560e01c63c4110e5c1461002757600080fd5b3461019a5761010036600319011261019a5760043567ffffffffffffffff811161019a573660238201121561019a5761006a90369060248160040135910161019f565b60243567ffffffffffffffff811161019a5761008a903690600401610211565b906044356001600160a01b038116919082900361019a576064359163ffffffff831680930361019a576084356001600160a01b038116949085900361019a5760a43567ffffffffffffffff811161019a576100e9903690600401610211565b9060c435926bffffffffffffffffffffffff841680940361019a5760e4359260ff841680940361019a577fea3d9a7b7ea302e8330a22297188500bda7e831aea0b89bfeb7ab2ee773131029761015697610164610181956040519a8b9a6101008c526101008c019061022f565b908a820360208c015261022f565b9360408901526060880152608087015285820360a087015261022f565b9160c084015260e08301520390a1602060405160018152f35b600080fd5b92919267ffffffffffffffff82116101fb57601f19601f8301169160405192603f601f19910116830183811067ffffffffffffffff8211176101fb5760405282948184528183011161019a578281602093846000960137010152565b634e487b7160e01b600052604160045260246000fd5b9080601f8301121561019a5781602061022c9335910161019f565b90565b919082519283825260005b84811061025b575050826000602080949584010152601f8019910116010190565b8060208092840101518282860101520161023a56fea26469706673582212200e2d5354478ad6079acb0c2419de6e94026202d856ae6fe052924dac685e7d8e64736f6c634300081b0033",
+  "deployedBytecode": "0x6080604052600436101561001257600080fd5b60003560e01c63c4110e5c1461002757600080fd5b3461019a5761010036600319011261019a5760043567ffffffffffffffff811161019a573660238201121561019a5761006a90369060248160040135910161019f565b60243567ffffffffffffffff811161019a5761008a903690600401610211565b906044356001600160a01b038116919082900361019a576064359163ffffffff831680930361019a576084356001600160a01b038116949085900361019a5760a43567ffffffffffffffff811161019a576100e9903690600401610211565b9060c435926bffffffffffffffffffffffff841680940361019a5760e4359260ff841680940361019a577fea3d9a7b7ea302e8330a22297188500bda7e831aea0b89bfeb7ab2ee773131029761015697610164610181956040519a8b9a6101008c526101008c019061022f565b908a820360208c015261022f565b9360408901526060880152608087015285820360a087015261022f565b9160c084015260e08301520390a1602060405160018152f35b600080fd5b92919267ffffffffffffffff82116101fb57601f19601f8301169160405192603f601f19910116830183811067ffffffffffffffff8211176101fb5760405282948184528183011161019a578281602093846000960137010152565b634e487b7160e01b600052604160045260246000fd5b9080601f8301121561019a5781602061022c9335910161019f565b90565b919082519283825260005b84811061025b575050826000602080949584010152601f8019910116010190565b8060208092840101518282860101520161023a56fea26469706673582212200e2d5354478ad6079acb0c2419de6e94026202d856ae6fe052924dac685e7d8e64736f6c634300081b0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

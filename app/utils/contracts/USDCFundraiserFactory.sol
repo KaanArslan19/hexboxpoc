@@ -45,6 +45,8 @@ contract USDCFundraiserFactory is Ownable {
         require(deadline > block.timestamp, "Invalid deadline");
         require(products.length > 0, "No products");
 
+        address campaignAdmin = msg.sender;
+
         USDCFundraiser fundraiser = new USDCFundraiser(
             usdcAddress,
             beneficiaryWallet,
@@ -57,7 +59,8 @@ contract USDCFundraiserFactory is Ownable {
             linkToken,
             chainlinkRegistrar,
             chainlinkRegistry,
-            chainlinkRegistrarSelector
+            chainlinkRegistrarSelector,
+            campaignAdmin
         );
 
         // if (fundingType == 0) {

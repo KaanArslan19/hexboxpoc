@@ -1,6 +1,6 @@
 export const CONTRACTS = {
     USDCFundraiserFactory: {
-      fuji: "0x2BC4F4757c5dDd37409B5d3D90811BBb652a96C4",
+      fuji: "0x7eeF9e811817B7A5ae2aF986C68b2Fa562f2D5C0",//"0x2BC4F4757c5dDd37409B5d3D90811BBb652a96C4",
       mainnet: "",
     },
     ProductToken: {
