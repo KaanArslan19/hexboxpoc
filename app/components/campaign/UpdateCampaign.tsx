@@ -19,7 +19,9 @@ export default function UpdateCampaign({ campaign }: Props) {
   console.log("campaign", campaign);
   const initialValues = {
     ...campaign,
-    deadline: new Date(campaign.deadline).toISOString().split("T")[0],
+    deadline: campaign.deadline
+      ? new Date(Number(campaign.deadline)).toISOString().split("T")[0]
+      : "",
     social_links: {
       telegram: campaign.social_links?.telegram || "",
       discord: campaign.social_links?.discord || "",
@@ -47,14 +49,12 @@ export default function UpdateCampaign({ campaign }: Props) {
       console.log("Submitting values:", values);
       const formData = new FormData();
 
-      // Existing fields
       formData.append("title", values.title);
       formData.append("email", values.email);
       formData.append("phoneNumber", values.phoneNumber);
       formData.append("description", values.description);
       formData.append("location", values.location);
 
-      // New fields
       formData.append("funding_type", values.funding_type.toString());
       formData.append(
         "product_or_service",
@@ -64,10 +64,7 @@ export default function UpdateCampaign({ campaign }: Props) {
 
       formData.append("fund_amount", values.fund_amount.toString());
 
-      // Handle deadline
-      // In your form submission
       if (values.deadline) {
-        // Convert to timestamp once and pass it directly
         const deadlineValue =
           typeof values.deadline === "number"
             ? values.deadline
@@ -77,12 +74,10 @@ export default function UpdateCampaign({ campaign }: Props) {
         console.log("Deadline being sent:", deadlineValue);
       }
 
-      // Handle one_liner
       if (values.one_liner) {
         formData.append("one_liner", values.one_liner);
       }
 
-      // Social links
       formData.append(
         "social_links",
         JSON.stringify({
@@ -93,7 +88,6 @@ export default function UpdateCampaign({ campaign }: Props) {
         })
       );
 
-      // Handle logo
       if (values.logo && values.logo instanceof File) {
         formData.append("logo", values.logo);
       }
@@ -119,7 +113,6 @@ export default function UpdateCampaign({ campaign }: Props) {
       const result = await response.json();
       console.log("Campaign updated successfully:", result);
 
-      // Force a full page refresh to ensure data is refetched
       window.location.href = "/campaigns";
     } catch (error) {
       console.error("Failed to update campaign:", error);

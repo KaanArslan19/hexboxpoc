@@ -50,41 +50,38 @@ const fileSizeValidator = Yup.mixed().test(
   }
 );
 const BASE_URL = `${process.env.R2_BUCKET_URL}/campaign_logos/`;
-const validationSchema = [
-  Yup.object({
-    title: Yup.string().required("Title is required"),
-    one_liner: Yup.string().required("One Liner is required"),
-    logo: fileSizeValidator.required("Logo is required"),
+const validationCombinedSchema = Yup.object({
+  title: Yup.string().required("Title is required"),
+  one_liner: Yup.string().required("One Liner is required"),
+  logo: Yup.mixed().test("logoRequired", "Logo is required", (value) => {
+    return (
+      value instanceof File ||
+      (typeof value === "string" && value.trim() !== "")
+    );
   }),
-  Yup.object({
-    description: Yup.string().required("Description is required"),
-    location: Yup.string().required("Location is required"),
-    email: Yup.string().required("Email is required"),
-    phoneNumber: Yup.string().required("Phone Number is required"),
-  }),
-  Yup.object({
-    fund_amount: Yup.number()
-      .typeError("Fund amount must be a number")
-      .required("Fund amount is required")
-      .min(0.0000001, "Fund amount must be greater than 0"),
-    product_or_service: Yup.string()
-      .required("Product/Service type is required")
-      .oneOf(
-        [
-          ProductOrService.ProductOnly,
-          ProductOrService.ServiceOnly,
-          ProductOrService.ProductAndService,
-        ],
-        "Invalid product/service type"
-      ),
-    wallet_address: Yup.string().required("Wallet address is required"),
-  }),
-  Yup.object({
-    funding_type: Yup.string()
-      .oneOf(Object.values(FundingType))
-      .required("Please select a funding type"),
-  }),
-];
+  description: Yup.string().required("Description is required"),
+  location: Yup.string().required("Location is required"),
+  email: Yup.string().required("Email is required"),
+  phoneNumber: Yup.string().required("Phone Number is required"),
+  fund_amount: Yup.number()
+    .typeError("Fund amount must be a number")
+    .required("Fund amount is required")
+    .min(0.0000001, "Fund amount must be greater than 0"),
+  product_or_service: Yup.string()
+    .required("Product/Service type is required")
+    .oneOf(
+      [
+        ProductOrService.ProductOnly,
+        ProductOrService.ServiceOnly,
+        ProductOrService.ProductAndService,
+      ],
+      "Invalid product/service type"
+    ),
+  wallet_address: Yup.string().required("Wallet address is required"),
+  funding_type: Yup.string()
+    .oneOf(Object.values(FundingType))
+    .required("Please select a funding type"),
+});
 
 const defaultValues = {
   title: "",
@@ -120,7 +117,6 @@ const productServiceDescriptions = {
 export default function UpdateCampaignForm(props: Props) {
   const { onSubmit, onImageRemove, initialValuesProp } = props;
   const [isPending, setIsPending] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
   const [logoSource, setLogoSource] = useState<string[]>();
@@ -128,6 +124,8 @@ export default function UpdateCampaignForm(props: Props) {
   const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
     FundingType.Limitless
   );
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isFormReady, setIsFormReady] = useState(false);
 
   const { address } = useAccount();
   const onLogoChange = (file: File) => {
@@ -167,9 +165,18 @@ export default function UpdateCampaignForm(props: Props) {
       };
 
       setCampaignInfo(campaignData);
-      setLogoSource([campaignData.logo]); // Ensure ImageSelector gets a valid URL
+      setLogoSource([campaignData.logo]);
     }
+    setTimeout(() => {
+      setIsFormReady(true);
+    }, 100);
   }, [initialValuesProp]);
+
+  useEffect(() => {
+    if (logoSource && logoSource.length > 0 && !logoPreview) {
+      setLogoPreview(logoSource[0]);
+    }
+  }, [logoSource, logoPreview]);
   console.log("initialValuesProp", initialValuesProp);
   const handleSubmit = async (values: typeof defaultValues) => {
     console.log("valuesClient", values);
@@ -213,7 +220,7 @@ export default function UpdateCampaignForm(props: Props) {
   return (
     <Formik
       initialValues={campaignInfo}
-      validationSchema={validationSchema[currentStep]}
+      validationSchema={validationCombinedSchema}
       enableReinitialize={true}
       validateOnMount={true}
       onSubmit={handleSubmit}
@@ -250,7 +257,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               name="one_liner"
               placeholder="One Liner"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.one_liner}
             />
             <ErrorMessage
@@ -262,11 +269,24 @@ export default function UpdateCampaignForm(props: Props) {
             <h3 className="text-xl mb-2">Logo</h3>
             <ImageSelector
               id="thumb"
-              images={logoSource}
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  onLogoChange(e.target.files[0]);
-                  setFieldValue("logo", e.target.files[0]);
+              images={
+                logoPreview
+                  ? [logoPreview]
+                  : logoSource && logoSource.length > 0
+                  ? logoSource
+                  : []
+              }
+              onChange={({ target }) => {
+                const file = target.files ? target.files[0] : null;
+                setFieldValue("logo", file);
+                setLogo(file);
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    const dataUrl = e.target?.result as string;
+                    setLogoPreview(dataUrl);
+                  };
+                  reader.readAsDataURL(file);
                 }
               }}
             />
@@ -289,7 +309,7 @@ export default function UpdateCampaignForm(props: Props) {
               />
               <button
                 type="button"
-                onClick={() => setFieldValue("walletAddress", address)}
+                onClick={() => setFieldValue("wallet_address", address)}
                 className="group relative px-2 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 h-[42px] flex items-center justify-center"
               >
                 <TiAttachment className="w-8 h-8 " style={{ fill: "white" }} />
@@ -307,7 +327,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               name="fund_amount"
               placeholder="Fund Amount"
-              className="block w-full p-2 border border-gray-300 rounded  mb-2 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded  mb-4 focus:outline-none focus:border-blueColor"
               value={values.fund_amount}
             />
             <ErrorMessage
@@ -319,7 +339,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               as="select"
               name="funding_type"
-              className="block w-full p-2 border border-gray-300  rounded mb-2 focus:outline-none"
+              className="block w-full p-2 border border-gray-300  rounded mb-4 focus:outline-none"
               value={values.funding_type}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 setFieldValue("funding_type", e.target.value);
@@ -342,7 +362,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               as="select"
               name="product_or_service"
-              className="block w-full p-2 border border-gray-300  rounded mb-2 focus:outline-none"
+              className="block w-full p-2 border border-gray-300  rounded mb-4 focus:outline-none"
               value={values.product_or_service}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 setFieldValue("product_or_service", e.target.value);
@@ -402,7 +422,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               name="location"
               placeholder="Location"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.location}
             />
             <ErrorMessage
@@ -416,7 +436,7 @@ export default function UpdateCampaignForm(props: Props) {
               name="email"
               type="email"
               placeholder="Email"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.email}
             />
             <ErrorMessage
@@ -430,7 +450,7 @@ export default function UpdateCampaignForm(props: Props) {
               name="phoneNumber"
               type="text"
               placeholder="Phone Number"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.phoneNumber}
             />
             <ErrorMessage
@@ -443,7 +463,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               name="deadline"
               type="date"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.deadline}
             />
             <ErrorMessage
@@ -459,7 +479,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               name="telegram"
               placeholder="Telegram"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.telegram}
             />
             <ErrorMessage
@@ -472,7 +492,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               name="discord"
               placeholder="Discord"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.discord}
             />
             <ErrorMessage
@@ -498,7 +518,7 @@ export default function UpdateCampaignForm(props: Props) {
             <Field
               name="linkedIn"
               placeholder="LinkedIn"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
               value={values.linkedIn}
             />
             <ErrorMessage
