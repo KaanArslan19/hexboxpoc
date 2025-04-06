@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 import { getCampaign } from "@/app/utils/getCampaign";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
+import { CONTRACTS } from "@/app/utils/contracts/contracts";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -43,44 +44,47 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       );
     }
 
+    // Create product in database first
     const [productId, price, supply] = await createProduct(formData);
+    
+    // Prepare the product data for the blockchain
     const product = {
       productId: BigInt(productId as string),
       price: ethers.parseUnits(price.toString(), 6),
       supplyLimit: BigInt(supply as string),
     };
+    
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
       process.env.NEXT_PUBLIC_TESTNET_RPC_URL
     );
 
-    const deployer = new ethers.Wallet(
-      process.env.DEPLOYER_PRIVATE_KEY!,
+    // Get the fundraiser contract
+    const fundraiserContract = new ethers.Contract(
+      campaign.fundraiser_address,
+      USDCFundraiser.abi,
       provider
     );
 
-    const fundraiser = new ethers.Contract(
-      campaign?.fundraiser_address,
-      USDCFundraiser.abi,
-      provider
-    ).connect(deployer) as unknown as {
-      addProduct(
-        product: {
-          productId: bigint;
-          price: bigint;
-          supplyLimit: bigint;
-        },
-        overrides?: { gasLimit: number }
-      ): Promise<any>;
-      interface: ethers.Interface;
+    // Encode the function data for addProduct
+    const functionData = fundraiserContract.interface.encodeFunctionData(
+      "addProduct",
+      [product]
+    );
+
+    // Construct the transaction
+    const transaction = {
+      to: campaign.fundraiser_address,
+      data: functionData,
+      chainId: 43113, // Avalanche Fuji testnet
+      value: "0x00",
     };
 
-    const hash = await fundraiser.addProduct(product, { gasLimit: 1000000 });
-    const receipt = await hash.wait();
-    console.log("Transaction sent:", hash);
-    console.log("Transaction receipt:", receipt);
-
-    return NextResponse.json({ productId });
+    return NextResponse.json({ 
+      productId,
+      transaction,
+      campaignId: formData.get("campaignId")
+    });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: e }, { status: 500 });

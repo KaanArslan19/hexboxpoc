@@ -6,9 +6,12 @@ import { useAccount, useWalletClient } from "wagmi";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { ProductOrService } from "@/app/types";
+import { useTransaction } from "@/app/hooks/useTransaction";
+
 interface Props {
   searchParams: { campaignId: string };
 }
+
 export default function CreateProductPage({ searchParams }: Props) {
   const campaignId = searchParams.campaignId;
 
@@ -20,6 +23,87 @@ export default function CreateProductPage({ searchParams }: Props) {
   const [transactionStatus, setTransactionStatus] = useState<string | null>(
     null
   );
+
+  const { sendTransaction, isLoading, error } = useTransaction({
+    onSuccess: async (hash, responseData) => {
+      try {
+        setTransactionStatus("Confirming product creation...");
+        
+        const confirmResponse = await fetch("/api/confirmCreationOfProduct", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transactionHash: hash,
+            productId: responseData.productId,
+            campaignId: responseData.campaignId,
+          }),
+        });
+
+        const confirmData = await confirmResponse.json();
+
+        if (confirmData.success) {
+          setTransactionStatus("Success! Redirecting...");
+          toast.success("Product created successfully!", {
+            position: "top-center",
+            autoClose: 5000,
+          });
+          router.push("/campaign?campaignId=" + campaignId);
+        } else {
+          throw new Error(confirmData.error || "Failed to confirm product creation");
+        }
+      } catch (confirmError: any) {
+        console.error("Confirmation error:", confirmError);
+        toast.error(`Confirmation error: ${confirmError.message || "Unknown error"}`, {
+          position: "top-center",
+          autoClose: 5000,
+        });
+        setTransactionStatus(null);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    onError: async (error, responseData) => {
+      console.error("Transaction error:", error);
+      
+      // Clean up the product from database
+      if (responseData?.productId) {
+        try {
+          console.log("Attempting to delete product:", responseData.productId);
+          const cleanupResponse = await fetch("/api/confirm-product-creation", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              transactionHash: "",
+              status: "failed",
+              productId: responseData.productId,
+              campaignId: responseData.campaignId,
+            }),
+          });
+
+          console.log("Cleanup response status:", cleanupResponse.status);
+          const cleanupData = await cleanupResponse.json();
+          console.log("Cleanup response data:", cleanupData);
+
+          if (!cleanupData.success) {
+            console.error("Failed to clean up product:", cleanupData.error);
+          }
+        } catch (cleanupError) {
+          console.error("Error cleaning up product:", cleanupError);
+        }
+      }
+      
+      toast.error(`Transaction error: ${error.message || "Unknown error"}`, {
+        position: "top-center",
+        autoClose: 5000,
+      });
+      setTransactionStatus(null);
+      setIsSubmitting(false);
+    },
+  });
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -141,36 +225,27 @@ export default function CreateProductPage({ searchParams }: Props) {
         method: "POST",
         body: formData,
       });
-      const responseText = await response.text();
-      let errorData;
-      console.log(responseText, "responseText");
-      try {
-        // Only try to parse if there's content
-        if (responseText.trim()) {
-          errorData = JSON.parse(responseText);
-        } else {
-          errorData = { message: "Empty response received from server" };
-        }
-      } catch (parseError) {
-        console.error("Failed to parse response:", responseText);
-        errorData = {
-          message: `Invalid JSON response: ${responseText.substring(
-            0,
-            100
-          )}...`,
-        };
-      }
+      
+      const responseData = await response.json();
+      
       if (!response.ok) {
-        throw new Error(errorData.message || "Failed to create product");
+        throw new Error(responseData.error || "Failed to create product");
       }
 
-      setTransactionStatus("Success! Redirecting...");
-      toast.success("Product created successfully!", {
-        position: "top-center",
-        autoClose: 5000,
-      });
-      setIsSubmitting(false);
-      router.push("/campaign?campaignId=" + campaignId);
+      if (!responseData.transaction) {
+        throw new Error("Failed to generate transaction");
+      }
+
+      setTransactionStatus("Transaction ready. Please sign in your wallet...");
+      
+      // Send transaction
+      await sendTransaction(
+        {
+          ...responseData.transaction,
+          account: userId,
+        },
+        responseData
+      );
     } catch (txError: any) {
       console.error("Transaction error:", txError);
       toast.error(`Transaction error: ${txError.message || "Unknown error"}`, {
@@ -178,8 +253,6 @@ export default function CreateProductPage({ searchParams }: Props) {
         autoClose: 5000,
       });
       setTransactionStatus(null);
-      throw new Error(`Transaction failed: ${txError.message}`);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -194,7 +267,7 @@ export default function CreateProductPage({ searchParams }: Props) {
       <ProductForm
         productOrService={productOrService}
         onSubmit={handleCreateProduct}
-        isSubmitting={isSubmitting}
+        isSubmitting={isSubmitting || isLoading}
       />
     </div>
   );
