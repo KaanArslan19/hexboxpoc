@@ -10,9 +10,17 @@ export async function GET(request: NextRequest) {
   if (!productId) {
     return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
   }
-
-  const campaign = await getCampaignFromProduct(productId);
-  console.log(campaign);
-  return NextResponse.json({ campaign });
+  try {
+    const campaign = await getCampaignFromProduct(productId);
+    console.log(campaign);
+    return NextResponse.json({ campaign });
+  } catch (error) {
+    console.error("Error fetching campaign:", error);
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    } else {
+      return NextResponse.json({ error: "An unknown error occurred" }, { status: 500 });
+    }
+  }
   
 }   
