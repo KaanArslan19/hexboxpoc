@@ -28,6 +28,7 @@ export interface CampaignListProps {
     background_image: string;
     hexbox_address: string;
     status: Status;
+    total_raised: number;
   }[];
 }
 export interface CampaignDetailsProps {
@@ -76,6 +77,7 @@ export interface CampaignItemProps {
   fundAmount: number;
   logo: string;
   status?: Status;
+  totalRaised: number;
 }
 interface SocialLinks {
   discord?: string;

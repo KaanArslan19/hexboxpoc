@@ -28,10 +28,14 @@ export const GET = async (req: NextRequest) => {
 
     const limit = parseInt(req.nextUrl.searchParams.get("limit") || "10");
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0");
-
+    const sortBy = req.nextUrl.searchParams.get("sortBy") || "totalRaised";
+    const sortOrder = req.nextUrl.searchParams.get("sortOrder") || "desc";
+    const sortOptions: Record<string, 1 | -1> = {};
+    sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
     const campaigns = await db
       .collection("campaigns")
       .find({})
+      .sort(sortOptions)
       .skip(skip)
       .limit(limit)
       .toArray();
