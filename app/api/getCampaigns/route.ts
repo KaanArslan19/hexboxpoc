@@ -30,8 +30,22 @@ export const GET = async (req: NextRequest) => {
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0");
     const sortBy = req.nextUrl.searchParams.get("sortBy") || "totalRaised";
     const sortOrder = req.nextUrl.searchParams.get("sortOrder") || "desc";
+
     const sortOptions: Record<string, 1 | -1> = {};
     sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+    // Add secondary sort by createdAt to ensure consistent ordering
+    sortOptions["createdAt"] = -1;
+
+    // Debug logs
+    console.log(`Fetching campaigns with limit: ${limit}, skip: ${skip}`);
+    console.log(`Sort options: ${JSON.stringify(sortOptions)}`);
+    console.log(
+      `Total campaigns before pagination: ${await db
+        .collection("campaigns")
+        .countDocuments({})}`
+    );
+
     const campaigns = await db
       .collection("campaigns")
       .find({})
@@ -39,7 +53,12 @@ export const GET = async (req: NextRequest) => {
       .skip(skip)
       .limit(limit)
       .toArray();
-
+    console.log(`Campaigns returned: ${campaigns.length}`);
+    if (campaigns.length > 0) {
+      console.log(`First campaign _id: ${campaigns[0]?._id}`);
+      console.log(`First campaign totalRaised: ${campaigns[0]?.totalRaised}`);
+      console.log(`First campaign createdAt: ${campaigns[0]?.createdAt}`);
+    }
     return NextResponse.json(campaigns);
   } catch (e) {
     console.error("Error in getCampaigns:", e);
