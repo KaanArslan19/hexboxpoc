@@ -463,9 +463,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       const balance = await productTokenContract.balanceOf(
         address!,
-        product.productId
+        ethers.parseUnits(product.productId.toString(), 0)
       );
       setTokenBalance(balance);
+      console.log("Token balance:", balance);
       return balance > 0;
     } catch (error) {
       console.error("Error checking token balance:", error);
