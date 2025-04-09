@@ -23,17 +23,27 @@ export async function POST(req: NextRequest) {
         return Response.json({ message: "No data received" });
     }
 
+    console.log("reqData:", reqData);
+
     const campaignFundraisers = await getAllCampaignFundraisers();
     //console.log("Campaign fundraisers:", campaignFundraisers);
 
-    if (!reqData.data[0] || !reqData.data[0].transactions) {
-        console.log("No transactions received");
-        return Response.json({ message: "No transactions received" });
-    }
-    console.log("No. blocks in stream:", reqData.data.length);
-    console.log("Block number:", BigInt(reqData.data[0].number));
+    // let isTransaction = false;
+    // let isReceipt = false;
+    // if (!reqData.transactions || reqData.transactions.length === 0) {
+    //     console.log("No transactions received");
+    //     isTransaction = false;
+    // }
+    // if (!reqData.receipts || reqData.receipts.length === 0) {
+    //     console.log("No receipts received");
+    //     isReceipt = false;    
+    // }
+    // if (!isTransaction && !isReceipt) {
+    //     console.log("No transactions or receipts received");
+    //     return Response.json({ message: "No transactions or receipts received" });
+    // }
 
-    const transactions = reqData.data[0].transactions;
+    const transactions = reqData.transactions;
     //console.log("Transactions:", transactions);
 
     // Initialize provider for checking transaction receipts
@@ -95,10 +105,12 @@ export async function POST(req: NextRequest) {
                     data: transaction.input,
                     value: transaction.value 
                 });
+
+                console.log("decodedData:", decodedData);
                 
                 const transactionData = {
                     transactionHash: transaction.hash,
-                    blockNumber: BigInt(reqData.data[0].number),
+                    blockNumber: BigInt(transaction.blockNumber),
                     timestamp: new Date(),
                     from: transaction.from,
                     to: transaction.to,
@@ -107,11 +119,11 @@ export async function POST(req: NextRequest) {
                     gasUsed: receipt.gasUsed.toString(),
                     decodedFunction: {
                         name: decodedData?.name,
-                        args: decodedData?.args.map(arg => 
+                        args: decodedData?.args.toArray().map(arg => 
                             typeof arg === 'bigint' ? arg.toString() : arg
                         ),
                         signature: decodedData?.signature,
-                        formatted: `${decodedData?.name}(${decodedData?.args.map(arg => 
+                        formatted: `${decodedData?.name}(${decodedData?.args.toArray().map(arg => 
                             typeof arg === 'bigint' ? arg.toString() : arg
                         ).join(', ')})`
                     }
@@ -121,7 +133,7 @@ export async function POST(req: NextRequest) {
                 console.log("Failed to decode input for transaction:", transaction.hash);
                 const transactionData = {
                     transactionHash: transaction.hash,
-                    blockNumber: BigInt(reqData.data[0].number),
+                    blockNumber: BigInt(receipt.blockNumber),
                     timestamp: new Date(),
                     from: transaction.from,
                     to: transaction.to,
