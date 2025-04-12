@@ -28,7 +28,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    const price = product.price.amount;
+    const priceObj = JSON.parse(product.price);
+    const price = priceObj.amount;
     const totalPrice = Number(price) * Number(quantity);
 
     return NextResponse.json({ productId, totalPrice });

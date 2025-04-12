@@ -10,21 +10,96 @@ const s3Client = new S3Client({
     },
 });
 
+// ...productInitialValues,
+// type: ProductOrService.ServiceOnly,
+// inventory: undefined,
+// freeShipping: undefined,
+// productReturnPolicy: undefined,
+// service_terms: {
+//   contract_time_begining: "",
+//   contract_length: "2 hours",
+// },
+
 export async function uploadProductMetadataToR2(productMetadata: any) {
+
+    // const productAttributes = [
+
+    // ]
+
+    // const serviceAttributes = [
+    //     {
+    //         trait_type: "Details",
+    //         value: productMetadata.details
+    //     },
+    //     {
+    //         trait_type: "ID", // Probably unnecessary.
+    //         value: productMetadata.productId
+    //     },
+    //     {
+    //         trait_type: "Type",
+    //         value: productMetadata.type
+    //     },
+    //     {
+    //         trait_type: "Manufacturer",
+    //         value: productMetadata.manufacturerId
+    //     },
+    //     {
+    //         trait_type: "Country of Origin",
+    //         value: productMetadata.countryOfOrigin
+    //     },
+    //     {
+    //         trait_type: "Free Shipping",
+    //         value: productMetadata.freeShipping
+    //     },
+    //     {
+    //         trait_type: "Campaign ID",
+    //         value: productMetadata.campaignId
+    //     },
+    //     {
+    //         trait_type: "Return Policy",
+    //         value: productMetadata.returnPolicy
+    //     },
+    // ]
+
+    // const attributes = productMetadata.type === ProductOrService.Product ? productAttributes : serviceAttributes;
 
     const productMetadataStructure = {
         name: productMetadata.name,
         description: productMetadata.description,
-        image: `${process.env.R2_BUCKET_URL}/product_logos/${productMetadata.image}`, //https://static.hexbox.money/campaign_products/images/${productMetadata.image}`, // Check to make sure this is accurate.
+        image: `${process.env.R2_BUCKET_URL}/product_logos/${productMetadata.logo}`, //https://static.hexbox.money/campaign_products/images/${productMetadata.image}`, // Check to make sure this is accurate.
         attributes: [
             {
                 trait_type: "Details",
                 value: productMetadata.details
             },
             {
-                trait_type: "Product ID", // Probably unnecessary.
+                trait_type: "ID", // Probably unnecessary.
                 value: productMetadata.productId
-            }
+            },
+            {
+                trait_type: "Type",
+                value: productMetadata.type
+            },
+            {
+                trait_type: "Manufacturer",
+                value: productMetadata.manufacturerId
+            },
+            {
+                trait_type: "Country of Origin",
+                value: productMetadata.countryOfOrigin
+            },
+            {
+                trait_type: "Free Shipping",
+                value: productMetadata.freeShipping
+            },
+            {
+                trait_type: "Campaign ID",
+                value: productMetadata.campaignId
+            },
+            {
+                trait_type: "Return Policy",
+                value: productMetadata.returnPolicy
+            },
         ]
     }
 
