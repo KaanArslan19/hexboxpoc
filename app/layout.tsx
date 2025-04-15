@@ -9,7 +9,7 @@ import Notification from "./components/Notification";
 
 export const metadata: Metadata = {
   title: "Hexbox",
-  description: "Fund Your Campaign",
+  description: "Create. Support. Make Impact.",
 };
 
 export default async function RootLayout({

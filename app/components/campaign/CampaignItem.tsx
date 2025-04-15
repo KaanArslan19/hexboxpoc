@@ -2,8 +2,7 @@
 import { CampaignItemProps } from "@/app/types";
 import Image from "next/image";
 import Link from "next/link";
-import { SiSolana } from "react-icons/si";
-import { FaDollarSign } from "react-icons/fa6";
+
 import formatPrice from "@/app/utils/formatPrice";
 
 const CampaignItem: React.FC<CampaignItemProps> = ({
@@ -15,7 +14,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
   totalRaised,
 }) => {
   return (
-    <li className="bg-none flex flex-col justify-between items-center shadow-sm hover:shadow-xl rounded-md overflow-hidden shadow-lightBlueColor transition-shadow duration-150 m-[10px] border-2 border-lightBlueColor relative">
+    <li className="bg-none flex flex-col justify-between items-center shadow-sm hover:shadow-xl rounded-2xl overflow-hidden shadow-lightBlueColor transition-shadow duration-150 m-[10px] border-[1px] border-lightBlueColor relative">
       <Link className="contents" href={`/campaign?campaignId=${id}`}>
         <Image
           className="h-[170px] w-full object-cover object-center"

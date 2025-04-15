@@ -41,6 +41,7 @@
     "connectkit": "^1.7.3",
     "connectkit-next-siwe": "^0.3.0",
     "d3": "^7.9.0",
+    "embla-carousel-react": "^8.6.0",
     "ethers": "^6.13.5",
     "formik": "^2.4.6",
     "iron-session": "^8.0.1",

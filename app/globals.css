@@ -192,3 +192,12 @@ h2 {
   > .ant-steps-item-tail::after {
   background-color: #002d5d !important;
 }
+
+@keyframes progressAnimation {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 10px 0;
+  }
+}

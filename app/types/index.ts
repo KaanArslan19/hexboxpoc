@@ -52,9 +52,10 @@ export interface CampaignDetailsProps {
   transactions: any[];
   fundraiser_address: string;
   total_raised: number;
+  is_verified: boolean;
 }
 enum Status {
-  Active = "active",
+  Active = "Active",
   Inactive = "Inactive",
   Completed = "Completed",
 }

@@ -20,6 +20,7 @@ import CampaignProducts from "./CampaignProducts";
 import CustomButton from "../ui/CustomButton";
 import { checkServerAuth } from "@/app/utils/CheckServerAuth";
 import getCampaignTransactions from "@/app/utils/poc_utils/getCampaignTransactions";
+import ProductTechDetails from "../ui/ProductTechDetails";
 
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
@@ -39,7 +40,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   product_or_service,
   transactions,
   fundraiser_address,
-  total_raised
+  total_raised,
 }) => {
   //const transactions = await getCampaignTransactions(_id);
 
@@ -66,7 +67,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   */
 
   const { isAuthenticated, address } = await checkServerAuth();
-  console.log("address", address);
   const campaignOwner = address === user_id;
   const modifiedProps: any & WalletDetails & { wallet_address: string } = {
     name: "test", //tokenDetails!.name,
@@ -139,6 +139,15 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         />
       ),
     }, */
+    {
+      key: "4",
+      label: "Tech Details",
+      children: (
+        <ProductTechDetails
+          wallet_address={wallet_address ? wallet_address : user_id}
+        />
+      ),
+    },
   ];
 
   const remainingFundAmountPercentage = (
