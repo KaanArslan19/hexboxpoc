@@ -61,7 +61,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       is_verified: false,
       factCheck: false,
       funding_type: campaignEntries.funding_type,
-      product_or_service: campaignEntries.product_or_service,
       evm_wa: campaignEntries.wallet_address,
       configured: false,
       transactions: [],

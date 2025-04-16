@@ -9,10 +9,7 @@ import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
 import { TiAttachment } from "react-icons/ti";
 import Image from "next/image";
-import {
-  fundingTypesDisplayNames,
-  productServiceDisplayNames,
-} from "../../lib/auth/utils/productServiceDisplayNames";
+import { fundingTypesDisplayNames } from "../../lib/auth/utils/productServiceDisplayNames";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 export interface InitialCampaignValue {
@@ -27,7 +24,6 @@ export interface InitialCampaignValue {
   fund_amount: number;
   wallet_address: string;
   funding_type: FundingType;
-  product_or_service: ProductOrService;
   social_links: {
     telegram: string;
     discord: string;
@@ -67,16 +63,7 @@ const validationCombinedSchema = Yup.object({
     .typeError("Fund amount must be a number")
     .required("Fund amount is required")
     .min(0.0000001, "Fund amount must be greater than 0"),
-  product_or_service: Yup.string()
-    .required("Product/Service type is required")
-    .oneOf(
-      [
-        ProductOrService.ProductOnly,
-        ProductOrService.ServiceOnly,
-        ProductOrService.ProductAndService,
-      ],
-      "Invalid product/service type"
-    ),
+
   wallet_address: Yup.string().required("Wallet address is required"),
   funding_type: Yup.string()
     .oneOf(Object.values(FundingType))
@@ -99,21 +86,13 @@ const defaultValues = {
   wallet_address: "",
   fund_amount: 0,
   funding_type: FundingType.Limitless,
-  product_or_service: ProductOrService.ProductAndService,
 };
 interface Props {
   onSubmit(values: CampaignInfoUpdate): void;
   onImageRemove?(source: string): void;
   initialValuesProp: InitialCampaignValue;
 }
-const productServiceDescriptions = {
-  [ProductOrService.ProductOnly]:
-    "Your campaign offers only physical or digital products to backers.",
-  [ProductOrService.ServiceOnly]:
-    "Your campaign offers only services or experiences to backers.",
-  [ProductOrService.ProductAndService]:
-    "Your campaign offers both products and services to backers.",
-};
+
 export default function UpdateCampaignForm(props: Props) {
   const { onSubmit, onImageRemove, initialValuesProp } = props;
   const [isPending, setIsPending] = useState(false);
@@ -132,8 +111,7 @@ export default function UpdateCampaignForm(props: Props) {
     setLogo(file);
     setLogoSource([URL.createObjectURL(file)]);
   };
-  const [selectedProductService, setSelectedProductService] =
-    useState<ProductOrService>(ProductOrService.ServiceOnly);
+
   useEffect(() => {
     if (initialValuesProp) {
       const campaignData = {
@@ -159,7 +137,6 @@ export default function UpdateCampaignForm(props: Props) {
         website: initialValuesProp.social_links?.website || "",
         linkedIn: initialValuesProp.social_links?.linkedIn || "",
         funding_type: initialValuesProp.funding_type,
-        product_or_service: initialValuesProp.product_or_service,
         fund_amount: initialValuesProp.fund_amount,
         wallet_address: initialValuesProp.wallet_address,
       };
@@ -201,7 +178,6 @@ export default function UpdateCampaignForm(props: Props) {
       fund_amount: Number(values.fund_amount),
       wallet_address: values.wallet_address,
       funding_type: values.funding_type as FundingType,
-      product_or_service: values.product_or_service as ProductOrService,
     };
 
     try {
@@ -355,31 +331,6 @@ export default function UpdateCampaignForm(props: Props) {
 
             <ErrorMessage
               name="funding_type"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-            <h3 className="text-xl mb-2">Product or Service Type</h3>
-            <Field
-              as="select"
-              name="product_or_service"
-              className="block w-full p-2 border border-gray-300  rounded mb-4 focus:outline-none"
-              value={values.product_or_service}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                setFieldValue("product_or_service", e.target.value);
-                setSelectedProductService(e.target.value as ProductOrService);
-              }}
-            >
-              {Object.values(productServiceDisplayNames).map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </Field>
-            <p className="text-sm text-gray-600 mb-4 italic">
-              {productServiceDescriptions[selectedProductService]}
-            </p>
-            <ErrorMessage
-              name="product_or_service"
               component="div"
               className="text-redColor/80 mb-2"
             />

@@ -4,27 +4,14 @@ import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Steps } from "antd";
 import ImageSelector from "./ui/ImageSelector";
-import { NewCampaignInfo, FundingType, ProductOrService } from "../types";
+import { NewCampaignInfo, FundingType } from "../types";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
 import { TiAttachment } from "react-icons/ti";
 import FundingTypeSelector from "./ui/FundingTypeSelector";
-import { productServiceDisplayNames } from "../lib/auth/utils/productServiceDisplayNames";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-const productServiceEnumMap: Record<string, ProductOrService> = {
-  "Only Product": ProductOrService.ProductOnly,
-  "Only Service": ProductOrService.ServiceOnly,
-  "Product and Service": ProductOrService.ProductAndService,
-};
-
-const enumToDisplayName: Record<string, string> = {
-  [ProductOrService.ProductOnly]: "Only Product",
-  [ProductOrService.ServiceOnly]: "Only Service",
-  [ProductOrService.ProductAndService]: "Product and Service",
-};
 
 const steps = [
   { title: "Project Info" },
@@ -67,15 +54,7 @@ const validationSchema = [
       .typeError("Fund amount must be a number")
       .required("Fund amount is required")
       .min(0.0000001, "Fund amount must be greater than 0"),
-    productOrService: Yup.string()
-      .required("Product/Service type is required")
-      .test(
-        "is-valid-product-service",
-        "Invalid product/service type",
-        (value) => {
-          return !!productServiceEnumMap[value];
-        }
-      ),
+
     wallet_address: Yup.string().required("Wallet address is required"),
   }),
   Yup.object({
@@ -101,21 +80,12 @@ const initialValues = {
   website: "",
   linkedIn: "",
   funding_type: FundingType.Limitless,
-  productOrService: enumToDisplayName[ProductOrService.ProductOnly],
 };
 interface Props {
   onSubmit(values: NewCampaignInfo): void;
   onImageRemove?(source: string): void;
 }
 
-const productServiceDescriptions = {
-  [ProductOrService.ProductOnly]:
-    "Your campaign offers only physical or digital products to backers.",
-  [ProductOrService.ServiceOnly]:
-    "Your campaign offers only services or experiences to backers.",
-  [ProductOrService.ProductAndService]:
-    "Your campaign offers both products and services to backers.",
-};
 export default function CampaignForm(props: Props) {
   const { onSubmit, onImageRemove } = props;
   const [isPending, setIsPending] = useState(false);
@@ -126,23 +96,13 @@ export default function CampaignForm(props: Props) {
   const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
     FundingType.Limitless
   );
-  const [selectedProductService, setSelectedProductService] =
-    useState<ProductOrService>(
-      ProductOrService[
-        initialValues.productOrService as keyof typeof ProductOrService
-      ]
-    );
+
   const { address } = useAccount();
 
   const handleSubmit = async (values: typeof initialValues) => {
     console.log(values);
     setIsPending(true);
     setSubmitError(null);
-
-    // Map the display name to the actual enum value
-    const productOrServiceEnum =
-      productServiceEnumMap[values.productOrService] ||
-      ProductOrService.ProductOnly;
 
     const projectData: NewCampaignInfo = {
       title: values.title,
@@ -162,7 +122,6 @@ export default function CampaignForm(props: Props) {
       },
       wallet_address: values.wallet_address,
       funding_type: values.funding_type as FundingType,
-      productOrService: productOrServiceEnum,
     };
 
     try {
@@ -383,36 +342,6 @@ export default function CampaignForm(props: Props) {
               />
               <ErrorMessage
                 name="fundAmount"
-                component="div"
-                className="text-redColor/80 mb-2"
-              />
-
-              <h3 className="text-xl mb-2">Product or Service Type</h3>
-              <Field
-                as="select"
-                name="productOrService"
-                className="block w-full p-2 border border-gray-300 rounded mb-2 focus:outline-none"
-                value={values.productOrService}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  const displayName = e.target.value;
-                  setFieldValue("productOrService", displayName);
-
-                  // Convert display name to enum value for the description
-                  const enumValue = productServiceEnumMap[displayName];
-                  setSelectedProductService(enumValue);
-                }}
-              >
-                {Object.values(enumToDisplayName).map((displayName) => (
-                  <option key={displayName} value={displayName}>
-                    {displayName}
-                  </option>
-                ))}
-              </Field>
-              <p className="text-sm text-gray-600 mb-4 italic">
-                {productServiceDescriptions[selectedProductService]}
-              </p>
-              <ErrorMessage
-                name="productOrService"
                 component="div"
                 className="text-redColor/80 mb-2"
               />

@@ -99,7 +99,6 @@ export interface NewCampaignInfo {
   logo: File;
   wallet_address: string;
   funding_type: FundingType;
-  productOrService: ProductOrService;
 }
 export interface NewCampaignInfoResponse {
   _id: string;
@@ -114,7 +113,6 @@ export interface NewCampaignInfoResponse {
   logo: File;
   fund_amount: number;
   funding_type: FundingType;
-  product_or_service: ProductOrService;
   wallet_address: string;
 }
 export interface CampaignInfoUpdate {
@@ -129,28 +127,9 @@ export interface CampaignInfoUpdate {
   logo: File | string;
   fund_amount: number;
   funding_type: FundingType;
-  product_or_service: ProductOrService;
   wallet_address: string;
 }
 
-export interface FetchCampaignsProps {
-  _id: string;
-  title: string;
-  user_id: string;
-  description: string;
-  one_liner: string;
-  location: string;
-  deadline: number;
-  is_verified: boolean;
-  social_links: SocialLinks;
-  fundAmount: number;
-  logo: File;
-  wallet_address: string;
-  token_address: string;
-  funding_type: FundingType;
-  evm_wa: string;
-  product_or_service: ProductOrService;
-}
 export interface AboutData {
   image: string;
   header: string;

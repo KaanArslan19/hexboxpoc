@@ -5,7 +5,6 @@ import {
   NewCampaignInfoResponse,
   CampaignInfoUpdate,
   FundingType,
-  ProductOrService,
 } from "@/app/types";
 import UpdateCampaignForm from "./UpdateCampaignForm";
 
@@ -30,7 +29,6 @@ export default function UpdateCampaign({ campaign }: Props) {
     },
     fund_amount: campaign.fund_amount || 0,
     funding_type: campaign.funding_type || FundingType,
-    product_or_service: campaign.product_or_service || ProductOrService,
     wallet_address: campaign.wallet_address || "",
   };
   console.log("initialValues", initialValues);
@@ -56,10 +54,7 @@ export default function UpdateCampaign({ campaign }: Props) {
       formData.append("location", values.location);
 
       formData.append("funding_type", values.funding_type.toString());
-      formData.append(
-        "product_or_service",
-        values.product_or_service.toString()
-      );
+
       formData.append("wallet_address", values.wallet_address);
 
       formData.append("fund_amount", values.fund_amount.toString());
