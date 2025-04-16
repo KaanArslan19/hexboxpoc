@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ProductFetch } from "@/app/types";
+import { CampaignDetailsProps, ProductFetch } from "@/app/types";
 import Link from "next/link";
 import CustomButton from "./ui/CustomButton";
 import { useState, useEffect } from "react";
@@ -13,36 +13,21 @@ import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductTo
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 import { Tabs } from "antd";
 import { Input } from "@material-tailwind/react";
+import {
+  fundingTypeLabels,
+  productOrServiceLabels,
+} from "@/app/utils/nameConvention";
+import { FundingType, ProductOrService } from "@/app/types";
+import ProductOverview from "./ui/ProductOverview";
+import ProductTechDetails from "./ui/ProductTechDetails";
+
 interface CampaignProductsProps {
   product: ProductFetch;
 }
 
-interface Campaign {
-  _id: string;
-  user_id: string;
-  title: string;
-  description: string;
-  wallet_address: string;
-  token_address: string;
-  logo: string;
-  timestamp: number;
-  status: string;
-  fund_amount: string;
-  one_liner: string;
-  social_links: any;
-  location: string | null;
-  deadline: number;
-  is_verified: boolean;
-  funding_type: string;
-  product_or_service: string;
-  evm_wa: string;
-  created_timestamp?: number;
-  total_raised: string;
-}
-
 interface CampaignProductsProps {
   product: ProductFetch;
-  campaign: Campaign;
+  campaign: CampaignDetailsProps;
 }
 
 const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
@@ -61,41 +46,22 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const [tokenBalance, setTokenBalance] = useState<bigint>(BigInt(0));
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
-  //const [campaignAddress, setCampaignAddress] = useState<string | null>(null);
 
-  // Add a new state for transaction verification
   const [isVerifying, setIsVerifying] = useState(false);
+
+  const commissionRate = 0.025; // 2.5%
+  const [showCommissionInfo, setShowCommissionInfo] = useState<boolean>(false);
+  const [calculatedAmount, setCalculatedAmount] = useState<{
+    totalAmount: number;
+    commissionAmount: number;
+    finalAmount: number;
+  }>({ totalAmount: 0, commissionAmount: 0, finalAmount: 0 });
 
   const items = [
     {
       key: "1",
       label: "Overview",
-      children: (
-        <div className="p-4">
-          <p className="text-gray-700 mb-4">{campaign.description}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gray-100 p-3 rounded-md">
-              <span className="font-semibold text-gray-800">Funding Type</span>
-              <p className="mt-1">{campaign.funding_type}</p>
-            </div>
-            <div className="bg-gray-100 p-3 rounded-md">
-              <span className="font-semibold text-gray-800">Status</span>
-              <p className="mt-1 flex items-center">
-                <span
-                  className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                    campaign.status === "Active"
-                      ? "bg-green-500"
-                      : campaign.status === "Ended"
-                      ? "bg-red-500"
-                      : "bg-yellow-500"
-                  }`}
-                ></span>
-                {campaign.status}
-              </p>
-            </div>
-          </div>
-        </div>
-      ),
+      children: <ProductOverview product={product} campaign={campaign} />,
     },
     {
       key: "2",
@@ -133,19 +99,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     {
       key: "3",
       label: "Tech Details",
-      children: (
-        <div className="p-4">
-          <div className="mb-4">
-            <span className="font-semibold text-gray-800">Wallet Address</span>
-            <div className="mt-1 p-3 bg-gray-100 rounded-md overflow-x-auto">
-              <code className="text-sm">{campaign.wallet_address}</code>
-              <button className="ml-2 text-blue-600 hover:text-blue-800">
-                <span className="text-xs">Copy</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      ),
+      children: <ProductTechDetails campaign={campaign} />,
     },
 
     {
@@ -229,6 +183,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       ),
     },
   ];
+
   const getCampaignAddress = async () => {
     const response = await fetch(
       `/api/getCampaignFromProduct?productId=${product.id}`
@@ -245,7 +200,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const checkUSDCBalance = async () => {
     try {
       if (!address) return false;
-      
+
       const provider = new ethers.JsonRpcProvider(
         process.env.NEXT_PUBLIC_TESTNET_RPC_URL
       );
@@ -257,7 +212,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       const balance = await usdcContract.balanceOf(address);
       console.log("User USDC balance:", ethers.formatUnits(balance, 6));
-      
+
       return balance;
     } catch (error) {
       console.error("Error checking USDC balance:", error);
@@ -283,23 +238,31 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         provider
       );
 
-      const getCalculatedPrice = await fetch(`/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const getCalculatedPrice = await fetch(
+        `/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const calculatedPrice = await getCalculatedPrice.json();
       console.log("Calculated price:", calculatedPrice);
-      const totalPrice = ethers.parseUnits(calculatedPrice.totalPrice.toString(), 6);
-      
+      const totalPrice = ethers.parseUnits(
+        calculatedPrice.totalPrice.toString(),
+        6
+      );
+
       // Check if user has enough USDC
       const usdcBalance = await checkUSDCBalance();
       if (usdcBalance < totalPrice) {
         const formattedBalance = ethers.formatUnits(usdcBalance, 6);
         const formattedPrice = ethers.formatUnits(totalPrice, 6);
-        throw new Error(`Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`);
+        throw new Error(
+          `Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`
+        );
       }
 
       // Approve exact amount needed
@@ -323,7 +286,11 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       }
     } catch (error) {
       console.error("Error approving USDC:", error);
-      alert(error instanceof Error ? error.message : "Failed to approve USDC spending. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to approve USDC spending. Please try again."
+      );
       return false;
     } finally {
       setIsApproving(false);
@@ -335,33 +302,41 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       alert("Please connect your wallet first");
       return;
     }
-    
+
     if (productQuantity <= 0) {
       alert("Please enter a valid quantity");
       return;
     }
-
+    await calculateCommission(productQuantity);
     try {
       const _campaignAddress = await getCampaignAddress();
       console.log("Campaign address:", _campaignAddress);
-      
+
       // Get the calculated price first
-      const getCalculatedPrice = await fetch(`/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const getCalculatedPrice = await fetch(
+        `/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const calculatedPrice = await getCalculatedPrice.json();
-      const totalPrice = ethers.parseUnits(calculatedPrice.totalPrice.toString(), 6);
-      
+      const totalPrice = ethers.parseUnits(
+        calculatedPrice.totalPrice.toString(),
+        6
+      );
+
       // Check if user has enough USDC
       const usdcBalance = await checkUSDCBalance();
       if (usdcBalance < totalPrice) {
         const formattedBalance = ethers.formatUnits(usdcBalance, 6);
         const formattedPrice = ethers.formatUnits(totalPrice, 6);
-        alert(`Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`);
+        alert(
+          `Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`
+        );
         return;
       }
 
@@ -540,6 +515,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
     if (!isNaN(value)) {
       setProductQuantity(value);
+      calculateCommission(value);
     } else {
       setProductQuantity(0);
     }
@@ -555,6 +531,37 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     updateTokenBalance();
   }, [address, isConnected, product.productId]); // Dependencies array includes address and product ID
 
+  const calculateCommission = async (quantity: number) => {
+    if (quantity <= 0) return;
+
+    try {
+      // Get the calculated price first (reusing your existing API call)
+      const getCalculatedPrice = await fetch(
+        `/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${quantity}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const calculatedPrice = await getCalculatedPrice.json();
+      const totalAmount = parseFloat(calculatedPrice.totalPrice.toString());
+      const commissionAmount = totalAmount * commissionRate;
+      const finalAmount = totalAmount - commissionAmount;
+
+      setCalculatedAmount({
+        totalAmount,
+        commissionAmount,
+        finalAmount,
+      });
+
+      setShowCommissionInfo(true);
+    } catch (error) {
+      console.error("Error calculating commission:", error);
+    }
+  };
   return (
     <main className="p-8 bg-white">
       {/* {isLoading && (
@@ -578,7 +585,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               />
             </div>
             <h1 className="text-3xl font-bold mt-6 mb-4">{product.name}</h1>
-            <p className="text-lg text-gray-700">{product.description}</p>
+            <p className="text-lg text-gray-700 truncate-md">
+              {product.description}
+            </p>
           </div>
 
           <div className="bg-gray-50 p-6 rounded-lg">
@@ -600,7 +609,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               </div>
               <div>
                 <Input
-                  placeholder="Enter the desired amount for the product"
+                  placeholder="Enter quantity of items to purchase"
                   className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 "
                   labelProps={{
                     className: "hidden",
@@ -613,43 +622,81 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 />
               </div>
               <div>
-                <Link href="" className="w-full md:w-auto">
-                  <CustomButton
-                    onClick={handleBackProject}
-                    disabled={isLoading || isApproving || isVerifying || isRefunding}
-                    className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-auto mt-2 ${
-                      isLoading || isApproving || isVerifying
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    {isApproving
-                      ? "Approving USDC..."
-                      : isLoading
-                      ? "Generating transaction..."
-                      : isVerifying
-                      ? "Verifying..."
-                      : "Back this Project"}
-                  </CustomButton>
-                </Link>
-                {tokenBalance > 0 && (
-                  <CustomButton
-                    onClick={handleRefund}
-                    disabled={isRefunding || isVerifying}
-                    className={`py-2 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto mt-2 ${
-                      isRefunding || isVerifying ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {isRefunding || isVerifying ? "Processing..." : "Request Refund"}
-                  </CustomButton>
+                {showCommissionInfo && productQuantity > 0 && (
+                  <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
+                    <p className="text-gray-700 mb-2">
+                      <strong>Important:</strong> A 2.5% commission fee will be
+                      applied to your contribution.
+                    </p>
+                    <div className="flex justify-between mb-1">
+                      <span>Total contribution:</span>
+                      <span>
+                        ${calculatedAmount.totalAmount.toFixed(2)} USDC
+                      </span>
+                    </div>
+                    <div className="flex justify-between mb-1">
+                      <span>Commission (2.5%):</span>
+                      <span>
+                        ${calculatedAmount.commissionAmount.toFixed(2)} USDC
+                      </span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span>Campaign receives:</span>
+                      <span>
+                        ${calculatedAmount.finalAmount.toFixed(2)} USDC
+                      </span>
+                    </div>
+                  </div>
                 )}
+                <div className="flex flex-col gap-4">
+                  <Link href="" className="w-full md:w-auto">
+                    <CustomButton
+                      onClick={handleBackProject}
+                      disabled={
+                        isLoading || isApproving || isVerifying || isRefunding
+                      }
+                      className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-full mt-2 ${
+                        isLoading || isApproving || isVerifying
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      {isApproving
+                        ? "Approving USDC..."
+                        : isLoading
+                        ? "Generating transaction..."
+                        : isVerifying
+                        ? "Verifying..."
+                        : "Back this Project"}
+                    </CustomButton>
+                  </Link>
+                  {tokenBalance > 0 && (
+                    <CustomButton
+                      onClick={handleRefund}
+                      disabled={isRefunding || isVerifying}
+                      className={`py-2 md:py-4  my-2 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto border-redColorDull ${
+                        isRefunding || isVerifying
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      {isRefunding || isVerifying
+                        ? "Processing..."
+                        : "Request Refund"}
+                    </CustomButton>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
         <div className="mt-8 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold">About this Product</h2>
+            <h2 className="text-xl font-bold">
+              About this
+              {productOrServiceLabels[product.type as ProductOrService] ||
+                "Item"}
+            </h2>
           </div>
           <Tabs
             tabPosition="left"
