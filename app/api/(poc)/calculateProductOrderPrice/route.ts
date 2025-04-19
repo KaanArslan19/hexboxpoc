@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    const priceObj = JSON.parse(product.price);
+    const priceObj = typeof product.price === "string" ? JSON.parse(product.price) : product.price;
     const price = priceObj.amount;
     const totalPrice = Number(price) * Number(quantity);
 
