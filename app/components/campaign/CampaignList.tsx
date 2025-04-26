@@ -38,7 +38,7 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
               fundAmount={item.fund_amount}
               logo={item.logo}
               status={item.status}
-              totalRaised={item.total_raised}
+              total_raised={item.total_raised}
             />
           ))}
         </ul>

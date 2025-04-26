@@ -78,7 +78,7 @@ export interface CampaignItemProps {
   fundAmount: number;
   logo: string;
   status?: Status;
-  totalRaised: number;
+  total_raised: number;
 }
 interface SocialLinks {
   discord?: string;

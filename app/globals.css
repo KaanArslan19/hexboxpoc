@@ -201,3 +201,7 @@ h2 {
     background-position: 10px 0;
   }
 }
+
+:where(.css-dev-only-do-not-override-ni1kz0) a:hover {
+  color: inherit !important;
+}

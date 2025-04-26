@@ -11,7 +11,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
   fundAmount,
   logo,
   status,
-  totalRaised,
+  total_raised,
 }) => {
   return (
     <li className="bg-none flex flex-col justify-between items-center shadow-sm hover:shadow-xl rounded-2xl overflow-hidden shadow-lightBlueColor transition-shadow duration-150 m-[10px] border-[1px] border-lightBlueColor relative">
@@ -31,7 +31,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
             <p className="text-sm text-gray-500 mb-1">Total Raised</p>
             <div className="flex items-center">
               <span className="text-2xl font-bold text-blueColor">
-                {formatPrice(totalRaised)}
+                {formatPrice(total_raised)}
               </span>
             </div>
           </div>

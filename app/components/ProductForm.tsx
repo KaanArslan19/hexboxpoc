@@ -16,9 +16,7 @@ const steps = [
   { title: "Review" },
 ];
 
-// Base validation schemas
 const baseValidationSchemas = {
-  // Basic Info - common for both
   basicInfo: Yup.object({
     name: Yup.string().required("Name is required"),
     logo: fileValidator.required("Logo is required"),
@@ -28,7 +26,6 @@ const baseValidationSchemas = {
     countryOfOrigin: Yup.string().required("Country of origin is required"),
   }),
 
-  // Details - common for both
   details: Yup.object({
     description: Yup.string().required("Description is required"),
     category: Yup.object({
@@ -36,7 +33,6 @@ const baseValidationSchemas = {
     }),
   }),
 
-  // Pricing & Inventory - different for product vs service
   pricingProduct: Yup.object({
     price: Yup.object({
       amount: Yup.number()
@@ -279,7 +275,11 @@ export default function ProductForm({
           ? serviceInitialValues
           : productInitialValues
       }
-      validationSchema={() => getValidationSchema(formType, currentStep)}
+      validationSchema={Yup.lazy(() =>
+        getValidationSchema(formType, currentStep)
+      )}
+      validateOnChange={true}
+      validateOnBlur={true}
       onSubmit={handleSubmit}
       enableReinitialize
     >
@@ -289,8 +289,10 @@ export default function ProductForm({
           className="p-6 max-w-4xl mx-auto"
         >
           <h1 className="text-3xl text-center mb-4">
-            Create a{" "}
-            {formType === ProductOrService.ServiceOnly ? "Service" : "Product"}
+            Create a
+            {formType === ProductOrService.ServiceOnly
+              ? " Service"
+              : " Product"}
           </h1>
           <div className="mb-6">
             <Steps
@@ -739,7 +741,7 @@ export default function ProductForm({
                   }
                 }}
                 disabled={isPending || isSubmitting}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                className="px-4 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 "
               >
                 {isPending || isSubmitting ? (
                   <div className="flex items-center text-white">

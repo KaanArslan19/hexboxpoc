@@ -17,7 +17,7 @@ export const fetchCampaigns = async (
 };
 export const fetchCampaignsByUser = async (userId: string): Promise<any> => {
   const response = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/getCampaigns?userId=${userId}`,
+    `${process.env.NEXTAUTH_URL}/api/userCampaigns?userId=${userId}`,
     {
       cache: "no-store",
     }

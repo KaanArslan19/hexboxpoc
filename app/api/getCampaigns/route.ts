@@ -1,11 +1,5 @@
-import { createProposal } from "@/app/utils/poc_utils/createProposal";
 import client from "@/app/utils/mongodb";
 import { NextRequest, NextResponse } from "next/server";
-import { buyToken } from "@/app/utils/poc_utils/buyToken";
-import { voteProposal } from "@/app/utils/poc_utils/voteProposal";
-import { auditProposal } from "@/app/utils/poc_utils/auditProposal";
-import { getServerSideUser } from "@/app/utils/getServerSideUser";
-import { COOKIE_KEYS } from "@/app/lib/auth/constants";
 
 export const GET = async (req: NextRequest) => {
   try {
