@@ -8,9 +8,9 @@ import { ProductFetch, ProductOrService } from "@/app/types";
 import ProductCard from "../product/ProductCard";
 interface CampaignProductsProps {
   products: ProductFetch[];
-  campaignId: string;
+  campaignId?: string;
   userId: string;
-  pors: ProductOrService;
+  pors?: ProductOrService;
 }
 
 const CampaignProducts: React.FC<CampaignProductsProps> = ({
