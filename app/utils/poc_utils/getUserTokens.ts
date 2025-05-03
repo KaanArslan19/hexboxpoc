@@ -1,4 +1,4 @@
-import client from "@/app/utils/mongodb";
+/* import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 
 export const getUserTokens = async (user: string, token_address: string): Promise<number | null> => {
@@ -26,4 +26,4 @@ export const getUserTokens = async (user: string, token_address: string): Promis
         console.log(error);
         return null;
     }
-  };
+  }; */

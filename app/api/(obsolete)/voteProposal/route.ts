@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { voteProposal } from "@/app/utils/poc_utils/voteProposal";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -31,7 +30,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       }
     }
 
-    const voteProposalResponse = await voteProposal(
+    /*     const voteProposalResponse = await voteProposal(
       "session?.user?.name" as string,
       proposal_id as string,
       agreeBoolean
@@ -47,9 +46,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         { error: voteProposalResponse.error },
         { status: 400 }
       );
-    }
+    } */
 
-    return NextResponse.json(voteProposalResponse, { status: 200 });
+    return NextResponse.json(/* voteProposalResponse */ "", { status: 200 });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

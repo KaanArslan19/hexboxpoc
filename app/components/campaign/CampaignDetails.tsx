@@ -19,7 +19,6 @@ import formatPrice from "@/app/utils/formatPrice";
 import CampaignProducts from "./CampaignProducts";
 import CustomButton from "../ui/CustomButton";
 import { checkServerAuth } from "@/app/utils/CheckServerAuth";
-import getCampaignTransactions from "@/app/utils/poc_utils/getCampaignTransactions";
 import ProductTechDetails from "../ui/ProductTechDetails";
 
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({

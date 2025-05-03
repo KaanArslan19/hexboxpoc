@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { useWallet } from "@solana/wallet-adapter-react";
 import * as multisig from "@sqds/multisig";
@@ -72,3 +72,4 @@ export default function CreateWallet({
     </CustomButton>
   );
 }
+ */

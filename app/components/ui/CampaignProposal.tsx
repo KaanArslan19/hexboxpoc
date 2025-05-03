@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import React, { useEffect, useState } from "react";
 import CustomButton from "./CustomButton";
@@ -129,3 +129,4 @@ export default function CampaignProposal({
     </div>
   );
 }
+ */

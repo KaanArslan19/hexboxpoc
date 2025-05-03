@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { createProposal } from "@/app/utils/poc_utils/createProposal";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -23,7 +22,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const motionType = formData.get("motion_type");
     const motionDetails = formData.get("motion_details");
 
-    const createProposalResponse = await createProposal(
+    /*  const createProposalResponse = await createProposal(
       user as string,
       walletAddress as string,
       motionType as string,
@@ -38,7 +37,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       return NextResponse.json(createProposalResponse, { status: 400 });
     } else {
       return NextResponse.json(createProposalResponse, { status: 200 });
-    }
+    } */
   } catch (error) {
     console.log(error);
     return NextResponse.json(

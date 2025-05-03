@@ -1,4 +1,4 @@
-import client from "@/app/utils/mongodb";
+/* import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 import { TokenDetailsProps } from "@/app/types";
 
@@ -12,4 +12,4 @@ export const getProposals = async (wallet_address: string) => {
     .toArray();
   console.log(`Proposals: ${proposals}`);
   return proposals;
-};
+}; */

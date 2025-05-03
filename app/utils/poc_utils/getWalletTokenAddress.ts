@@ -1,4 +1,4 @@
-import client from "@/app/utils/mongodb";
+/* import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 
 export const getWalletTokenAddress = async (
@@ -18,3 +18,4 @@ export const getWalletTokenAddress = async (
   console.log(token);
   return token as string;
 };
+ */

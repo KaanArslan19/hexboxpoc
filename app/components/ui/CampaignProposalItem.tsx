@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
@@ -170,3 +170,4 @@ export default function CampaignProposalItem(props: any) {
     </div>
   );
 }
+ */

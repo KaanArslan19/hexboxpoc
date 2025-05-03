@@ -1,4 +1,4 @@
-import client from "@/app/utils/mongodb";
+/* import client from "@/app/utils/mongodb";
 import { v4 as uuidv4 } from "uuid";
 import { getWalletTokenAddress } from "./getWalletTokenAddress";
 import { getTokenDetails } from "./getTokenDetails";
@@ -78,3 +78,4 @@ export const createProposal = async (
     console.log(error);
   }
 };
+ */

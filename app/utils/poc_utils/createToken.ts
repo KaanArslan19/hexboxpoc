@@ -1,4 +1,4 @@
-import client from "@/app/utils/mongodb";
+/* import client from "@/app/utils/mongodb";
 
 export const createToken = async (name: string, supply: number, fundsToRaise: number, creatorWalletAddress: string): Promise<string | null> => {
   try {
@@ -36,3 +36,4 @@ export const createToken = async (name: string, supply: number, fundsToRaise: nu
     return null;
   }
 };
+ */
