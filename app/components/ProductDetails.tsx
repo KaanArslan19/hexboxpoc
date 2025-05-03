@@ -298,13 +298,17 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   };
 
   const handleBackProject = async () => {
+    setIsLoading(true);
+
     if (!isConnected) {
       alert("Please connect your wallet first");
+      setIsLoading(false);
       return;
     }
 
     if (productQuantity <= 0) {
       alert("Please enter a valid quantity");
+      setIsLoading(false);
       return;
     }
     await calculateCommission(productQuantity);
@@ -337,14 +341,16 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         alert(
           `Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`
         );
+        setIsLoading(false);
         return;
       }
 
       // Proceed with approval and transaction
       const approved = await handleApprove(_campaignAddress);
-      if (!approved) return;
-
-      setIsLoading(true);
+      if (!approved) {
+        setIsLoading(false);
+        return;
+      }
 
       // Call the API to prepare the transaction
       const response = await fetch("/api/buyProduct", {
@@ -361,6 +367,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       });
 
       if (!response.ok) {
+        setIsLoading(false);
         const errorData = await response.json();
         throw new Error(`Failed to prepare transaction: ${errorData.error}`);
       }
@@ -369,6 +376,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       console.log("Transaction data:", data);
 
       if (!walletClient) {
+        setIsLoading(false);
         throw new Error("Wallet not connected");
       }
 
