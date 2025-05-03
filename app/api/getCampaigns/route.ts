@@ -6,31 +6,20 @@ export const GET = async (req: NextRequest) => {
     const mdbClient = client;
     const db = mdbClient.db("hexbox_poc");
 
-    // const tokenId = await createToken("Test Token", 10000, 1000000, "4ypD7kxRj9DLF3PMxsY3qvp8YdNhAHZRnN3fyVDh5CFX")
-    // console.log(tokenId);
-    // const walletId = await createWallet(tokenId)
-    // console.log(walletId);
-
-    // const prop = await createProposal("4ypD7kxRj9DLF3PMxsY3qvp8YdNhAHZRnN3fyVDh5CFX", "67356c4d48dfe32ab5c7e154", "withdraw", JSON.stringify({address: '', amount: ''}))
-    // console.log(prop);
-    // const buySomeTokens = await buyToken("8pwsPPVQuAPHVsz2xHXqUgKMHqy376senkBcHrFbnmHr", "67356c4d48dfe32ab5c7e153", 4300)
-    // console.log(buySomeTokens);
-    // const voteProp = await voteProposal("8pwsPPVQuAPHVsz2xHXqUgKMHqy376senkBcHrFbnmHr", "6735f42c48dfe32ab5c7e155", true)
-    // console.log(voteProp);
-    // const auditProp = await auditProposal("0x0000000000000000000000000000000000000000", "6735f42c48dfe32ab5c7e155", true)
-    // console.log(auditProp);
-
     const limit = parseInt(req.nextUrl.searchParams.get("limit") || "10");
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0");
+
     const sortBy = req.nextUrl.searchParams.get("sortBy") || "total_raised";
     const sortOrder = req.nextUrl.searchParams.get("sortOrder") || "desc";
 
+    // sort options object with consistent field names
     const sortOptions: Record<string, 1 | -1> = {};
     sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
 
-    sortOptions["createdAt"] = -1;
+    // unique secondary sort to ensure consistent ordering
+    // Using _id as secondary sort ensures each document has a unique sort position
+    sortOptions["_id"] = 1;
 
-    // Debug logs
     console.log(`Fetching campaigns with limit: ${limit}, skip: ${skip}`);
     console.log(`Sort options: ${JSON.stringify(sortOptions)}`);
     console.log(
@@ -46,12 +35,14 @@ export const GET = async (req: NextRequest) => {
       .skip(skip)
       .limit(limit)
       .toArray();
+    /* 
     console.log(`Campaigns returned: ${campaigns.length}`);
     if (campaigns.length > 0) {
       console.log(`First campaign _id: ${campaigns[0]?._id}`);
       console.log(`First campaign totalRaised: ${campaigns[0]?.totalRaised}`);
       console.log(`First campaign createdAt: ${campaigns[0]?.createdAt}`);
-    }
+    } */
+
     return NextResponse.json(campaigns);
   } catch (e) {
     console.error("Error in getCampaigns:", e);
