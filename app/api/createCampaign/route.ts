@@ -7,7 +7,7 @@ import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USD
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createDonationProduct } from "@/app/utils/poc_utils/createDonationProduct";
-import { ProductCategory } from "@/app/types";
+import { FundingType, ProductCategory } from "@/app/types";
 import { log } from "console";
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -198,13 +198,23 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       },
     ];
 
+
+    let chosenFundingType = 0;
+    if (campaignEntries.funding_type === "AllOrNothing") {
+      chosenFundingType = 0;
+    } else if (campaignEntries.funding_type === "Limitless") {
+      chosenFundingType = 1;
+    } else if (campaignEntries.funding_type === "Flexible") {
+      chosenFundingType = 2;
+    }
+
     // Encode the function data
     const functionData = factoryContract.interface.encodeFunctionData(
       "createFundraiser",
       [
         campaign.evm_wa, //placeholder data for beneficiary wallet
         "0xB60c975cC83168C298EfE5334A110DA33618B48d", //placeholder data for fee wallet
-        1, //placeholder data for funding type
+        chosenFundingType, //placeholder data for funding type
         ethers.parseUnits(campaign.fund_amount.toString(), 6), //placeholder data for minimum target
         campaignEntries.deadline, //placeholder data for deadline
         products,
