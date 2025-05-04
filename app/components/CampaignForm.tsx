@@ -128,7 +128,6 @@ export default function CampaignForm(props: Props) {
       await onSubmit(projectData);
     } catch (error) {
       setSubmitError("An unknown error occurred");
-    } finally {
       setIsPending(false);
     }
   };
