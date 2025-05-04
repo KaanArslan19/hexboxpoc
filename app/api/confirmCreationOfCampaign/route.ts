@@ -143,20 +143,6 @@ export const POST = async (req: NextRequest) => {
       provider
     );
 
-    const fundraiser = new ethers.Contract(
-      fundraiserAddress,
-      USDCFundraiserABI.abi,
-      provider
-    ).connect(deployer) as unknown as {
-      initializeChainlink(
-        params: string,
-        overrides?: { gasLimit: number }
-      ): Promise<any>;
-      getStationUpkeepID(): Promise<bigint>;
-      getAddress(): Promise<string>;
-      interface: ethers.Interface;
-    };
-
     const productToken = new ethers.Contract(
       CONTRACTS.ProductToken.fuji,
       ProductTokenABI.abi,
@@ -170,124 +156,149 @@ export const POST = async (req: NextRequest) => {
     console.log("Grant role:", grantRole);
     await grantRole.wait();
 
-    const linkToken = new ethers.Contract(
-      CONTRACTS.LINK.fuji,
-      [
-        "function balanceOf(address account) view returns (uint256)",
-        "function transfer(address to, uint256 amount) returns (bool)",
-      ],
-      provider
-    ).connect(deployer) as unknown as IERC20;
-
-    try {
-      // Check LINK balance
-      const fundraiserContractAddress = await fundraiser.getAddress();
-      const linkBalance = await linkToken.balanceOf(deployer.address);
-      const fundraiserLinkBalance = await linkToken.balanceOf(
-        fundraiserContractAddress
-      );
-      console.log("Deployer LINK balance:", ethers.formatEther(linkBalance));
-
-      if (linkBalance < ethers.parseEther("1")) {
-        throw new Error(
-          "Insufficient LINK tokens. Get some from https://faucets.chain.link/fuji"
-        );
+    await db.collection("campaigns").updateOne(
+      { _id: new ObjectId(campaignId) },
+      {
+        $set: {
+          configured: true,
+          fundraiser_address: fundraiserAddress.toLowerCase(),
+        },
       }
+    );
+    console.log("Campaign updated:", result);
 
-      // Transfer LINK to contract
-      if (fundraiserLinkBalance < ethers.parseEther("1")) {
-        console.log("Transferring LINK to contract...");
-        const transferTx = await linkToken.transfer(
-          fundraiserContractAddress,
-          ethers.parseEther("1")
-        );
-        await transferTx.wait();
-        console.log("LINK transferred to contract");
+    // const fundraiser = new ethers.Contract(
+    //   fundraiserAddress,
+    //   USDCFundraiserABI.abi,
+    //   provider
+    // ).connect(deployer) as unknown as {
+    //   initializeChainlink(
+    //     params: string,
+    //     overrides?: { gasLimit: number }
+    //   ): Promise<any>;
+    //   getStationUpkeepID(): Promise<bigint>;
+    //   getAddress(): Promise<string>;
+    //   interface: ethers.Interface;
+    // };
 
-        // Verify LINK transfer
-        const contractLinkBalance = await linkToken.balanceOf(
-          fundraiserContractAddress
-        );
-        console.log(
-          "Contract LINK balance:",
-          ethers.formatEther(contractLinkBalance)
-        );
-      }
+    // const linkToken = new ethers.Contract(
+    //   CONTRACTS.LINK.fuji,
+    //   [
+    //     "function balanceOf(address account) view returns (uint256)",
+    //     "function transfer(address to, uint256 amount) returns (bool)",
+    //   ],
+    //   provider
+    // ).connect(deployer) as unknown as IERC20;
 
-      // Register with Chainlink
-      console.log("Registering with Chainlink...");
-      const fundraiserAddress = await fundraiser.getAddress();
-      console.log("Fundraiser address:", fundraiserAddress);
-      console.log("Deployer address:", deployer.address);
-      try {
-        const registrationParams = ethers.AbiCoder.defaultAbiCoder().encode(
-          [
-            "tuple(string,bytes,address,uint32,address,uint8,bytes,bytes,bytes,uint96)",
-          ],
-          [
-            [
-              result.title,
-              "0x",
-              fundraiserAddress,
-              300000,
-              deployer.address,
-              0,
-              "0x",
-              "0x",
-              "0x",
-              BigInt(1000000000000000000), // 1 LINK
-            ],
-          ]
-        );
+    // try {
+    //   // Check LINK balance
+    //   const fundraiserContractAddress = await fundraiser.getAddress();
+    //   const linkBalance = await linkToken.balanceOf(deployer.address);
+    //   const fundraiserLinkBalance = await linkToken.balanceOf(
+    //     fundraiserContractAddress
+    //   );
+    //   console.log("Deployer LINK balance:", ethers.formatEther(linkBalance));
+
+    //   if (linkBalance < ethers.parseEther("1")) {
+    //     throw new Error(
+    //       "Insufficient LINK tokens. Get some from https://faucets.chain.link/fuji"
+    //     );
+    //   }
+
+    //   // Transfer LINK to contract
+    //   if (fundraiserLinkBalance < ethers.parseEther("1")) {
+    //     console.log("Transferring LINK to contract...");
+    //     const transferTx = await linkToken.transfer(
+    //       fundraiserContractAddress,
+    //       ethers.parseEther("1")
+    //     );
+    //     await transferTx.wait();
+    //     console.log("LINK transferred to contract");
+
+    //     // Verify LINK transfer
+    //     const contractLinkBalance = await linkToken.balanceOf(
+    //       fundraiserContractAddress
+    //     );
+    //     console.log(
+    //       "Contract LINK balance:",
+    //       ethers.formatEther(contractLinkBalance)
+    //     );
+    //   }
+
+    //   // Register with Chainlink
+    //   console.log("Registering with Chainlink...");
+    //   const fundraiserAddress = await fundraiser.getAddress();
+    //   console.log("Fundraiser address:", fundraiserAddress);
+    //   console.log("Deployer address:", deployer.address);
+    //   try {
+    //     const registrationParams = ethers.AbiCoder.defaultAbiCoder().encode(
+    //       [
+    //         "tuple(string,bytes,address,uint32,address,uint8,bytes,bytes,bytes,uint96)",
+    //       ],
+    //       [
+    //         [
+    //           result.title,
+    //           "0x",
+    //           fundraiserAddress,
+    //           300000,
+    //           deployer.address,
+    //           0,
+    //           "0x",
+    //           "0x",
+    //           "0x",
+    //           BigInt(1000000000000000000), // 1 LINK
+    //         ],
+    //       ]
+    //     );
         // const estimatedGas = await fundraiser.initializeChainlink.estimateGas(
         //     registrationParams
         // );
         // const gasLimit = (estimatedGas * BigInt(105)) / BigInt(100);
         // console.log("Estimated gas:", estimatedGas);
         // console.log("Gas limit:", gasLimit);
-        const tx = await fundraiser.initializeChainlink(registrationParams, {
-          gasLimit: 1000000, //gasLimit
-        });
-        console.log("Registration tx sent:", tx.hash);
+        // const tx = await fundraiser.initializeChainlink(registrationParams, {
+        //   gasLimit: 1000000, //gasLimit
+        // });
+        // console.log("Registration tx sent:", tx.hash);
 
-        const receipt = await tx.wait(2);
-        console.log("Transaction status:", receipt?.status);
-        const upkeepID = await fundraiser.getStationUpkeepID();
-        console.log("Upkeep ID:", upkeepID);
+        // const receipt = await tx.wait(2);
+        // console.log("Transaction status:", receipt?.status);
+        // const upkeepID = await fundraiser.getStationUpkeepID();
+        // console.log("Upkeep ID:", upkeepID);
 
         // Update MongoDB
-        await db.collection("campaigns").updateOne(
-          { _id: new ObjectId(campaignId) },
-          {
-            $set: {
-              configured: true,
-              upkeep_id: upkeepID.toString(),
-              fundraiser_address: fundraiserAddress.toLowerCase(),
-            },
-          }
-        );
-        console.log("Campaign updated:", result);
+      // await db.collection("campaigns").updateOne(
+      //   { _id: new ObjectId(campaignId) },
+      //   {
+      //     $set: {
+      //       configured: true,
+      //       //upkeep_id: upkeepID.toString(),
+      //       fundraiser_address: fundraiserAddress.toLowerCase(),
+      //     },
+      //   }
+      // );
+      // console.log("Campaign updated:", result);
         // Check for events
-        if (receipt?.logs) {
-          for (const log of receipt.logs) {
-            try {
-              const decodedLog = fundraiser.interface.parseLog(log);
-              if (decodedLog) {
-                console.log("Event:", decodedLog.name, decodedLog.args);
-              }
-            } catch (e) {
-              // Skip logs that can't be decoded
-            }
-          }
-        }
-      } catch (error: any) {
-        console.error("Registration failed:", error.message);
-        throw error;
-      }
-    } catch (error) {
-      console.error("Error during deployment:", error);
-      throw error;
-    }
+        // if (receipt?.logs) {
+        //   for (const log of receipt.logs) {
+        //     try {
+        //       const decodedLog = fundraiser.interface.parseLog(log);
+        //       if (decodedLog) {
+        //         console.log("Event:", decodedLog.name, decodedLog.args);
+        //       }
+        //     } catch (e) {
+        //       // Skip logs that can't be decoded
+        //     }
+        //   }
+        // }
+      // } catch (error: any) {
+      //   console.error("Registration failed:", error.message);
+      //   throw error;
+      // }
+    // } catch (error) {
+    //   console.error("Error during deployment:", error);
+    //   throw error;
+    // }
 
     return NextResponse.json({
       success: true,
