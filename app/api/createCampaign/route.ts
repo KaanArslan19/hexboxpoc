@@ -213,7 +213,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "createFundraiser",
       [
         campaign.evm_wa, //placeholder data for beneficiary wallet
-        "0xB60c975cC83168C298EfE5334A110DA33618B48d", //placeholder data for fee wallet
         chosenFundingType, //placeholder data for funding type
         ethers.parseUnits(campaign.fund_amount.toString(), 6), //placeholder data for minimum target
         campaignEntries.deadline, //placeholder data for deadline
