@@ -20,6 +20,7 @@ import CampaignProducts from "./CampaignProducts";
 import CustomButton from "../ui/CustomButton";
 import { checkServerAuth } from "@/app/utils/CheckServerAuth";
 import ProductTechDetails from "../ui/ProductTechDetails";
+import { FaUserAlt } from "react-icons/fa";
 
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
@@ -230,27 +231,35 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
               </Link>
             )}
           </div>
-          <div className="flex items-center gap-2 text-white">
-            <span className="text-lg lg:text-xl">{location}</span>
-            <svg
-              className="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2 text-white">
+              <span className="text-lg lg:text-xl">{location}</span>
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </div>
+            <Link href={`/executor?userId=${user_id}`}>
+              <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg flex items-center gap-2">
+                <span>View Executor Profile</span>
+                <FaUserAlt className="w-4 h-4" />
+              </CustomButton>
+            </Link>
           </div>
         </div>
       </div>
@@ -268,18 +277,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         </div>
       )}
 
-      <div /* className="grid lg:grid-cols-3 gap-8" */>
+      <div>
         <CampaignTabs items={tabItems} />
-        {/*      <div className="lg:col-span-2">
-
-        </div> */}
-        {/*        <div className="lg:col-span-1 flex justify-center">
-          <BuyingOption
-            pricePerToken={1} //tokenDetails!.price,
-            user={user_id}
-            campaign_id={_id}
-          />
-        </div> */}
       </div>
     </div>
   );
