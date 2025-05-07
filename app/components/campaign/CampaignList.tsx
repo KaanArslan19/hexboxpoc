@@ -9,8 +9,10 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
   const [campaigns, setCampaigns] = useState(listings);
   const [skip, setSkip] = useState(listings.length);
   const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
   const limit = 4;
   const loadMoreCampaigns = async () => {
+    setLoading(true);
     try {
       const newCampaigns = await fetchCampaigns(limit, skip);
 
@@ -22,6 +24,8 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
       }
     } catch (error) {
       setHasMore(false);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -45,9 +49,9 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
         <CustomButton
           onClick={loadMoreCampaigns}
           className="mt-6 w-full max-w-md sm:w-3/4 lg:w-1/2 bg-blueColorDull text-white hover:bg-blueColor border border-transparent disabled:opacity-50"
-          disabled={!hasMore}
+          disabled={!hasMore || loading}
         >
-          {hasMore ? "Load More" : "No more campaigns"}
+          {loading ? "Loading..." : hasMore ? "Load More" : "No more campaigns"}
         </CustomButton>
       </div>
     </Fragment>
