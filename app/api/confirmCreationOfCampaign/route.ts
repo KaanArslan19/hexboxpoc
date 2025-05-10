@@ -8,6 +8,7 @@ import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductTo
 import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
+import { deleteCampaign } from "@/app/utils/poc_utils/deleteCampaign";
 
 import type { ProductToken } from "@/app/utils/typechain-types";
 
@@ -80,6 +81,7 @@ export const POST = async (req: NextRequest) => {
     // Wait for transaction receipt
     const receipt = await provider.getTransactionReceipt(transactionHash);
     if (!receipt || !receipt.status) {
+      const result = await deleteCampaign(campaignId);
       return NextResponse.json(
         {
           success: false,
@@ -116,6 +118,7 @@ export const POST = async (req: NextRequest) => {
       .filter((event) => event && event.name === "FundraiserCreated");
 
     if (!events.length) {
+      const result = await deleteCampaign(campaignId);
       return NextResponse.json(
         {
           success: false,
@@ -127,6 +130,7 @@ export const POST = async (req: NextRequest) => {
 
     const fundraiserAddress = events?.[0]?.args?.fundraiser;
     if (!fundraiserAddress) {
+      const result = await deleteCampaign(campaignId);
       return NextResponse.json(
         {
           success: false,
@@ -307,6 +311,7 @@ export const POST = async (req: NextRequest) => {
     });
   } catch (error) {
     console.error("Error processing fundraiser creation:", error);
+
     return NextResponse.json(
       {
         success: false,

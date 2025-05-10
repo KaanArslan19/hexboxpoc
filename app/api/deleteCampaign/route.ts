@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import client from "@/app/utils/mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { ObjectId } from "mongodb";
+import { getCampaign } from "@/app/utils/getCampaign";
+import { deleteCampaign } from "@/app/utils/poc_utils/deleteCampaign";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,16 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
-
-    // Convert string ID to ObjectId
-    const objectId = new ObjectId(campaignId);
-    console.log("Looking for campaign with ObjectId:", objectId);
-
-    const campaign = await db.collection("campaigns").findOne({
-      _id: objectId
-    });
+    const campaign = await getCampaign(campaignId);
 
     console.log("Found campaign:", campaign);
 
@@ -59,13 +52,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await db.collection("campaigns").deleteOne({
-      _id: objectId
-    });
+    const result = await deleteCampaign(campaignId);
 
-    if (result.deletedCount === 0) {
+    if (result.success === false) {
       return NextResponse.json(
-        { success: false, error: "Campaign not found" },
+        { success: false, error: result.error },
         { status: 400 }
       );
     }
