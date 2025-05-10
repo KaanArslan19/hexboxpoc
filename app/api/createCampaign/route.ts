@@ -40,6 +40,47 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const campaignEntries = Object.fromEntries(formData.entries());
     console.log("campaignEntries----", campaignEntries);
 
+    // Validate and convert the deadline to Unix seconds format
+    let deadlineInSeconds: number;
+    const rawDeadline = campaignEntries.deadline;
+    console.log("rawDeadline", rawDeadline);
+    
+    if (typeof rawDeadline === "string") {
+      const deadlineNum = Number(rawDeadline);
+      if (isNaN(deadlineNum)) {
+        return NextResponse.json(
+          { error: "Deadline must be a valid number" },
+          { status: 400 }
+        );
+      }
+      deadlineInSeconds = deadlineNum;
+    } else if (typeof rawDeadline === "number") {
+      deadlineInSeconds = rawDeadline;
+    } else {
+      return NextResponse.json(
+        { error: "Deadline must be provided as a number" },
+        { status: 400 }
+      );
+    }
+    
+    // Check if the deadline is already in seconds (Unix timestamp)
+    // Unix timestamps in seconds are typically 10 digits for current dates
+    // If it's in milliseconds (13 digits), convert to seconds
+    console.log("first deadlineInSeconds", deadlineInSeconds)
+    if (deadlineInSeconds > 10000000000) { // If deadline is in milliseconds
+      deadlineInSeconds = Math.floor(deadlineInSeconds / 1000);
+    }
+    console.log("second deadlineInSeconds", deadlineInSeconds)
+    
+    // Ensure the deadline is in the future
+    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+    if (deadlineInSeconds <= currentTimeInSeconds) {
+      return NextResponse.json(
+        { error: "Deadline must be in the future" },
+        { status: 400 }
+      );
+    }
+
     let campaign = {
       user_id: creatorWalletAddress,
       title: campaignEntries.title,
@@ -54,10 +95,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       one_liner: campaignEntries.one_liner,
       social_links: campaignEntries.social_links,
       location: campaignEntries.location,
-      deadline:
-        typeof campaignEntries.deadline === "string"
-          ? Number(campaignEntries.deadline)
-          : campaignEntries.deadline,
+      deadline: deadlineInSeconds,
       is_verified: false,
       factCheck: false,
       funding_type: campaignEntries.funding_type,
@@ -212,10 +250,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const functionData = factoryContract.interface.encodeFunctionData(
       "createFundraiser",
       [
-        campaign.evm_wa, //placeholder data for beneficiary wallet
-        chosenFundingType, //placeholder data for funding type
-        ethers.parseUnits(campaign.fund_amount.toString(), 6), //placeholder data for minimum target
-        campaignEntries.deadline, //placeholder data for deadline
+        campaign.evm_wa,
+        chosenFundingType, 
+        ethers.parseUnits(campaign.fund_amount.toString(), 6), 
+        campaign.deadline, 
         products,
       ]
     );
