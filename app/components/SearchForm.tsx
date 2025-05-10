@@ -21,7 +21,7 @@ export default function SearchForm({ submitTo }: Props) {
     >
       <Input
         placeholder="search"
-        className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 focus:!border-blueColor  "
+        className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 focus:!border-blueColor rounded-full"
         labelProps={{
           className: "hidden",
         }}

@@ -2,6 +2,7 @@ import React from "react";
 import { Collapse } from "@material-tailwind/react";
 import Link from "next/link";
 import { MenuItem } from "../types";
+import { PiUserCircleFill } from "react-icons/pi";
 
 //import { ConnectKitButton } from "connectkit";
 import { WalletIcon } from "@heroicons/react/24/outline";
@@ -10,9 +11,10 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 interface Props {
   open: boolean;
   menuItems: MenuItem[];
+  address: `0x${string}` | undefined;
 }
 
-export function MobileNav({ open, menuItems }: Props) {
+export function MobileNav({ open, menuItems, address }: Props) {
   return (
     <>
       <Collapse open={open} className="  my-2 ">
@@ -26,6 +28,14 @@ export function MobileNav({ open, menuItems }: Props) {
               </Link>
             </li>
           ))}
+          <li className="text-lg mx-2">
+            <Link
+              href={`/profile?userId=${address}`}
+              className="flex items-center justify-center"
+            >
+              <PiUserCircleFill className="w-8 h-8 hover:text-blueColor text-black" />
+            </Link>
+          </li>
         </ul>
         <div className=" mt-2 text-center flex items-center">
           {/* <ConnectKitButton.Custom>
