@@ -38,18 +38,18 @@ export default function ProductOverview({
           <p className="flex items-center">
             <span
               className={`inline-block w-3 h-3 rounded-full mr-2 ${
-                campaign.status === "Active"
+                campaign.status === "active"
                   ? "bg-green-500"
-                  : campaign.status === "Completed"
+                  : campaign.status === "finalized"
                   ? "bg-redColorDull"
                   : "bg-yellowColorDull"
               }`}
             ></span>
             <span
               className={`font-customFont_regular ${
-                campaign.status === "Active"
+                campaign.status === "active"
                   ? "text-green-700"
-                  : campaign.status === "Completed"
+                  : campaign.status === "finalized"
                   ? "text-redColorDull"
                   : "text-yellowColorDull"
               }`}

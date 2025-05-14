@@ -43,7 +43,7 @@ export default async function ProfilePage({ searchParams }: Props) {
 
   // Count successful campaigns
   const successfulCampaigns = campaigns.filter(
-    (campaign: CampaignDetailsProps) => campaign.status === "Completed"
+    (campaign: CampaignDetailsProps) => campaign.status === "finalized"
   ).length;
 
   // Calculate products sold (if this data is available)
