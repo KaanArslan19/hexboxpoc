@@ -58,12 +58,6 @@ export default function NavUI() {
           </div>
 
           <div className="col-span-3 lg:col-span-4 flex items-center justify-end gap-2 ">
-            <div className="hidden lg:flex flex-1 justify-end ">
-              <div className="w-full max-w-xs mr-2 ">
-                <SearchForm submitTo="/search?query=" />
-              </div>
-            </div>
-
             <div className="hidden lg:flex items-center">
               <ConnectButton
                 showBalance={false}
