@@ -1,19 +1,40 @@
 export const fetchCampaigns = async (
   limit: number,
-  skip: number
+  skip: number,
+  query?: string,
+  status: string = "active",
+  sortBy: string = "total_raised",
+  sortOrder: string = "desc"
 ): Promise<any> => {
-  const response = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/getCampaigns?limit=${limit}&skip=${skip}/* &factCheck=true */`,
-    {
-      cache: "no-store",
+  try {
+    const url = new URL(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
+    url.searchParams.append("limit", limit.toString());
+    url.searchParams.append("skip", skip.toString());
+    url.searchParams.append("sortBy", sortBy);
+    url.searchParams.append("sortOrder", sortOrder);
+
+    if (status) {
+      url.searchParams.append("status", status);
     }
-  );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch campaigns");
+    if (query) {
+      url.searchParams.append("query", query);
+    }
+
+    const response = await fetch(url.toString(), {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch campaigns");
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : data.campaigns || [];
+  } catch (error) {
+    console.error("Failed to fetch campaigns:", error);
+    return [];
   }
-
-  return response.json();
 };
 export const fetchCampaignsByUser = async (userId: string): Promise<any> => {
   const response = await fetch(

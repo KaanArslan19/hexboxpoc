@@ -8,42 +8,57 @@ export const GET = async (req: NextRequest) => {
 
     const limit = parseInt(req.nextUrl.searchParams.get("limit") || "10");
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0");
-
     const sortBy = req.nextUrl.searchParams.get("sortBy") || "total_raised";
     const sortOrder = req.nextUrl.searchParams.get("sortOrder") || "desc";
+    const status = req.nextUrl.searchParams.get("status") || "active";
+    const query = req.nextUrl.searchParams.get("query") || "";
 
-    // sort options object with consistent field names
+    const filterConditions: any = {};
+
+    if (status && status !== "All") {
+      filterConditions.status = status;
+    }
+
+    if (query) {
+      filterConditions.$or = [
+        { title: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+      ];
+    }
+
     const sortOptions: Record<string, 1 | -1> = {};
     sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
-
-    // unique secondary sort to ensure consistent ordering
-    // Using _id as secondary sort ensures each document has a unique sort position
     sortOptions["_id"] = 1;
 
-    console.log(`Fetching campaigns with limit: ${limit}, skip: ${skip}`);
-    console.log(`Sort options: ${JSON.stringify(sortOptions)}`);
     console.log(
-      `Total campaigns before pagination: ${await db
-        .collection("campaigns")
-        .countDocuments({})}`
+      `Fetching campaigns with limit: ${limit}, skip: ${skip}, status: ${status}`
     );
+    console.log(`Query filter: ${query ? query : "none"}`);
+    console.log(`Filter conditions: ${JSON.stringify(filterConditions)}`);
+    console.log(`Sort options: ${JSON.stringify(sortOptions)}`);
+
+    const totalCount = await db
+      .collection("campaigns")
+      .countDocuments(filterConditions);
+
+    console.log(`Total campaigns matching filters: ${totalCount}`);
 
     const campaigns = await db
       .collection("campaigns")
-      .find({})
+      .find(filterConditions)
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
       .toArray();
-    /* 
-    console.log(`Campaigns returned: ${campaigns.length}`);
-    if (campaigns.length > 0) {
-      console.log(`First campaign _id: ${campaigns[0]?._id}`);
-      console.log(`First campaign totalRaised: ${campaigns[0]?.totalRaised}`);
-      console.log(`First campaign createdAt: ${campaigns[0]?.createdAt}`);
-    } */
 
-    return NextResponse.json(campaigns);
+    console.log(`Campaigns returned: ${campaigns.length}`);
+
+    return NextResponse.json({
+      campaigns: campaigns,
+      total: totalCount,
+      limit,
+      skip,
+    });
   } catch (e) {
     console.error("Error in getCampaigns:", e);
     return NextResponse.json({ error: e }, { status: 500 });

@@ -54,10 +54,10 @@ export interface CampaignDetailsProps {
   total_raised: number;
   is_verified: boolean;
 }
-enum Status {
-  Active = "Active",
-  Inactive = "Inactive",
-  Completed = "Completed",
+export enum Status {
+  active = "active",
+  inactive = "inactive",
+  finalized = "finalized",
 }
 export enum FundingType {
   Limitless = "Limitless",

@@ -1,9 +1,9 @@
 import HexagonLoading from "@components/ui/HexagonLoading";
 
-const CampaignsLoading = () => (
+const SearchLoading = () => (
   <div className="h-screen flex items-center justify-center">
     <HexagonLoading />
   </div>
 );
 
-export default CampaignsLoading;
+export default SearchLoading;
