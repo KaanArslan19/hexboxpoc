@@ -20,6 +20,8 @@ import {
 import { FundingType, ProductOrService } from "@/app/types";
 import ProductOverview from "./ui/ProductOverview";
 import ProductTechDetails from "./ui/ProductTechDetails";
+import ReactConfetti from "react-confetti";
+import Modal from "react-modal";
 
 interface CampaignProductsProps {
   product: ProductFetch;
@@ -30,6 +32,17 @@ interface CampaignProductsProps {
   campaign: CampaignDetailsProps;
 }
 
+// Set the app element for react-modal for accessibility
+// Using a try-catch to handle SSR and avoid errors if the #root element doesn't exist yet
+try {
+  if (typeof window !== 'undefined') {
+    Modal.setAppElement('#root');
+  }
+} catch (e) {
+  // During SSR or if #root is not available, this will silently fail
+  console.warn("Could not set app element for Modal");
+}
+
 const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const daysToGo = Math.max(
     Math.ceil((campaign.deadline - Date.now()) / (1000 * 60 * 60 * 24)),
@@ -37,6 +50,13 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
+  
+  // State for success notification
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
 
   // Handle tab change
   const [isApproving, setIsApproving] = useState(false);
@@ -48,6 +68,30 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const { data: walletClient } = useWalletClient();
 
   const [isVerifying, setIsVerifying] = useState(false);
+  
+  // Success modal close handler
+  const closeSuccessModal = () => {
+    setShowSuccessModal(false);
+  };
+    
+  // Update window size for confetti
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    
+    // Call handleResize initially to get accurate window size
+    handleResize();
+    
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const commissionRate = 0.025; // 2.5%
   const [showCommissionInfo, setShowCommissionInfo] = useState<boolean>(false);
@@ -395,7 +439,8 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       const receipt = await provider.waitForTransaction(hash);
 
       if (receipt?.status === 1) {
-        //alert("Successfully backed the project!");
+        // Show success notification with confetti
+        setShowSuccessModal(true);
         // Sync campaign data after successful transaction
         // try {
         //   const syncResponse = await fetch("/api/sync", {
@@ -570,16 +615,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       console.error("Error calculating commission:", error);
     }
   };
+
   return (
-    <main className="p-8 bg-white">
-      {/* {isLoading && (
-        <>
-          <div className="fixed top-0 left-0 w-full bg-blue-500 text-white p-2 text-center z-50">
-            Transaction in progress...
-          </div>
-          <div className="absolute inset-0 bg-white/50 cursor-not-allowed z-40" />
-        </>
-      )} */}
+    <main className="overflow-hidden p-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
@@ -714,6 +752,55 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
           />
         </div>
       </div>
+      
+      {/* Success Notification Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onRequestClose={closeSuccessModal}
+        contentLabel="Purchase Successful"
+        className="fixed inset-0 flex items-center justify-center z-50 outline-none"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+        ariaHideApp={false}
+      >
+        {showSuccessModal && (
+          <ReactConfetti
+            width={windowSize.width}
+            height={windowSize.height}
+            recycle={false}
+            numberOfPieces={500}
+            gravity={0.1}
+            tweenDuration={10000}
+          />
+        )}
+        <div className="relative bg-white w-11/12 max-w-md mx-auto rounded-lg shadow-lg p-6">
+          <div className="text-center">
+            <div className="mb-4 text-green-600">
+              <svg
+                className="mx-auto h-16 w-16"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Purchase Successful!</h3>
+            <p className="text-gray-600 mb-6">
+              Congratulations! You've successfully backed this project. Thank you for your support!
+            </p>
+            <button
+              onClick={closeSuccessModal}
+              className="w-full bg-blueColor text-white font-medium py-2 px-4 rounded-lg hover:bg-blueColor/80 transition-colors focus:outline-none"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
     </main>
   );
 };
