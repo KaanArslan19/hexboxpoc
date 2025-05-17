@@ -4,6 +4,8 @@ import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { ObjectId } from "mongodb";
 import { getCampaign } from "@/app/utils/getCampaign";
 import { deleteCampaign } from "@/app/utils/poc_utils/deleteCampaign";
+import { getProducts } from "@/app/utils/poc_utils/getProducts";
+import { deleteProduct } from "@/app/utils/poc_utils/deleteProduct";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +30,6 @@ export async function POST(req: NextRequest) {
     }
 
     const campaign = await getCampaign(campaignId);
-
     console.log("Found campaign:", campaign);
 
     if (!campaign) {
@@ -52,11 +53,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const campaign_products = await getProducts(campaignId);
+    console.log("Found campaign products:", campaign_products);
+
+    for (const product of campaign_products) {
+      const result = await deleteProduct(product.id);
+      if (result.success === false) {
+        return NextResponse.json(
+          { success: false, error: "Product not found" },
+          { status: 400 }
+        );
+      }
+    }
     const result = await deleteCampaign(campaignId);
 
     if (result.success === false) {
       return NextResponse.json(
-        { success: false, error: result.error },
+        { success: false, error: "Campaign not found" },
         { status: 400 }
       );
     }
