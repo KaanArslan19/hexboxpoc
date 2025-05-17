@@ -87,7 +87,7 @@ export default function ThankYou() {
       <div className="max-w-2xl w-full text-center">
         <div className="relative w-64 h-64 mx-auto mb-8">
           <Image
-            src="/thank_you.png"
+            src={`${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`}
             alt="Thank You Illustration"
             fill
             className="object-contain"
@@ -95,11 +95,13 @@ export default function ThankYou() {
           />
         </div>
         <h1 className="text-2xl md:text-3xl font-semibold mb-4 capitalize">
-          Thanks for joining our waitlist!
+          Success! Your campaign has been created.
         </h1>
         <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-          {campaign?.title ? `Thank you ${campaign.title}! ` : ""}
-          One of our team members will get in touch with you soon.
+          We are eager to help you reach your goal of ${campaign?.fund_amount} in funding.
+          <br />
+          <br />
+          One of our team members will also be in touch with you soon.
         </p>
         <button
           onClick={handleGoBack}
