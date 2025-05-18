@@ -92,6 +92,7 @@ export default function CampaignForm(props: Props) {
   const { onSubmit, onImageRemove } = props;
   const [isPending, setIsPending] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -537,24 +538,8 @@ const validationSchema = [
             // This prevents duplicate API calls that were causing authentication spam
             
             return (
-              <form onSubmit={submitForm} className="p-6 bg-white rounded-lg shadow"
+              <form onSubmit={submitForm} className="p-6 max-w-2xl mx-auto"
               >
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    console.log("Manual save triggered");
-                    if (formikRef.current?.values) {
-                      const data = { 
-                        ...formikRef.current.values,
-                        logoPreview
-                      };
-                      console.log("Saving data:", data);
-                      updateFormData(data);
-                    }
-                  }}
-                >
-                  Save Draft Manually
-                </button>
                 <h1 className="text-3xl text-center mb-4">Create Your Campaign</h1>
                 <div className="mb-6">
                   <Steps
@@ -932,7 +917,50 @@ const validationSchema = [
                     </button>
                   )}
                 </div>
+                {/* Save Draft Button with Anti-Spam Cooldown */}
+                <div className="flex items-center mt-4">
+                  <button 
+                    className={`px-4 py-2 rounded ${isSaving 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-blueColor hover:bg-blue-600'} text-white transition duration-200`}
+                    type="button"
+                    disabled={isSaving}
+                    onClick={() => {
+                      // Set saving state to trigger cooldown
+                      setIsSaving(true);
+                      
+                      console.log("Manual save triggered");
+                      if (formikRef.current?.values) {
+                        const data = { 
+                          ...formikRef.current.values,
+                          logoPreview
+                        };
+                        console.log("Saving data:", data);
+                        updateFormData(data);
+                        
+                        // Show toast message
+                        toast.success("Draft saved successfully!");
+                        
+                        // Set a timeout to re-enable the button after 3 seconds
+                        setTimeout(() => {
+                          setIsSaving(false);
+                        }, 3000);
+                      } else {
+                        setIsSaving(false);
+                      }
+                    }}
+                  >
+                    {isSaving ? 'Saving...' : 'Save form as a draft'}
+                  </button>
+                  
+                  {isSaving && (
+                    <span className="ml-3 text-sm text-gray-500">
+                      Please wait a moment before saving again...
+                    </span>
+                  )}
+                </div>
               </form>
+              
             );
           }}
         </Formik>
