@@ -21,6 +21,7 @@ import CustomButton from "../ui/CustomButton";
 import { checkServerAuth } from "@/app/utils/CheckServerAuth";
 import ProductTechDetails from "../ui/ProductTechDetails";
 import { FaUserAlt } from "react-icons/fa";
+import ShareButton from "../ui/ShareButton";
 
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
@@ -85,6 +86,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     total_funds: 1000000, //walletDetails!.total_funds,
     token_address: "0x123", //walletDetails!.token_address,
   };
+  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/campaign/${_id}`;
   const tabItems = [
     {
       key: "1",
@@ -93,7 +95,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         <CampaignProducts
           campaignId={_id}
           userId={user_id}
-          pors={product_or_service}
           products={products ? products : []}
         />
       ),
@@ -159,6 +160,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     "0%": "#FFC629",
     "100%": "#CE0E2D",
   };
+
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative w-full h-[400px]">
@@ -176,8 +178,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
               className="my-4 "
             />
           </div>
-
-          <div className="col-span-1 flex justify-end pt-4 pr-8"></div>
         </div>
       </div>
       <div className="text-center my-4">
@@ -254,12 +254,19 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
                 />
               </svg>
             </div>
-            <Link href={`/executor?userId=${user_id}`}>
-              <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg flex items-center gap-2">
-                <span>View Executor Profile</span>
-                <FaUserAlt className="w-4 h-4" />
-              </CustomButton>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link href={`/executor?userId=${user_id}`}>
+                <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg flex items-center gap-2">
+                  <span>View Executor Profile</span>
+                  <FaUserAlt className="w-4 h-4" />
+                </CustomButton>
+              </Link>
+              <ShareButton
+                title={title}
+                description={one_liner || ""}
+                campaignId={_id}
+              />
+            </div>
           </div>
         </div>
       </div>

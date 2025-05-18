@@ -35,8 +35,8 @@ interface CampaignProductsProps {
 // Set the app element for react-modal for accessibility
 // Using a try-catch to handle SSR and avoid errors if the #root element doesn't exist yet
 try {
-  if (typeof window !== 'undefined') {
-    Modal.setAppElement('#root');
+  if (typeof window !== "undefined") {
+    Modal.setAppElement("#root");
   }
 } catch (e) {
   // During SSR or if #root is not available, this will silently fail
@@ -50,7 +50,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
-  
+
   // State for success notification
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [windowSize, setWindowSize] = useState({
@@ -68,12 +68,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const { data: walletClient } = useWalletClient();
 
   const [isVerifying, setIsVerifying] = useState(false);
-  
+
   // Success modal close handler
   const closeSuccessModal = () => {
     setShowSuccessModal(false);
   };
-    
+
   // Update window size for confetti
   useEffect(() => {
     const handleResize = () => {
@@ -84,10 +84,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     };
 
     window.addEventListener("resize", handleResize);
-    
+
     // Call handleResize initially to get accurate window size
     handleResize();
-    
+
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -752,7 +752,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
           />
         </div>
       </div>
-      
+
       {/* Success Notification Modal */}
       <Modal
         isOpen={showSuccessModal}
@@ -788,9 +788,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Purchase Successful!</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Purchase Successful!
+            </h3>
             <p className="text-gray-600 mb-6">
-              Congratulations! You've successfully backed this project. Thank you for your support!
+              Congratulations! You`ve successfully backed this project. Thank
+              you for your support!
             </p>
             <button
               onClick={closeSuccessModal}
