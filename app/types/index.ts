@@ -53,6 +53,8 @@ export interface CampaignDetailsProps {
   fundraiser_address: string;
   total_raised: number;
   is_verified: boolean;
+  email: string;
+  phoneNumber: string;
 }
 export enum Status {
   active = "active",

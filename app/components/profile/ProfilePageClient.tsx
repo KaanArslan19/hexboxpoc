@@ -8,7 +8,11 @@ import { Card } from "antd";
 import { Statistic } from "antd";
 import { Row } from "antd";
 import { Col } from "antd";
-import { ClockCircleOutlined } from "@ant-design/icons";
+import {
+  ClockCircleOutlined,
+  PhoneOutlined,
+  MailOutlined,
+} from "@ant-design/icons";
 import Image from "next/image";
 import logo from "../../../public/hexbox_black_logo.svg";
 
@@ -47,6 +51,17 @@ export default function ProfilePageClient({
   products,
   dashboardStats,
 }: ProfilePageClientProps) {
+  const contactDetails =
+    campaigns.length > 0
+      ? {
+          phoneNumber: campaigns[0].phoneNumber || "Not provided",
+          email: campaigns[0].email || "Not provided",
+        }
+      : {
+          phoneNumber: "Not provided",
+          email: "Not provided",
+        };
+
   const formattedTotalFunds = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -78,24 +93,21 @@ export default function ProfilePageClient({
       value: dashboardStats.productsSold,
     },
   ];
-
+  console.log(campaigns, "campaigns");
   return (
     <div className="container mx-auto py-8 px-4">
       <Card className="mb-8 overflow-hidden rounded-xl ">
         <div className="relative">
-          {/* Animated background with subtle motion */}
           <div className="h-40 relative overflow-hidden rounded-xl">
             <div className="absolute inset-0 bg-gradient-to-r from-blueColor via-blueColorDull to-blueColor" />
 
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(233,78,27,0.7)_0%,transparent_80%)]" />
             <div className="absolute inset-0 backdrop-blur-[100px]" />
 
-            {/* Hexagon pattern overlay with animation */}
             <div className="absolute inset-0 opacity-30">
               <div className="hexagon-pattern animate-pulse" />
             </div>
 
-            {/* Floating particles animation */}
             <div className="absolute inset-0">
               <div className="particles-container">
                 {[...Array(20)].map((_, i) => (
@@ -136,7 +148,6 @@ export default function ProfilePageClient({
           </div>
 
           <div className="flex flex-col md:flex-row items-center md:items-end p-4 -mt-16 md:-mt-12 relative z-10">
-            {/* Avatar with hover effect */}
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blueColor to-orangeColor rounded-full opacity-75 group-hover:opacity-100 blur group-hover:blur-sm transition-all duration-300"></div>
               <Avatar
@@ -146,20 +157,36 @@ export default function ProfilePageClient({
               />
             </div>
 
-            <div className="md:ml-6 mt-4 md:mt-0 text-center md:text-left">
-              <Title level={3} className="m-0 flex items-center">
-                {userId}
-                <span className="ml-2 inline-block bg-gradient-to-r from-blueColor to-orangeColor rounded-full h-2 w-2 animate-ping"></span>
-              </Title>
-              <Text type="secondary" className="flex items-center gap-1">
-                <ClockCircleOutlined className="animate-pulse-slow" />
-                Member since {new Date().getFullYear()}
-              </Text>
+            <div className="md:ml-6 mt-4 md:mt-0 text-center md:text-left flex-grow">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-end">
+                <div>
+                  <Title level={3} className="m-0 flex items-center">
+                    {userId}
+                    <span className="ml-2 inline-block bg-gradient-to-r from-blueColor to-orangeColor rounded-full h-2 w-2 animate-ping"></span>
+                  </Title>
+                  <Text type="secondary" className="flex items-center gap-1">
+                    <ClockCircleOutlined className="animate-pulse-slow" />
+                    Member since {new Date().getFullYear()}
+                  </Text>
+                </div>
+
+                <div className="mt-4 md:mt-0 p-3 bg-gray-50 rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <PhoneOutlined className="text-blueColor" />
+                    <Text strong>Phone:</Text>
+                    <Text copyable>{contactDetails.phoneNumber}</Text>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MailOutlined className="text-orangeColorDull" />
+                    <Text strong>Email:</Text>
+                    <Text copyable>{contactDetails.email}</Text>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Stats with reveal animation */}
         <Row gutter={16} className="mt-4 p-4" justify="space-between">
           {stats.map((stat, index) => (
             <Col

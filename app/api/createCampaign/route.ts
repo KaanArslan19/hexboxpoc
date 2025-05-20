@@ -44,7 +44,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     let deadlineInSeconds: number;
     const rawDeadline = campaignEntries.deadline;
     console.log("rawDeadline", rawDeadline);
-    
+
     if (typeof rawDeadline === "string") {
       const deadlineNum = Number(rawDeadline);
       if (isNaN(deadlineNum)) {
@@ -62,16 +62,17 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
-    
+
     // Check if the deadline is already in seconds (Unix timestamp)
     // Unix timestamps in seconds are typically 10 digits for current dates
     // If it's in milliseconds (13 digits), convert to seconds
-    console.log("first deadlineInSeconds", deadlineInSeconds)
-    if (deadlineInSeconds > 10000000000) { // If deadline is in milliseconds
+    console.log("first deadlineInSeconds", deadlineInSeconds);
+    if (deadlineInSeconds > 10000000000) {
+      // If deadline is in milliseconds
       deadlineInSeconds = Math.floor(deadlineInSeconds / 1000);
     }
-    console.log("second deadlineInSeconds", deadlineInSeconds)
-    
+    console.log("second deadlineInSeconds", deadlineInSeconds);
+
     // Ensure the deadline is in the future
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
     if (deadlineInSeconds <= currentTimeInSeconds) {
@@ -102,6 +103,8 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       evm_wa: campaignEntries.wallet_address,
       configured: false,
       transactions: [],
+      email: campaignEntries.email,
+      phoneNumber: campaignEntries.phoneNumber,
     };
     console.log(campaign, "campaign");
 
@@ -236,7 +239,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       },
     ];
 
-
     let chosenFundingType = 0;
     if (campaignEntries.funding_type === "AllOrNothing") {
       chosenFundingType = 0;
@@ -251,9 +253,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "createFundraiser",
       [
         campaign.evm_wa,
-        chosenFundingType, 
-        ethers.parseUnits(campaign.fund_amount.toString(), 6), 
-        campaign.deadline, 
+        chosenFundingType,
+        ethers.parseUnits(campaign.fund_amount.toString(), 6),
+        campaign.deadline,
         products,
       ]
     );
