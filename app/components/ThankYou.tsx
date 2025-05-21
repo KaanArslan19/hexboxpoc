@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { MoveRight } from "lucide-react";
 import ReactConfetti from "react-confetti";
-
+import ShareButton from "@/app/components/ui/ShareButton";
 export default function ThankYou() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -74,7 +74,7 @@ export default function ThankYou() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-white to-gray-50">
       {showConfetti && (
         <ReactConfetti
           width={windowDimensions.width}
@@ -84,34 +84,64 @@ export default function ThankYou() {
           gravity={0.2}
         />
       )}
-      <div className="max-w-2xl w-full text-center">
-        <div className="relative w-64 h-64 mx-auto mb-8">
+
+      <div className="max-w-2xl w-full bg-white rounded-xl shadow-sm p-8 text-center">
+        <div className="relative w-56 h-56 mx-auto mb-6">
           <Image
             src={`${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`}
-            alt="Thank You Illustration"
+            alt="Campaign Logo"
             fill
             className="object-contain"
             priority
           />
         </div>
-        <h1 className="text-2xl md:text-3xl font-semibold mb-4 capitalize">
-          Success! Your campaign has been created.
-        </h1>
-        <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-          We are eager to help you reach your goal of ${campaign?.fund_amount} in funding.
-          <br />
-          <br />
-          One of our team members will also be in touch with you soon.
-        </p>
-        <button
-          onClick={handleGoBack}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orangeColor/80 to-redColor/80
-           rounded-lg transform transition-all duration-300
-           hover:from-orangeColor hover:to-redColor hover:scale-105 hover:shadow-lg"
-        >
-          <span className="text-white">Explore Your Campaign Page</span>
-          <MoveRight className="w-5 h-5" color="white" />
-        </button>
+
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800">
+              Success! Your campaign has been created.
+            </h1>
+            <p className="text-lg text-gray-600 mb-4">
+              We are eager to help you reach your goal of{" "}
+              <span className="font-semibold">${campaign?.fund_amount}</span> in
+              funding.
+            </p>
+            <p className="text-gray-600">
+              One of our team members will be in touch with you soon.
+            </p>
+          </div>
+
+          <div className="border-t border-b border-gray-100 py-6">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+              <button
+                onClick={handleGoBack}
+                className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orangeColor to-redColor text-white font-medium rounded-lg transform transition-all duration-300 hover:shadow-lg hover:scale-105"
+              >
+                <span>Explore Your Campaign</span>
+                <MoveRight className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center justify-center gap-3">
+                <p className="text-gray-600 whitespace-nowrap">
+                  Share with others:
+                </p>
+                <ShareButton
+                  title={campaign.title}
+                  description={campaign.one_liner || ""}
+                  campaignId={campaign._id}
+                  logo={
+                    `${process.env.R2_BUCKET_URL}/campaign_logos/` +
+                    campaign.logo
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="text-sm text-gray-500">
+            Your campaign ID: {campaign._id}
+          </div>
+        </div>
       </div>
     </div>
   );
