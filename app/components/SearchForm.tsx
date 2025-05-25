@@ -27,6 +27,39 @@ export default function SearchForm({ submitTo = "/search" }: Props) {
     updateQueryInUrl();
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setQuery(newValue);
+
+    if (newValue.trim() === "" && searchQuery) {
+      clearQueryFromUrl();
+    }
+  };
+
+  const clearQueryFromUrl = () => {
+    const urlParams = new URLSearchParams();
+
+    if (currentStatus) {
+      urlParams.set("status", currentStatus);
+    }
+
+    if (sortBy !== "total_raised") {
+      urlParams.set("sortBy", sortBy);
+    }
+
+    if (sortOrder !== "desc") {
+      urlParams.set("sortOrder", sortOrder);
+    }
+
+    const queryString = urlParams.toString();
+
+    if (queryString) {
+      router.push(`${submitTo}?${queryString}`);
+    } else {
+      router.push("/campaigns");
+    }
+  };
+
   const updateQueryInUrl = () => {
     const urlParams = new URLSearchParams();
 
@@ -34,11 +67,7 @@ export default function SearchForm({ submitTo = "/search" }: Props) {
       urlParams.set("query", query.trim());
     }
 
-    if (
-      currentStatus &&
-      currentStatus !== "Active" &&
-      currentStatus !== "All"
-    ) {
+    if (currentStatus) {
       urlParams.set("status", currentStatus);
     }
 
@@ -61,28 +90,7 @@ export default function SearchForm({ submitTo = "/search" }: Props) {
 
   const handleClear = () => {
     setQuery("");
-
-    const urlParams = new URLSearchParams();
-
-    if (currentStatus !== "Active" && currentStatus !== "All") {
-      urlParams.set("status", currentStatus);
-    }
-
-    if (sortBy !== "total_raised") {
-      urlParams.set("sortBy", sortBy);
-    }
-
-    if (sortOrder !== "desc") {
-      urlParams.set("sortOrder", sortOrder);
-    }
-
-    const queryString = urlParams.toString();
-
-    if (queryString) {
-      router.push(`${submitTo}?${queryString}`);
-    } else {
-      router.push("/campaigns");
-    }
+    clearQueryFromUrl();
   };
 
   return (
@@ -97,7 +105,7 @@ export default function SearchForm({ submitTo = "/search" }: Props) {
           type="text"
           placeholder="Search campaigns..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={handleInputChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className="
