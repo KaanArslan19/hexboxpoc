@@ -129,10 +129,6 @@ export default function ThankYou() {
                   title={campaign.title}
                   description={campaign.one_liner || ""}
                   campaignId={campaign._id}
-                  logo={
-                    `${process.env.R2_BUCKET_URL}/campaign_logos/` +
-                    campaign.logo
-                  }
                 />
               </div>
             </div>

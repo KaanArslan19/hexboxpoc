@@ -7,16 +7,12 @@ interface ShareButtonProps {
   title: string;
   description: string;
   campaignId: string;
-  imageUrl: string;
-  logo?: string;
 }
 
 const ShareButton: React.FC<ShareButtonProps> = ({
   title,
   description,
   campaignId,
-  imageUrl,
-  logo,
 }) => {
   const [open, setOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
