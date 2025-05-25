@@ -1,5 +1,6 @@
 "use client";
-import { FaFacebook, FaTwitter, FaShare, FaLink } from "react-icons/fa";
+import { FaFacebook, FaShare, FaLink } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { Popover, message } from "antd";
 import { useState, useEffect } from "react";
 import Head from "next/head";
@@ -106,66 +107,42 @@ const ShareButton: React.FC<ShareButtonProps> = ({
   };
 
   return (
-    <>
-      {/* Open Graph and Twitter Card meta tags for social sharing */}
-      <Head>
-        {/* Primary Meta Tags */}
-        <title>{title}</title>
-        <meta name="title" content={title} />
-        <meta name="description" content={description} />
-
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={shareUrl} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        {logo && <meta property="og:image" content={logo} />}
-
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content={shareUrl} />
-        <meta property="twitter:title" content={title} />
-        <meta property="twitter:description" content={description} />
-        {logo && <meta property="twitter:image" content={logo} />}
-      </Head>
-
-      <Popover
-        content={
-          <div className="flex flex-col gap-2 py-1">
-            <button
-              onClick={() => handleShare("facebook")}
-              className="flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded-md transition-colors w-full"
-            >
-              <FaFacebook className="text-[#1877F2]" />
-              <span>Share on Facebook</span>
-            </button>
-            <button
-              onClick={() => handleShare("twitter")}
-              className="flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded-md transition-colors w-full"
-            >
-              <FaTwitter className="text-[#1DA1F2]" />
-              <span>Share on Twitter</span>
-            </button>
-            <button
-              onClick={() => handleShare("copy")}
-              className="flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded-md transition-colors w-full"
-            >
-              <FaLink className="text-gray-600" />
-              <span>Copy Link</span>
-            </button>
-          </div>
-        }
-        trigger="click"
-        placement="bottomRight"
-        open={open}
-        onOpenChange={setOpen}
-      >
-        <button className="flex items-center gap-2 bg-blueColor hover:bg-blueColor/80 text-white rounded-lg py-2 px-4 transition-colors">
-          <FaShare className="text-sm" />
-          <span>Share</span>
-        </button>
-      </Popover>
-    </>
+    <Popover
+      content={
+        <div className="flex flex-col gap-2 py-1">
+          <button
+            onClick={() => handleShare("facebook")}
+            className="flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded-md transition-colors w-full"
+          >
+            <FaFacebook className="text-[#1877F2]" />
+            <span>Share on Facebook</span>
+          </button>
+          <button
+            onClick={() => handleShare("twitter")}
+            className="flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded-md transition-colors w-full"
+          >
+            <FaXTwitter className="text-black" />
+            <span>Share on X</span>
+          </button>
+          <button
+            onClick={() => handleShare("copy")}
+            className="flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded-md transition-colors w-full"
+          >
+            <FaLink className="text-gray-600" />
+            <span>Copy Link</span>
+          </button>
+        </div>
+      }
+      trigger="click"
+      placement="bottomRight"
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <button className="flex items-center gap-2 bg-blueColor hover:bg-blueColor/80 text-white rounded-lg py-2 px-4 transition-colors">
+        <FaShare className="text-sm" />
+        <span>Share</span>
+      </button>
+    </Popover>
   );
 };
 

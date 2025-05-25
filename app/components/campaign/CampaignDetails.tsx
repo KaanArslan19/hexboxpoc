@@ -265,6 +265,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
                 title={title}
                 description={one_liner || ""}
                 campaignId={_id}
+                logo={`${process.env.R2_BUCKET_URL}/campaign_logos/` + logo}
               />
             </div>
           </div>
