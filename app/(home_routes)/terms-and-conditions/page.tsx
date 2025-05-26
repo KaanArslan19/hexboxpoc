@@ -5,190 +5,169 @@ import {
   ChevronRight,
   Calendar,
   Mail,
-  MapPin,
+  AlertTriangle,
 } from "lucide-react";
 
 const termsData = {
-  title: "Hexbox™ Privacy Policy",
-  effectiveDate: "May 21, 2025",
-  lastUpdated: "May 21, 2025",
+  title: "Hexbox Investor Terms of Use",
+  effectiveDate: "23.05.2025",
+  lastUpdated: "23.05.2025",
   company: {
-    name: "Hexbox™ LLC",
-    location: "Wyoming, United States",
-    email: "hello@hexbox.money",
+    name: "Hexbox",
+    website: "hexbox.money",
   },
-  introduction: `Thank you for visiting the Hexbox™ Privacy Policy. This Policy explains how Hexbox™ LLC ("Hexbox™," "we," "our," or "us") collects, uses, stores, and discloses personal information. It applies to all Users who access or use our Services, including through our website, smart contracts, NFT functionalities, or third-party integrations such as Discord.
-
-Hexbox™ LLC is a company registered in the State of Wyoming, United States. We operate a blockchain-based crowdfunding platform that enables decentralized fundraising through the issuance of NFTs known as Tickets. We are committed to respecting your privacy rights and ensuring transparency about our practices.`,
 
   definitions: [
     {
-      term: "User",
-      definition:
-        "Any individual who interacts with the Hexbox™ platform, whether logged in or not, including Investors and Executors.",
-    },
-    {
       term: "Investor",
       definition:
-        "An individual who purchases NFTs (referred to as Tickets) in exchange for products, services, or donations.",
+        "An individual or entity contributing digital assets to a campaign.",
     },
     {
       term: "Executor",
-      definition:
-        "An individual or organization that creates and manages a campaign offering products, services, or donation options via NFTs.",
+      definition: "An individual or entity launching a campaign.",
     },
     {
       term: "Campaign",
-      definition:
-        "A fundraising effort initiated by an Executor through which Investors can contribute by purchasing Tickets.",
+      definition: "A public fundraising initiative hosted on Hexbox.",
     },
     {
-      term: "Tickets",
+      term: "NFT",
       definition:
-        "NFTs minted when an Investor purchases a product, service, or makes a donation through a campaign.",
+        "A non-fungible token (NFT) is a blockchain-based digital certificate issued upon contribution. It functions as a record of participation and access pass to campaign-specific rights, but does not represent a financial product.",
     },
     {
-      term: "Donation Product",
+      term: "Finalization",
       definition:
-        "An NFT issued in exchange for a contribution equal to one United States dollar's equivalent Circles Crypto Stable Token (USDC), typically without the expectation of receiving a physical product or service.",
+        "A blockchain-based event that releases campaign funds to the Executor and revokes refund eligibility.",
     },
     {
-      term: "Wallet Address",
+      term: "Smart Contract",
       definition:
-        "A cryptographic blockchain identifier associated with a User. While it does not directly reveal identity, it may still be considered personal information under applicable privacy laws.",
+        "Self-executing blockchain code governing transactions, ticket issuance, and refund logic.",
     },
     {
-      term: "On-chain Data",
+      term: "Escrow Account",
       definition:
-        "Information permanently recorded on a public blockchain, including wallet addresses, token transactions, and funding or voting actions.",
+        "A smart contract-controlled account that securely holds contributed funds during the campaign period. This account acts as a neutral digital escrow and ensures that funds are only released to the Executor upon Finalization or returned to the Investor if a refund is requested within the Refund Window.",
     },
     {
-      term: "Off-chain Data",
+      term: "Wallet",
       definition:
-        "Personal information collected outside the blockchain, such as email addresses, IP addresses, Discord IDs, and phone numbers.",
+        "A blockchain address under the Investor's control where NFTs and digital assets are held.",
     },
     {
-      term: "Platform",
+      term: "Refund Window",
       definition:
-        "The Hexbox™ suite of services including its website, smart contracts, APIs, and integrations with third-party tools.",
+        "The period before Finalization during which a refund can be requested.",
+    },
+    {
+      term: "Reward",
+      definition:
+        "Any benefit, product, service, or priority access offered in return for contribution, subject to campaign-specific terms.",
+    },
+    {
+      term: "User",
+      definition:
+        "Any individual accessing Hexbox, whether logged in or anonymous.",
     },
   ],
 
   articles: [
     {
       number: 1,
-      title: "Scope of Policy",
+      title: "Agreement to Terms",
       content:
-        "This Policy applies to all personal data that we collect through our Platform, whether directly or indirectly. By accessing or using any part of the Hexbox™ Platform, you are consenting to the collection, use, and disclosure of your personal data in accordance with this Policy.",
+        "This Article sets forth the terms of agreement between you, the Investor, and Hexbox. By accessing or using Hexbox, including visiting the website hexbox.money or participating in any campaign, you agree to enter into a binding legal agreement with Hexbox under these Terms of Use. This agreement incorporates our Privacy Policy and Cookie Policy by reference. If you do not agree to all the terms, you may not use or access Hexbox or its services.",
     },
     {
       number: 2,
-      title: "Personal Data We Collect",
-      content: `Hexbox™ may collect both on-chain and off-chain data when you interact with our Platform. The specific data we collect depends on your role as an Investor, Executor, or visitor.
-
-We may collect the following information, depending on whether you are interacting with Hexbox™ as an Investor, Executor, or as a logged-out visitor:
-
-**Data you voluntarily provide:** This includes your email address, phone number, Discord handle, or other contact information when registering a campaign or submitting a form. Executors are required to provide this data for campaign creation.
-
-**Automatically collected data:** This includes technical details such as your IP address, browser type, device information, session activity, page visits, and referral URLs. Additionally, when Users connect a wallet, their public wallet address and all associated on-chain activity becomes part of our data analysis.
-
-**Data from third-party integrations:** We may collect data through services such as Google Analytics. Blockchain activity may be analyzed using third-party blockchain data providers. In some cases, we also collect data shared by Executors regarding delivery or customer engagement.`,
+      title: "Purpose and Scope",
+      content:
+        "Hexbox is a blockchain-based crowdfunding platform designed to facilitate presale access and early-stage support for projects through smart contract infrastructure. In addition to campaign contributions, Hexbox also enables the issuance of digital tickets in the form of NFTs that may serve as vouchers or priority access to future products and services offered by Executors. These digital tickets are not financial products and are not intended to represent ownership, debt, or equity. These Terms govern all contributions made to campaigns, rights attached to NFT Receipts, refund mechanisms, and responsibilities of Investors.",
     },
     {
       number: 3,
-      title: "Legal Basis and Purpose of Data Processing",
-      content: `Hexbox™ processes personal data on the basis of legitimate interests, contractual necessity, compliance with legal obligations, and, where applicable, user consent. The data we collect enables us to deliver our Services, ensure the integrity of campaigns, and maintain platform security.
-
-Specifically, we process personal data to allow Users to interact with the Platform, including but not limited to minting and managing NFTs. This also includes recording transactions and making them auditable to uphold transparency.
-
-We use personal data to support the delivery of campaign rewards and services by facilitating communication between Executors and Investors. As part of our commitment to platform integrity, we monitor and prevent fraudulent or malicious activity. We also comply with regulatory requirements, including tax and anti-fraud obligations.
-
-In order to improve the user experience, we analyze platform usage and conduct usability testing. Where you have given your consent, we may use your contact information to communicate updates, promotional content, or marketing messages related to Hexbox™ and its services.`,
+      title: "Eligibility and Registration",
+      content:
+        "To use Hexbox, you must be at least 18 years of age and have the legal capacity to form binding contracts. Your jurisdiction must not prohibit participation in blockchain or crowdfunding platforms. We may require identity verification under KYC/AML regulations.",
     },
     {
       number: 4,
-      title: "Disclosure and Sharing of Personal Data",
-      content: `Hexbox™ may share personal data in limited circumstances when it is necessary for the operation of the Platform, the fulfillment of campaign obligations, or to comply with applicable law.
-
-We may disclose information to Executors or Investors when such disclosure is required for the fulfillment of products, services, or donation-based commitments linked to a Campaign. This ensures that both parties can coordinate delivery and communication effectively.
-
-We may also disclose personal data to third-party service providers that support our technical infrastructure. These include database hosting providers such as MongoDB, server hosting providers such as Vercel & NetCup VPS, and communication integrations such as Discord bots. These providers only receive the minimum data necessary to perform their duties on our behalf and are bound by confidentiality and data protection obligations.
-
-In accordance with applicable legal requirements, we may share personal information with law enforcement authorities, regulatory bodies, or government agencies if we are legally compelled to do so by subpoena, court order, or other lawful process.
-
-Additionally, we may share data with analytics and monitoring services in order to detect security issues, monitor platform performance, and improve user experience.
-
-Hexbox™ does not sell your personal identity data under any circumstances. Furthermore, we do not link on-chain behavioral data to personally identifiable information unless we have expressly disclosed such practices and received your informed consent.`,
+      title: "Investment Mechanism",
+      content:
+        "By contributing to a campaign on Hexbox, you enter into a direct, on-chain arrangement with the Executor. All contributions are executed via smart contracts, which manage the logic of fund custody, finalization, and refund conditions. Upon successful contribution, a blockchain-based NFT is issued to your designated wallet. This NFT functions as a non-custodial proof of participation and must be retained to access any campaign-related rights, such as initiating a refund during the Refund Window or claiming products, services, or other forms of campaign utility as described by the Executor.",
     },
     {
       number: 5,
-      title: "Blockchain-Specific Limitations",
+      title: "Refund and Withdrawal Terms",
       content:
-        "Due to the nature of blockchain technology, certain information, such as wallet addresses, token transactions, and NFT activity, is publicly available and permanently stored. Such data cannot be modified or deleted. While this information is considered pseudonymous, it may still be subject to privacy regulations depending on how it is combined with off-chain data.",
+        "Refunds are available only during the Refund Window. Finalization, which may be automatic or triggered by the Executor, releases the funds and burns the NFT. Hexbox does not guarantee refunds after finalization. If you lose access to your wallet before claiming a refund, your rights may be permanently lost.",
+      isImportant: true,
     },
     {
       number: 6,
-      title: "Rights of Data Subjects",
-      content: `Depending on your jurisdiction, you may be entitled to certain rights regarding your personal data. These rights may include the ability to access the personal data we hold about you, request that we correct any inaccuracies, or request the deletion of your off-chain data. If you wish to request deletion, you may do so by contacting us at hello@hexbox.money.
+      title: "Investor Responsibilities and Risk Disclosure",
+      content: `You accept the following risks when using Hexbox: the possibility of project failure, fraudulent activity by Executors, legal non-compliance by third parties, delays in delivery or communication, and general volatility in blockchain-based ecosystems. 
 
-In addition, you may have the right to object to our processing of your data, or to withdraw any previously granted consent where the processing is based on consent. You may also request information about the ways in which we use your data, including the legal basis and specific purposes.
-
-All requests will be evaluated and processed in accordance with the legal obligations applicable to Hexbox™ and within the timeframes prescribed by law.`,
+As an Investor, it is your responsibility to take reasonable precautions, which include conducting thorough due diligence before investing in a campaign, securing your wallet credentials and the NFT Receipt issued to you, and complying with all tax and legal obligations in your jurisdiction.`,
+      isImportant: true,
     },
     {
       number: 7,
-      title: "Use of Cookies and Tracking Technologies",
+      title: "Fees and Taxes",
       content:
-        "We use cookies and similar tracking technologies to enhance the functionality and usability of the Platform. These technologies allow us to identify returning Users, monitor browsing patterns, measure session activity, and tailor content to improve user experience. Cookies are placed when you visit our website and may persist across sessions unless you choose to disable them. You can manage or disable cookies at any time by adjusting your browser settings; however, doing so may affect certain features of the Platform.",
+        "Fees applicable to your transaction will be clearly presented and must be acknowledged prior to confirming any contribution. These may include service charges imposed by Hexbox, smart contract execution fees, and third-party transaction processing costs. Additionally, you are solely responsible for all blockchain gas fees associated with initiating, interacting with, or reversing transactions on the network. You are also responsible for reporting and paying any local, national, or international taxes that may arise as a result of your activity on the platform. Hexbox does not provide tax advice or act as a withholding agent.",
     },
     {
       number: 8,
-      title: "International Data Transfers",
-      content: `If you are located outside of the United States, please be aware that your data may be transferred to, stored in, or processed within the United States or other jurisdictions. By using our Platform, you consent to such international data transfers.
-
-At this time, Hexbox™ does not implement Standard Contractual Clauses or similar frameworks, but may consider doing so as regulatory requirements evolve.`,
+      title: "Platform Role and Disclaimers",
+      content:
+        "Hexbox acts solely as a neutral infrastructure and technology provider. We do not act as a broker, dealer, investment advisor, financial institution, custodian, or intermediary in any transaction. We do not originate, structure, endorse, or promote specific campaigns, nor do we provide financial, legal, or tax advice. Our role is strictly limited to providing smart contract tools and platform access that enable Executors and Investors to interact directly with one another. Hexbox does not mediate disputes between parties, validate the legitimacy of campaigns, or guarantee the outcome, delivery, or success of any project. All risk and decision-making rest entirely with the Users.",
     },
     {
       number: 9,
-      title: "Children's Privacy",
+      title: "Prohibited Activities",
       content:
-        "The Hexbox™ Platform is not intended for use by individuals under the age of 16. We do not knowingly collect personal data from minors. If a parent or legal guardian believes that their child has submitted data to us, they may contact us to request deletion or restriction of access for the associated wallet address.",
+        "You may not engage in any conduct that violates these Terms or applicable laws. This includes, but is not limited to, fraudulent or deceptive behavior, misrepresentation of your identity or intentions, or any unlawful activity. You are prohibited from interfering with the technical operation of Hexbox, including tampering with smart contracts or attempting to circumvent security protocols. Additionally, you must not use automated bots, scripts, or any manipulative tools to influence campaign mechanics or outcomes.",
     },
     {
       number: 10,
-      title: "Data Retention and Storage",
+      title: "Suspension and Termination",
       content:
-        "Hexbox™ retains off-chain personal data only for as long as necessary to fulfill the purposes for which it was originally collected. This may include account management, service delivery, legal compliance, and dispute resolution. Once the data is no longer required for these purposes, we delete or anonymize it in accordance with our internal retention policies and applicable legal requirements. Please note that data stored on the blockchain is not subject to modification or deletion, as its permanence is a fundamental feature of decentralized ledger technology.",
+        "Hexbox reserves the right to suspend or permanently terminate your access to the platform, services, and any related systems at any time if you are found to have violated these Terms, attempted to circumvent platform operations, engaged in fraudulent behavior, or otherwise posed a legal or reputational risk to Hexbox or its users. Such action may be taken without prior notice and at Hexbox's sole discretion. In such events, any rights attached to NFTs held by the affected party—including access to refunds, rewards, or campaign-related benefits—may be invalidated without compensation. This includes cases where an account is associated with malicious activity, regulatory non-compliance, abuse of smart contracts, impersonation, or any other conduct detrimental to the integrity or lawful operation of the platform.",
     },
     {
       number: 11,
-      title: "Data Security Measures",
+      title: "Intellectual Property",
       content:
-        "We implement reasonable technical and organizational safeguards to protect the personal data we process. This includes access controls, encryption, audit logging, and secure storage practices. Users are responsible for securing their wallets and personal devices.",
+        "All intellectual property, including but not limited to the text, graphics, code, features, design elements, trademarks, and any other materials displayed or made available through the Hexbox platform, are the exclusive property of Hexbox or its licensors. You are strictly prohibited from copying, distributing, modifying, reverse engineering, publicly displaying, or otherwise exploiting any part of the platform or its content for commercial or non-commercial purposes without the express prior written consent of Hexbox. Unauthorized use may constitute a violation of intellectual property laws and could result in legal action.",
     },
     {
       number: 12,
-      title: "Legal Disclosures and Jurisdictional Statements",
-      content: `Hexbox™ operates on a global scale but is headquartered in the United States. While we strive to align with key international privacy frameworks, such as the General Data Protection Regulation and the California Consumer Privacy Act, there are specific mechanisms and representations we do not currently maintain.
+      title: "Limitation of Liability",
+      content: `Hexbox disclaims all warranties. We are not liable for indirect or consequential losses, including but not limited to lost funds, campaign failures, product failures, delays, or service interruptions. 
 
-These include the appointment of designated representatives in the European Union or United Kingdom, the implementation of consumer privacy mechanisms as set forth under the California Privacy Rights Act, the use of standard contractual clauses or equivalent safeguards for cross-border data transfers, and the establishment of formal processes to receive privacy-related requests through authorized third-party agents.
-
-Although these measures are not yet in place, we continue to evaluate our data protection practices. This Privacy Policy and our internal procedures will be revised accordingly as our legal obligations evolve and our business expands.`,
+Additionally, Hexbox shall not be held liable for any issues resulting from consumer error or misconduct, including but not limited to: failure to maintain control over one's wallet or private keys; transferring funds to an incorrect address; losing or deleting the NFT Receipt; misunderstanding campaign terms; failing to claim a refund within the Refund Window; reliance on external third-party tools or services; or misinterpreting reward eligibility or delivery timelines.`,
+      isImportant: true,
     },
     {
       number: 13,
-      title: "Policy Updates and Revisions",
+      title: "Dispute Resolution",
       content:
-        "We occasionally revise this Policy to reflect updates in privacy regulations or changes in how we manage your data. We encourage you to review it regularly. By continuing to use Hexbox™ after updates are published, you agree to the latest version. This Policy may be provided in other languages for convenience, but the English version shall prevail in case of discrepancies.",
+        "Any dispute, controversy, or claim arising out of or relating to this Agreement, including the breach, termination, or validity thereof, shall be finally resolved by arbitration under the Rules of Arbitration of the International Chamber of Commerce (ICC). The number of arbitrators shall be one. The seat of arbitration shall be Victoria, Australia. The language of arbitration shall be English. This Agreement shall be governed exclusively by the laws of the United States of America. All disputes shall be resolved solely through arbitration; no party shall have recourse to any court of law for any reason related to this Agreement, except to enforce an arbitral award.",
     },
     {
       number: 14,
-      title: "Contact Information",
-      content: `For any questions, concerns, or data-related requests regarding this Privacy Policy, you may contact:
-
-**Hexbox™ LLC**
-Wyoming, United States
-Email: hello@hexbox.money`,
+      title: "Amendments",
+      content:
+        "We may modify these Terms at any time. Updates will be published on the platform. Continued use signifies acceptance.",
+    },
+    {
+      number: 15,
+      title: "Contact and Notices",
+      content:
+        "Please direct inquiries to our support team through the platform or via the channels listed in our Privacy Policy.",
     },
   ],
 };
@@ -210,7 +189,6 @@ const TermsAndConditions: React.FC = () => {
   };
 
   const formatContent = (content: string) => {
-    // Simple formatting for bold text
     return content.split("\n").map((paragraph, index) => (
       <p key={index} className="mb-4 last:mb-0">
         {paragraph.split("**").map((text, i) =>
@@ -239,24 +217,26 @@ const TermsAndConditions: React.FC = () => {
             <span>Effective: {termsData.effectiveDate}</span>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
-            <span>{termsData.company.location}</span>
-          </div>
-          <div className="flex items-center gap-2">
             <Mail className="w-4 h-4" />
-            <a
-              href={`mailto:${termsData.company.email}`}
-              className="text-blueColor hover:text-blueColor/80"
-            >
-              {termsData.company.email}
-            </a>
+            <span>Platform: {termsData.company.website}</span>
           </div>
         </div>
       </div>
 
-      <div className="mb-8">
-        <div className="prose max-w-none">
-          {formatContent(termsData.introduction)}
+      <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-orangeColor mb-2">
+              Important Notice
+            </h3>
+            <p className="text-orangeColorDull/70 text-sm">
+              By investing via Hexbox, you confirm that you have read,
+              understood, and agreed to these Terms. This is a legally binding
+              agreement that incorporates blockchain technology and carries
+              specific risks.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -293,11 +273,17 @@ const TermsAndConditions: React.FC = () => {
         {termsData.articles.map((article) => (
           <div
             key={article.number}
-            className="border border-gray-200 rounded-lg"
+            className={`border rounded-lg ${
+              article.isImportant
+                ? "border-red-200 bg-red-50"
+                : "border-gray-200"
+            }`}
           >
             <button
               onClick={() => toggleArticle(article.number)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+              className={`w-full flex items-center justify-between p-4 text-left transition-colors ${
+                article.isImportant ? "hover:bg-red-100" : "hover:bg-gray-50"
+              }`}
             >
               <div className="flex items-center gap-3">
                 {expandedArticles.includes(article.number) ? (
@@ -305,15 +291,22 @@ const TermsAndConditions: React.FC = () => {
                 ) : (
                   <ChevronRight className="w-5 h-5 text-gray-500" />
                 )}
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   Article {article.number} – {article.title}
+                  {article.isImportant && (
+                    <AlertTriangle className="w-4 h-4 text-redColor" />
+                  )}
                 </h2>
               </div>
             </button>
 
             {expandedArticles.includes(article.number) && (
               <div className="px-4 pb-4">
-                <div className="prose max-w-none text-gray-700 pl-8">
+                <div
+                  className={`prose max-w-none pl-8 ${
+                    article.isImportant ? "text-redColor" : "text-gray-700"
+                  }`}
+                >
                   {formatContent(article.content)}
                 </div>
               </div>
@@ -322,17 +315,26 @@ const TermsAndConditions: React.FC = () => {
         ))}
       </div>
 
-      <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
-        <p>Last updated: {termsData.lastUpdated}</p>
-        <p className="mt-2">
-          For questions regarding this policy, contact us at{" "}
-          <a
-            href={`mailto:${termsData.company.email}`}
-            className="text-blueColor hover:text-lightBlueColor"
-          >
-            {termsData.company.email}
-          </a>
-        </p>
+      <div className="mt-12 pt-8 border-t border-gray-200">
+        <div className="bg-blue-50 border border-lightBlueColor rounded-lg p-6">
+          <h3 className="font-semibold text-blue-900 mb-3">
+            Agreement Confirmation
+          </h3>
+          <p className="text-blueColor mb-4">
+            By investing via Hexbox, you confirm that you have read, understood,
+            and agreed to these Terms.
+          </p>
+          <div className="text-sm text-blueColor">
+            <p>
+              <strong>Last updated:</strong> {termsData.lastUpdated}
+            </p>
+            <p>
+              <strong>Contact:</strong> Please direct inquiries to our support
+              team through the platform or via the channels listed in our
+              Privacy Policy.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
