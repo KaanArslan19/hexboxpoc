@@ -86,6 +86,7 @@ const initialValues = {
   website: "",
   linkedIn: "",
   funding_type: FundingType.Limitless,
+  acceptTerms: false,
 };
 
 export default function CampaignForm(props: Props) {
@@ -103,7 +104,7 @@ export default function CampaignForm(props: Props) {
 
   const formikRef = useRef<FormikProps<any>>(null);
   const { address } = useAccount();
-  
+
   // Initialize campaign draft functionality
   const {
     formData,
@@ -117,18 +118,20 @@ export default function CampaignForm(props: Props) {
   } = useCampaignDraft(initialValues);
 
   // We need to manage the lifecycle of form tracking and saving very carefully to prevent empty saves
-  
+
   // Track whether we should start saving drafts
   // We initialize it to false - no saving until user explicitly makes a decision
   const [enableDraftSaving, setEnableDraftSaving] = useState(false);
-  
+
   // Track form values at the component level for proper reactivity
   const [currentFormValues, setCurrentFormValues] = useState("");
-  
+
   // Phase 1: Check if we have a draft and need to show the modal
   useEffect(() => {
     if (hasDraft) {
-      console.log("Draft exists, showing restore modal. Draft saving is DISABLED.");
+      console.log(
+        "Draft exists, showing restore modal. Draft saving is DISABLED."
+      );
       // Draft saving remains disabled until user makes a choice
     } else {
       console.log("No draft exists, enabling draft saving immediately.");
@@ -136,7 +139,7 @@ export default function CampaignForm(props: Props) {
       setEnableDraftSaving(true);
     }
   }, [hasDraft]);
-  
+
   // Phase 2: Only set up form value tracking if draft saving is enabled
   useEffect(() => {
     // Don't do anything if draft saving is not enabled yet
@@ -144,9 +147,9 @@ export default function CampaignForm(props: Props) {
       console.log("Draft saving disabled - not tracking form values");
       return;
     }
-    
+
     console.log("Draft saving ENABLED - starting to track form values");
-    
+
     // This effect sets up a periodic check of form values
     const checkFormValues = () => {
       if (formikRef.current?.values) {
@@ -154,24 +157,24 @@ export default function CampaignForm(props: Props) {
         setCurrentFormValues(valuesJson);
       }
     };
-    
+
     // Check immediately
     checkFormValues();
-    
+
     // Also set up an interval to check periodically
     const intervalId = setInterval(checkFormValues, 500);
-    
+
     return () => clearInterval(intervalId);
   }, [enableDraftSaving]);
-  
+
   // Debug logging
   useEffect(() => {
     console.log("FormikRef changed:", formikRef.current);
   }, [formikRef.current]);
-  
+
   // Initialize reference for comparing values
   const prevValuesRef = useRef<string | null>(null);
-  
+
   // The main effect that saves drafts based on value changes - ONLY runs when draft saving is enabled
   useEffect(() => {
     // CRITICAL CHECK: Don't proceed with any saving if draft saving isn't enabled
@@ -179,25 +182,27 @@ export default function CampaignForm(props: Props) {
       console.log("Draft saving disabled - not saving any changes");
       return;
     }
-    
+
     console.log("Form values changed effect triggered (saving enabled)");
-    
+
     // Skip if no form values yet
     if (!currentFormValues) return;
-    
+
     // On first run after enabling saving, just store the current values as reference
     if (prevValuesRef.current === null) {
-      console.log("First run after enabling saving, just storing reference values");
+      console.log(
+        "First run after enabling saving, just storing reference values"
+      );
       // TypeScript fix - explicit assignment of string to the string|null type
       prevValuesRef.current = currentFormValues;
       return;
     }
-  
+
     if (!formikRef.current?.isSubmitting) {
       console.log("Previous values:", prevValuesRef.current);
       console.log("Current values:", currentFormValues);
       console.log("Values match?", prevValuesRef.current === currentFormValues);
-      
+
       if (prevValuesRef.current !== currentFormValues) {
         console.log("Values changed, saving draft");
         // Debounced save
@@ -205,17 +210,17 @@ export default function CampaignForm(props: Props) {
           const formValues = JSON.parse(currentFormValues);
           const dataToSave = {
             ...formValues,
-            logoPreview
+            logoPreview,
           };
           console.log("Saving data with debounce:", dataToSave);
           updateFormData(dataToSave);
-          
+
           // Update previous values reference
           prevValuesRef.current = currentFormValues;
         }, 1500);
-        
+
         debouncedSave();
-        
+
         return () => debouncedSave.cancel();
       } else {
         console.log("No change detected, not saving");
@@ -227,28 +232,28 @@ export default function CampaignForm(props: Props) {
   const dataURLtoFile = (dataUrl: string, filename: string): File | null => {
     try {
       // Extract the MIME type and base64 data
-      const arr = dataUrl.split(',');
+      const arr = dataUrl.split(",");
       if (arr.length < 2) return null;
-      
+
       const mime = arr[0].match(/:(.*?);/)?.[1];
       if (!mime) return null;
-      
+
       const bstr = atob(arr[1]);
       let n = bstr.length;
       const u8arr = new Uint8Array(n);
-      
+
       while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
       }
-      
+
       // Create a file from the binary data
       return new File([u8arr], filename, { type: mime });
     } catch (error) {
-      console.error('Error converting data URL to File:', error);
+      console.error("Error converting data URL to File:", error);
       return null;
     }
   };
-  
+
   // Handle restoring draft
   const handleRestoreDraft = async () => {
     const draftData = await loadDraft();
@@ -256,17 +261,20 @@ export default function CampaignForm(props: Props) {
       // If there's a logo preview in the draft, restore it and reconstruct the File object
       if (draftData.logoPreview) {
         setLogoPreview(draftData.logoPreview);
-        
+
         // Reconstruct File object from the data URL
-        const reconstructedFile = dataURLtoFile(draftData.logoPreview, 'restored-logo.png');
+        const reconstructedFile = dataURLtoFile(
+          draftData.logoPreview,
+          "restored-logo.png"
+        );
         if (reconstructedFile) {
-          console.log('Successfully reconstructed File from data URL');
+          console.log("Successfully reconstructed File from data URL");
           setLogo(reconstructedFile);
-          
+
           // Make sure the form values include the reconstructed file
           draftData.logo = reconstructedFile;
         } else {
-          console.error('Failed to reconstruct File from data URL');
+          console.error("Failed to reconstruct File from data URL");
         }
       }
 
@@ -279,7 +287,7 @@ export default function CampaignForm(props: Props) {
       toast.success("Draft restored successfully!");
     }
     setShowRestoreModal(false);
-    
+
     // Only enable draft saving AFTER user has restored their draft
     // This prevents any premature saving during initialization
     console.log("User chose to restore draft - NOW enabling draft saving");
@@ -291,10 +299,12 @@ export default function CampaignForm(props: Props) {
     await deleteDraft();
     setShowRestoreModal(false);
     toast.info("Starting with a fresh form.");
-    
+
     // Only enable draft saving AFTER user has discarded their draft
     // This prevents any premature saving during initialization
-    console.log("User chose to discard draft - NOW enabling draft saving with empty form");
+    console.log(
+      "User chose to discard draft - NOW enabling draft saving with empty form"
+    );
     setEnableDraftSaving(true);
   };
 
@@ -331,10 +341,10 @@ export default function CampaignForm(props: Props) {
       };
 
       const response = await onSubmit(campaignData);
-      
+
       // Delete draft after successful submission
       await deleteDraft();
-      
+
       return response;
     } catch (error) {
       setSubmitError("An unknown error occurred while creating the campaign");
@@ -349,7 +359,7 @@ export default function CampaignForm(props: Props) {
     const file = e.target.files?.[0];
     if (file) {
       setLogo(file);
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -359,72 +369,79 @@ export default function CampaignForm(props: Props) {
     }
   };
 
+  const steps = [
+    { title: "Project Info" },
+    { title: "Description" },
+    { title: "Financial Supply" },
+    { title: "Funding Type" },
 
-const steps = [
-  { title: "Project Info" },
-  { title: "Description" },
-  { title: "Financial Supply" },
-  { title: "Funding Type" },
+    { title: "Review" },
+  ];
 
-  { title: "Review" },
-];
-
-const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB in bytes
-const fileSizeValidator = Yup.mixed().test(
-  "fileSize",
-  "File size must be less than 1MB",
-  (value: unknown) => {
-    if (value instanceof File) {
-      return value.size <= FILE_SIZE_LIMIT;
+  const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB in bytes
+  const fileSizeValidator = Yup.mixed().test(
+    "fileSize",
+    "File size must be less than 1MB",
+    (value: unknown) => {
+      if (value instanceof File) {
+        return value.size <= FILE_SIZE_LIMIT;
+      }
+      return true;
     }
-    return true;
-  }
-);
+  );
 
-const validationSchema = [
-  Yup.object({
-    title: Yup.string().required("Title is required"),
-    one_liner: Yup.string().required("One Liner is required"),
-    logo: fileSizeValidator.required("Logo is required"),
-  }),
-  Yup.object({
-    description: Yup.string().required("Description is required"),
-    location: Yup.string().required("Location is required"),
-    deadline: Yup.date()
-      .required("Project Deadline date is required")
-      .min(new Date(), "Deadline must be in the future"),
-    email: Yup.string().required("Email is required"),
-    phoneNumber: Yup.string().required("Phone Number is required"),
-  }),
-  Yup.object({
-    fundAmount: Yup.number()
-      .typeError("Fund amount must be a number")
-      .required("Fund amount is required")
-      .min(0.0000001, "Fund amount must be greater than 0"),
+  const validationSchema = [
+    Yup.object({
+      title: Yup.string().required("Title is required"),
+      one_liner: Yup.string().required("One Liner is required"),
+      logo: fileSizeValidator.required("Logo is required"),
+    }),
+    Yup.object({
+      description: Yup.string().required("Description is required"),
+      location: Yup.string().required("Location is required"),
+      deadline: Yup.date()
+        .required("Project Deadline date is required")
+        .min(new Date(), "Deadline must be in the future"),
+      email: Yup.string().required("Email is required"),
+      phoneNumber: Yup.string().required("Phone Number is required"),
+    }),
+    Yup.object({
+      fundAmount: Yup.number()
+        .typeError("Fund amount must be a number")
+        .required("Fund amount is required")
+        .min(0.0000001, "Fund amount must be greater than 0"),
 
-    wallet_address: Yup.string().required("Wallet address is required"),
-  }),
-  Yup.object({
-    funding_type: Yup.string()
-      .oneOf(Object.values(FundingType))
-      .required("Please select a funding type"),
-  }),
-];
+      wallet_address: Yup.string().required("Wallet address is required"),
+    }),
+    Yup.object({
+      funding_type: Yup.string()
+        .oneOf(Object.values(FundingType))
+        .required("Please select a funding type"),
+    }),
+    Yup.object({
+      funding_type: Yup.string()
+        .oneOf(Object.values(FundingType))
+        .required("Please select a funding type"),
+      acceptTerms: Yup.boolean()
+        .oneOf([true], "You must accept the terms and conditions to proceed")
+        .required("You must accept the terms and conditions"),
+    }),
+  ];
 
-// const initialValues = {
-//   title: "",
-//   description: "",
-//   email: "",
-//   phoneNumber: "",
-//   fundAmount: 0,
-//   logo: null,
-//   deadline: "",
-//   location: "",
-//   wallet_address: "",
-//   one_liner: "",
-//   telegram: "",
-//   discord: "",
-// Commented code removed to avoid duplication
+  // const initialValues = {
+  //   title: "",
+  //   description: "",
+  //   email: "",
+  //   phoneNumber: "",
+  //   fundAmount: 0,
+  //   logo: null,
+  //   deadline: "",
+  //   location: "",
+  //   wallet_address: "",
+  //   one_liner: "",
+  //   telegram: "",
+  //   discord: "",
+  // Commented code removed to avoid duplication
   //     // Restore logo preview if exists in draft
   //     if (draftData.logoPreview) {
   //       setLogoPreview(draftData.logoPreview);
@@ -444,16 +461,16 @@ const validationSchema = [
   // // Handle discarding draft
   // const handleDiscardDraft = async () => {
   //   await deleteDraft();
-// Additional duplicated code removed
+  // Additional duplicated code removed
   //         linkedIn: linkedIn || ""
   //       }
   //     };
 
   //     await onSubmit(campaignData);
-      
+
   //     // Delete draft after successful submission
   //     await deleteDraft();
-      
+
   //   } catch (error) {
   //     setSubmitError("An unknown error occurred");
   //     setIsPending(false);
@@ -486,28 +503,33 @@ const validationSchema = [
     if (formikRef.current?.values && !formikRef.current?.isSubmitting) {
       // Check if values have actually changed by comparing with previous values
       const currentValues = JSON.stringify(formikRef.current.values);
-      
+
       if (prevValuesRef.current !== currentValues) {
         // Use our debounced function to avoid too many API calls
         const debouncedSave = debounce(() => {
           const dataToSave = {
             ...formikRef.current?.values,
-            logoPreview: logoPreview
+            logoPreview: logoPreview,
           };
           updateFormData(dataToSave);
           // Update the reference after saving
           prevValuesRef.current = currentValues;
         }, 1500); // Increased debounce time to reduce API calls
-        
+
         debouncedSave();
-        
+
         // Clean up debounced function on unmount
         return () => {
           debouncedSave.cancel();
         };
       }
     }
-  }, [formikRef.current?.values, formikRef.current?.isSubmitting, logoPreview, updateFormData]);
+  }, [
+    formikRef.current?.values,
+    formikRef.current?.isSubmitting,
+    logoPreview,
+    updateFormData,
+  ]);
 
   return (
     <>
@@ -536,11 +558,12 @@ const validationSchema = [
           {({ validateForm, setFieldValue, submitForm, values, errors }) => {
             // We're not using an effect here anymore since we have a debounced effect at the component level
             // This prevents duplicate API calls that were causing authentication spam
-            
+
             return (
-              <form onSubmit={submitForm} className="p-6 max-w-2xl mx-auto"
-              >
-                <h1 className="text-3xl text-center mb-4">Create Your Campaign</h1>
+              <form onSubmit={submitForm} className="p-6 max-w-2xl mx-auto">
+                <h1 className="text-3xl text-center mb-4">
+                  Create Your Campaign
+                </h1>
                 <div className="mb-6">
                   <Steps
                     progressDot
@@ -563,8 +586,8 @@ const validationSchema = [
                     <h2 className="text-2xl mb-2">Campaign Info</h2>
                     <p className="text-md mb-8 font-thin">
                       Enter your campaign`s details. Only the sections marked as
-                      optional can be changed after deployment; all other information
-                      will be fixed once submitted.
+                      optional can be changed after deployment; all other
+                      information will be fixed once submitted.
                     </p>
                     <h3 className="text-xl mb-2">Campaigns Title</h3>
                     <Field
@@ -622,10 +645,10 @@ const validationSchema = [
                   <div>
                     <h2 className="text-2xl mb-2">Details</h2>
                     <p className="text-md mb-8 font-thin">
-                      Provide the essential details about your campaign including
-                      campaign description, location, deadline, and contact
-                      information. These details help potential supporters understand
-                      your campaign and how to reach you.
+                      Provide the essential details about your campaign
+                      including campaign description, location, deadline, and
+                      contact information. These details help potential
+                      supporters understand your campaign and how to reach you.
                     </p>
                     <div className="mb-2">
                       <h3 className="text-xl mb-2">Campaign Description</h3>
@@ -775,7 +798,8 @@ const validationSchema = [
                   <div>
                     <h2 className="text-2xl mb-2">Choose Your Funding Type</h2>
                     <p className="text-md mb-8 font-thin">
-                      Select the funding model that best fits your campaign`s needs.
+                      Select the funding model that best fits your campaign`s
+                      needs.
                     </p>
 
                     <FundingTypeSelector
@@ -795,10 +819,10 @@ const validationSchema = [
                   <div>
                     <h2 className="text-2xl mb-2">Review</h2>
                     <p className="text-md mb-8 font-thin">
-                      For this final step, please review all information carefully.
-                      Once submitted, the details provided here will be fixed and
-                      cannot be changed. Ensure accuracy before completing your
-                      submission.
+                      For this final step, please review all information
+                      carefully. Once submitted, the details provided here will
+                      be fixed and cannot be changed. Ensure accuracy before
+                      completing your submission.
                     </p>
                     {submitError && (
                       <div className="mb-6 p-4 bg-red-50 border-l-4 border-redColor rounded-r">
@@ -827,6 +851,43 @@ const validationSchema = [
                         </div>
                       </div>
                     )}
+                    <div className="mb-6">
+                      <div className="flex items-start">
+                        <Field
+                          name="acceptTerms"
+                          type="checkbox"
+                          className="mt-1 mr-3 h-4 w-4 text-blueColor focus:ring-blueColor border-gray-300 rounded"
+                        />
+                        <label
+                          htmlFor="acceptTerms"
+                          className="text-sm text-gray-700"
+                        >
+                          I have read and agree to the{" "}
+                          <a
+                            href="/terms-and-conditions"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blueColor hover:underline"
+                          >
+                            Terms and Conditions
+                          </a>{" "}
+                          and{" "}
+                          <a
+                            href="/privacy-policy"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blueColor hover:underline"
+                          >
+                            Privacy Policy
+                          </a>
+                        </label>
+                      </div>
+                      <ErrorMessage
+                        name="acceptTerms"
+                        component="div"
+                        className="text-redColor/80 mt-2"
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -836,7 +897,9 @@ const validationSchema = [
                     onClick={() => setCurrentStep((prev) => prev - 1)}
                     disabled={currentStep === 0}
                     className={`px-4 py-2 rounded ${
-                      currentStep === 0 ? "bg-gray-300" : "bg-blueColor text-white"
+                      currentStep === 0
+                        ? "bg-gray-300"
+                        : "bg-blueColor text-white"
                     }`}
                   >
                     Previous
@@ -855,7 +918,10 @@ const validationSchema = [
                             console.log("Manually submitting form");
                             submitForm(); // Only submit if valid
                           } else {
-                            console.log("Validation errors prevented submission:", errors);
+                            console.log(
+                              "Validation errors prevented submission:",
+                              errors
+                            );
                             Object.entries(errors).forEach(([field, error]) => {
                               toast.error(`${field}: ${error}`, {
                                 autoClose: 3000,
@@ -919,28 +985,30 @@ const validationSchema = [
                 </div>
                 {/* Save Draft Button with Anti-Spam Cooldown */}
                 <div className="flex items-center mt-4">
-                  <button 
-                    className={`px-4 py-2 rounded ${isSaving 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-blueColor hover:bg-blue-600'} text-white transition duration-200`}
+                  <button
+                    className={`px-4 py-2 rounded ${
+                      isSaving
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blueColor hover:bg-blue-600"
+                    } text-white transition duration-200`}
                     type="button"
                     disabled={isSaving}
                     onClick={() => {
                       // Set saving state to trigger cooldown
                       setIsSaving(true);
-                      
+
                       console.log("Manual save triggered");
                       if (formikRef.current?.values) {
-                        const data = { 
+                        const data = {
                           ...formikRef.current.values,
-                          logoPreview
+                          logoPreview,
                         };
                         console.log("Saving data:", data);
                         updateFormData(data);
-                        
+
                         // Show toast message
                         toast.success("Draft saved successfully!");
-                        
+
                         // Set a timeout to re-enable the button after 3 seconds
                         setTimeout(() => {
                           setIsSaving(false);
@@ -950,9 +1018,9 @@ const validationSchema = [
                       }
                     }}
                   >
-                    {isSaving ? 'Saving...' : 'Save form as a draft'}
+                    {isSaving ? "Saving..." : "Save form as a draft"}
                   </button>
-                  
+
                   {isSaving && (
                     <span className="ml-3 text-sm text-gray-500">
                       Please wait a moment before saving again...
@@ -960,7 +1028,6 @@ const validationSchema = [
                   )}
                 </div>
               </form>
-              
             );
           }}
         </Formik>
