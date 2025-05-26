@@ -45,7 +45,7 @@ try {
 
 const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const daysToGo = Math.max(
-    Math.ceil((campaign.deadline - Date.now()) / (1000 * 60 * 60 * 24)),
+    Math.ceil(((campaign.deadline * 1000) - Date.now()) / (1000 * 60 * 60 * 24)),
     0
   );
   const [isLoading, setIsLoading] = useState(false);
