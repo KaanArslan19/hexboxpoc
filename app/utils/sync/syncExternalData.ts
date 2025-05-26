@@ -181,7 +181,7 @@ async function syncProductStockLevels(db: any, contract: any, productIds: any, c
               $set: {
                 inventory: inventoryUpdateString,
                 last_synced: Date.now(),
-                sold_count: soldCount.toString()
+                sold_count: soldCount
               }
             }
           );
