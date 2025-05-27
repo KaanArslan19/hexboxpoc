@@ -45,7 +45,7 @@ try {
 
 const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const daysToGo = Math.max(
-    Math.ceil(((campaign.deadline * 1000) - Date.now()) / (1000 * 60 * 60 * 24)),
+    Math.ceil((campaign.deadline * 1000 - Date.now()) / (1000 * 60 * 60 * 24)),
     0
   );
   const [isLoading, setIsLoading] = useState(false);
@@ -62,13 +62,16 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const [isApproving, setIsApproving] = useState(false);
   const [isRefunding, setIsRefunding] = useState(false);
   const [productQuantity, setProductQuantity] = useState<number>(0);
-
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [tokenBalance, setTokenBalance] = useState<bigint>(BigInt(0));
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
-
+  const [localProduct, setLocalProduct] = useState(product);
   const [isVerifying, setIsVerifying] = useState(false);
 
+  useEffect(() => {
+    setLocalProduct(product);
+  }, [product]);
   // Success modal close handler
   const closeSuccessModal = () => {
     setShowSuccessModal(false);
@@ -350,11 +353,20 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       return;
     }
 
+    if (!acceptTerms) {
+      alert(
+        "Please accept the Terms and Conditions and Privacy Policy to continue"
+      );
+      setIsLoading(false);
+      return;
+    }
+
     if (productQuantity <= 0) {
       alert("Please enter a valid quantity");
       setIsLoading(false);
       return;
     }
+
     await calculateCommission(productQuantity);
     try {
       const _campaignAddress = await getCampaignAddress();
@@ -441,28 +453,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       if (receipt?.status === 1) {
         // Show success notification with confetti
         setShowSuccessModal(true);
-        // Sync campaign data after successful transaction
-        // try {
-        //   const syncResponse = await fetch("/api/sync", {
-        //     method: "POST",
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify({
-        //       fundraiserAddress: _campaignAddress,
-        //     }),
-        //   });
-        //   console.log("Sync response:", syncResponse);
-
-        //   if (!syncResponse.ok) {
-        //     console.error("Failed to sync campaign data after purchase");
-        //   } else {
-        //     const syncResult = await syncResponse.json();
-        //     console.log("Sync after purchase result:", syncResult);
-        //   }
-        // } catch (syncError) {
-        //   console.error("Error syncing campaign after purchase:", syncError);
-        // }
+        setLocalProduct((prevProduct) => ({
+          ...prevProduct,
+          soldAmount: (prevProduct.sold_count || 0) + productQuantity,
+        }));
         // Refresh token balance after successful purchase
         await checkTokenBalance(_campaignAddress);
       } else {
@@ -647,7 +641,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               </div>
               <div>
                 <p className="text-gray-600 text-sm">Sold</p>
-                <p className="text-3xl font-bold">{product.sold_count}</p>
+                <p className="text-3xl font-bold">{localProduct.sold_count}</p>
               </div>
               <div>
                 <p className="text-lightBlueColor/80 text-sm">Days to Go</p>
@@ -695,14 +689,51 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   </div>
                 )}
                 <div className="flex flex-col gap-4">
+                  <div className="flex items-start">
+                    <input
+                      type="checkbox"
+                      id="acceptTerms"
+                      checked={acceptTerms}
+                      onChange={(e) => setAcceptTerms(e.target.checked)}
+                      className="mt-1 mr-3 h-4 w-4 text-blueColor focus:ring-blueColor border-gray-300 rounded"
+                    />
+                    <label
+                      htmlFor="acceptTerms"
+                      className="text-sm text-gray-700"
+                    >
+                      I have read and agree to the{" "}
+                      <a
+                        href="/terms-and-conditions"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blueColor hover:underline"
+                      >
+                        Terms and Conditions
+                      </a>{" "}
+                      and{" "}
+                      <a
+                        href="/privacy-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blueColor hover:underline"
+                      >
+                        Privacy Policy.
+                      </a>
+                    </label>
+                  </div>
+
                   <Link href="" className="w-full md:w-auto">
                     <CustomButton
                       onClick={handleBackProject}
                       disabled={
-                        isLoading || isApproving || isVerifying || isRefunding
+                        isLoading ||
+                        isApproving ||
+                        isVerifying ||
+                        isRefunding ||
+                        !acceptTerms
                       }
                       className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-full mt-2 ${
-                        isLoading || isApproving || isVerifying
+                        isLoading || isApproving || isVerifying || !acceptTerms
                           ? "opacity-50 cursor-not-allowed"
                           : ""
                       }`}
@@ -720,7 +751,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     <CustomButton
                       onClick={handleRefund}
                       disabled={isRefunding || isVerifying}
-                      className={`py-2 md:py-4  my-2 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto border-redColorDull ${
+                      className={`py-2 md:py-4 my-2 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto border-redColorDull ${
                         isRefunding || isVerifying
                           ? "opacity-50 cursor-not-allowed"
                           : ""
@@ -753,7 +784,6 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         </div>
       </div>
 
-      {/* Success Notification Modal */}
       <Modal
         isOpen={showSuccessModal}
         onRequestClose={closeSuccessModal}

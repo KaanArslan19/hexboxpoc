@@ -878,7 +878,7 @@ export default function CampaignForm(props: Props) {
                             rel="noopener noreferrer"
                             className="text-blueColor hover:underline"
                           >
-                            Privacy Policy
+                            Privacy Policy.
                           </a>
                         </label>
                       </div>
