@@ -6,6 +6,7 @@ import AuthSession from "./components/AuthSession";
 import Script from "next/script";
 import Providers from "./components/providers/Providers";
 import Notification from "./components/Notification";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 
 export const metadata: Metadata = {
   title: "Hexbox",
@@ -17,10 +18,23 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  //const session = await getServerSession(authOptions);
   return (
     <html lang="en">
       <head>
+        {/* Google Consent Mode initialization */}
+        <Script id="google-consent-mode" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            
+            gtag('consent', 'default', {
+              'analytics_storage': 'denied',
+              'ad_storage': 'denied',
+              'wait_for_update': 500,
+            });
+          `}
+        </Script>
+
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-PWL3ZE897B"
           strategy="afterInteractive"
@@ -33,7 +47,6 @@ export default async function RootLayout({
             gtag('config', 'G-PWL3ZE897B');
           `}
         </Script>
-
         <Script id="google-tag-manager" strategy="afterInteractive">
           {`
             (function(w,d,s,l,i){
@@ -60,6 +73,7 @@ export default async function RootLayout({
         <Providers>
           <Notification />
           {children}
+          <CookieConsentBanner />
         </Providers>
       </body>
     </html>
