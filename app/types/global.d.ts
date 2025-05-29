@@ -7,6 +7,8 @@ declare global {
         [key: string]: any;
         analytics_storage?: "granted" | "denied";
         ad_storage?: "granted" | "denied";
+        functionality_storage?: "granted" | "denied";
+        personalization_storage?: "granted" | "denied";
         wait_for_update?: number;
       }
     ) => void;
