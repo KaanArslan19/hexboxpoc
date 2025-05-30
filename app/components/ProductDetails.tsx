@@ -68,10 +68,16 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const { data: walletClient } = useWalletClient();
   const [localProduct, setLocalProduct] = useState(product);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [localCampaign, setLocalCampaign] = useState(campaign);
 
   useEffect(() => {
     setLocalProduct(product);
   }, [product]);
+
+  useEffect(() => {
+    setLocalCampaign(campaign);
+  }, [campaign]);
+
   // Success modal close handler
   const closeSuccessModal = () => {
     setShowSuccessModal(false);
@@ -367,7 +373,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       return;
     }
 
-    await calculateCommission(productQuantity);
+    const commissionInfo = await calculateCommission(productQuantity);
     try {
       const _campaignAddress = await getCampaignAddress();
       console.log("Campaign address:", _campaignAddress);
@@ -455,7 +461,15 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         setShowSuccessModal(true);
         setLocalProduct((prevProduct) => ({
           ...prevProduct,
-          soldAmount: (prevProduct.sold_count || 0) + productQuantity,
+          sold_count: (prevProduct.sold_count || 0) + productQuantity,
+        }));
+        console.log(commissionInfo)
+        console.log(commissionInfo?.finalAmount)
+        console.log(localCampaign.total_raised)
+        console.log((localCampaign.total_raised || 0) + (commissionInfo?.finalAmount || 0))
+        setLocalCampaign((prevCampaign) => ({
+          ...prevCampaign,
+          total_raised: Number(((prevCampaign.total_raised || 0) + (commissionInfo?.finalAmount || 0)).toFixed(3)),
         }));
         // Refresh token balance after successful purchase
         await checkTokenBalance(_campaignAddress);
@@ -510,6 +524,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     try {
       setIsRefunding(true);
       const campaignAddress = await getCampaignAddress();
+      const commissionInfo = await calculateCommission(productQuantity);
 
       // Check if user has tokens to refund
       const hasTokens = await checkTokenBalance(campaignAddress);
@@ -541,6 +556,17 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       if (receipt?.status === 1) {
         alert("Successfully refunded!");
+
+        setLocalProduct((prevProduct) => ({
+          ...prevProduct,
+          sold_count: (prevProduct.sold_count || 0) - productQuantity,
+        }));
+
+        setLocalCampaign((prevCampaign) => ({
+          ...prevCampaign,
+          total_raised: Number(((prevCampaign.total_raised || 0) - (commissionInfo?.finalAmount || 0)).toFixed(3)),
+        }));
+
         // Refresh token balance after successful refund
         await checkTokenBalance(campaignAddress);
       } else {
@@ -605,6 +631,8 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       });
 
       setShowCommissionInfo(true);
+
+      return {totalAmount, commissionAmount, finalAmount}
     } catch (error) {
       console.error("Error calculating commission:", error);
     }
@@ -634,9 +662,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             <div className="space-y-6">
               <div>
                 <p className="text-gray-600 text-sm">Funds Pledged</p>
-                <p className="text-3xl font-bold">${campaign.total_raised}</p>
+                <p className="text-3xl font-bold">${localCampaign.total_raised}</p>
                 <p className="text-sm text-gray-600">
-                  Pledged of ${campaign.fund_amount} campaign goal
+                  Pledged of ${localCampaign.fund_amount} campaign goal
                 </p>
               </div>
               <div>
@@ -750,14 +778,14 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   {tokenBalance > 0 && (
                     <CustomButton
                       onClick={handleRefund}
-                      disabled={isRefunding || isVerifying}
+                      disabled={isRefunding || isLoading || isApproving || isVerifying || !acceptTerms}
                       className={`py-2 md:py-4 my-2 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto border-redColorDull ${
-                        isRefunding || isVerifying
+                        isRefunding || isLoading || isApproving || isVerifying || !acceptTerms
                           ? "opacity-50 cursor-not-allowed"
                           : ""
                       }`}
                     >
-                      {isRefunding || isVerifying
+                      {isRefunding || isLoading || isApproving || isVerifying
                         ? "Processing..."
                         : "Request Refund"}
                     </CustomButton>
