@@ -43,7 +43,14 @@ export async function generateMetadata(
       card: "summary_large_image",
       title: campaign.title,
       description: campaign.description,
-      images: [campaign.logo],
+      images: [
+        {
+          url: `${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`,
+          width: 1200,
+          height: 630,
+          alt: campaign.title,
+        },
+      ],
     },
   };
 }
