@@ -31,7 +31,7 @@ export async function generateMetadata(
       url: url,
       images: [
         {
-          url: campaign.imageUrl,
+          url: campaign.logo,
           width: 1200,
           height: 630,
           alt: campaign.title,
@@ -43,7 +43,7 @@ export async function generateMetadata(
       card: "summary_large_image",
       title: campaign.title,
       description: campaign.description,
-      images: [campaign.imageUrl],
+      images: [campaign.logo],
     },
   };
 }
