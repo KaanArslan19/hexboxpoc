@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Navbar() {
   return (
-    <div className="">
+    <div className="relative z-50">
       <NavUI />
     </div>
   );

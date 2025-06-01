@@ -2,7 +2,6 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { AboutData } from "../types";
-import CustomButton from "./ui/CustomButton";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import Funnel from "./ui/Funnel";
