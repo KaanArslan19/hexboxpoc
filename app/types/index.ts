@@ -31,6 +31,22 @@ export interface CampaignListProps {
     total_raised: number;
   }[];
 }
+interface Author {
+  name: string;
+  userId: string;
+  isCreator: boolean;
+  isBacker: boolean;
+}
+interface Comment {
+  id: string;
+  author: Author;
+  content: string;
+  timestamp: Date;
+  likes: number;
+  isLiked: boolean;
+  replies: Comment[];
+  isExpanded: boolean;
+}
 export interface CampaignDetailsProps {
   _id: string;
   user_id: string;
@@ -55,6 +71,33 @@ export interface CampaignDetailsProps {
   is_verified: boolean;
   email: string;
   phoneNumber: string;
+  comments?: Comment[];
+}
+export interface CampaignBackendDetails {
+  _id: ObjectId;
+  user_id: string;
+  title: string;
+  description: string;
+  fund_amount: number;
+  logo: string;
+  one_liner: string;
+  location: string;
+  deadline: number;
+  funding_type: FundingType;
+  product_or_service: ProductOrService;
+  social_links: SocialLinks;
+  background_image: string;
+  token_address: string;
+  wallet_address: string;
+  status: Status;
+  products: ProductFetch[];
+  transactions: any[];
+  fundraiser_address: string;
+  total_raised: number;
+  is_verified: boolean;
+  email: string;
+  phoneNumber: string;
+  comments?: Comment[];
 }
 export enum Status {
   active = "active",

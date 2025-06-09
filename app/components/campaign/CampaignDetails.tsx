@@ -4,11 +4,7 @@ import { FaTelegramPlane } from "react-icons/fa";
 import CampaignTabs from "../ui/CampaignTabs";
 import CampaignActivity from "../ui/CampaignActivity";
 import CampaignDescription from "../ui/CampaignDescription";
-import {
-  CampaignDetailsProps,
-  TokenDetailsProps,
-  WalletDetails,
-} from "@/app/types";
+import { CampaignDetailsProps, WalletDetails } from "@/app/types";
 
 import { Progress } from "antd";
 import type { ProgressProps } from "antd";
@@ -22,6 +18,7 @@ import { checkServerAuth } from "@/app/utils/CheckServerAuth";
 import ProductTechDetails from "../ui/ProductTechDetails";
 import { FaUserAlt } from "react-icons/fa";
 import ShareButton from "../ui/ShareButton";
+import CampaignComments from "../ui/CampaignComments";
 
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
@@ -42,31 +39,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   transactions,
   fundraiser_address,
   total_raised,
+  comments,
 }) => {
-  //const transactions = await getCampaignTransactions(_id);
-
-  /*   
-  const tokenDetails = await getTokenDetails(token_address); 
-  const mappedTransactions = tokenDetails!.transactions.map((item: any) => ({
-    address: item.address,
-    type: item.type,
-    amount: item.amount,
-    timestamp: item.timestamp,
-  }));
-
-  const mappedHolders = tokenDetails!.holders.map((item: any) => ({
-    address: item.address,
-    balance: item.balance,
-  }));
- const simplifiedProposals = proposals.map((proposal) => ({
-    ...proposal,
-    _id: proposal._id.toString(),
-  })); 
-  const walletDetails = await getWallet(wallet_address);
-    const proposals = await getProposals(wallet_address);
-
-  */
-
   const { isAuthenticated, address } = await checkServerAuth();
   const campaignOwner = address === user_id;
   const modifiedProps: any & WalletDetails & { wallet_address: string } = {
@@ -86,7 +60,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     total_funds: 1000000, //walletDetails!.total_funds,
     token_address: "0x123", //walletDetails!.token_address,
   };
-  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/campaign/${_id}`;
   const tabItems = [
     {
       key: "1",
@@ -110,42 +83,24 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       label: "Activity",
       children: <CampaignActivity {...modifiedProps} />,
     },
-    /*     {
-      key: "4",
-      label: "Treasury Analytics",
-      children: <CampaignTreasuryAnalytics {...modifiedProps} />,
-    }, */
 
-    /*     {
-      key: "5",
-      label: "Proposals",
-      children: (
-        <CampaignProposal
-          proposals={simplifiedProposals}
-          holders={mappedHolders}
-          businessWallet={wallet_address}
-          supply={1000000} //tokenDetails!.supply,
-        />
-      ),
-    }, */
-
-    /*    {
-      key: "6",
-      label: "Create",
-      children: (
-        <CreateProductOrService
-          userId={user_id}
-          pors={product_or_service}
-          campaignId={_id}
-        />
-      ),
-    }, */
     {
       key: "4",
       label: "Tech Details",
       children: (
         <ProductTechDetails
           wallet_address={wallet_address ? wallet_address : user_id}
+        />
+      ),
+    },
+    {
+      key: "5",
+      label: "Comments",
+      children: (
+        <CampaignComments
+          campaignId={_id}
+          commentsProp={comments}
+          currentUserId={user_id}
         />
       ),
     },
