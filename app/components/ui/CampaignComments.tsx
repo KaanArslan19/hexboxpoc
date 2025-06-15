@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Heart, Reply, Flag, MoreHorizontal, Send, User } from "lucide-react";
+import CustomButton from "./CustomButton";
 
 interface Comment {
   id: string;
@@ -35,7 +36,7 @@ interface Reply {
 interface CampaignCommentsProps {
   campaignId: string;
   commentsProp?: Comment[];
-  currentUserId?: string;
+  currentUserId: string;
 }
 
 const CampaignComments: React.FC<CampaignCommentsProps> = ({
@@ -292,7 +293,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                   ? "Leave a comment for the creator..."
                   : "Please log in to comment"
               }
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blueColor/30 focus:border-transparent"
               rows={3}
               disabled={!currentUserId || isSubmitting}
             />
@@ -303,7 +304,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
               <button
                 onClick={handleNewComment}
                 disabled={!newComment.trim() || !currentUserId || isSubmitting}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-blueColor text-white rounded-lg hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Send size={16} />
                 {isSubmitting ? "Posting..." : "Post Comment"}
@@ -335,12 +336,12 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                       {comment.author.name}
                     </span>
                     {comment.author.isCreator && (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      <span className="px-2 py-1 bg-blue-100 text-blueColorDull text-xs rounded-full">
                         Creator
                       </span>
                     )}
                     {comment.author.isBacker && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                      <span className="px-2 py-1 bg-green-100 text-orangeColorDull text-xs rounded-full">
                         Backer
                       </span>
                     )}
@@ -360,7 +361,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                       disabled={!currentUserId}
                       className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
                         isLikedByUser
-                          ? "text-red-600 bg-red-50 hover:bg-red-100"
+                          ? "text-redColor bg-red-50 hover:bg-red-100"
                           : "text-gray-600 hover:bg-gray-100"
                       } ${
                         !currentUserId ? "opacity-50 cursor-not-allowed" : ""
@@ -424,7 +425,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                             <button
                               onClick={() => handleReply(comment.id)}
                               disabled={!replyText.trim() || isSubmittingReply}
-                              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
+                              className="px-3 py-1 bg-blueColor text-white rounded-md hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
                             >
                               {isSubmittingReply ? "Replying..." : "Reply"}
                             </button>
@@ -437,14 +438,14 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                   {/* Replies */}
                   {comment.replies.length > 0 && (
                     <div className="mt-4 ml-6">
-                      <button
+                      <CustomButton
                         onClick={() => toggleReplies(comment.id)}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium mb-3 transition-colors"
+                        className="text-blueColor hover:text-blueColor/80 text-sm font-medium mb-3 transition-colors"
                       >
                         {comment.isExpanded ? "Hide" : "Show"}{" "}
                         {comment.replies.length}{" "}
                         {comment.replies.length === 1 ? "reply" : "replies"}
-                      </button>
+                      </CustomButton>
 
                       {comment.isExpanded && (
                         <div className="space-y-4">
@@ -464,12 +465,12 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                                       {reply.author.name}
                                     </span>
                                     {reply.author.isCreator && (
-                                      <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                      <span className="px-2 py-0.5 bg-blue-100 text-blueColorDull text-xs rounded-full">
                                         Creator
                                       </span>
                                     )}
                                     {reply.author.isBacker && (
-                                      <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
+                                      <span className="px-2 py-0.5 bg-green-100 text-orangeColorDull text-xs rounded-full">
                                         Backer
                                       </span>
                                     )}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEventHandler, useEffect } from "react";
+import React, { useState, ChangeEventHandler } from "react";
 import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Steps } from "antd";
@@ -165,6 +165,8 @@ const productInitialValues: ProductNew = {
   logo: "",
   images: [],
   status: "draft",
+  fulfillmentDetails: "",
+  deliveryDate: "",
 };
 
 const serviceInitialValues = {
@@ -194,10 +196,11 @@ export default function ProductForm({
 }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [logo, setLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isPending, setIsPending] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [campaignImageSource, setCampaignImageSource] = useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [formType, setFormType] = useState<string>(
     ProductOrService.ProductOnly
   );
@@ -216,36 +219,38 @@ export default function ProductForm({
     const files = target.files;
     if (files) {
       const newImages = Array.from(files).map((item) => item);
-      const oldImages = campaignImageSource || [];
-
       setImageFiles([...imageFiles, ...newImages]);
 
-      setCampaignImageSource([
-        ...oldImages,
-        ...newImages.map((file) => URL.createObjectURL(file)),
-      ]);
+      // Create data URLs for new images
+      newImages.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target?.result as string;
+          setImagePreviews((prev) => [...prev, dataUrl]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
   const removeImage = async (index: number) => {
-    if (!campaignImageSource) return;
+    if (!imagePreviews) return;
 
-    const imageToRemove = campaignImageSource[index];
+    const imageToRemove = imagePreviews[index];
     const cloudSourceUrl = "pub-7337cfa6ce8741dea70792ea29aa86e7.r2.dev";
 
     if (imageToRemove.startsWith(cloudSourceUrl)) {
       onImageRemove && onImageRemove(imageToRemove);
     } else {
-      const fileIndexDifference =
-        campaignImageSource.length - imageFiles.length;
+      const fileIndexDifference = imagePreviews.length - imageFiles.length;
       const indexToRemove = index - fileIndexDifference;
 
       const newImageFiles = imageFiles.filter((_, i) => i !== indexToRemove);
       setImageFiles([...newImageFiles]);
     }
 
-    const newImagesSource = campaignImageSource.filter((_, i) => i !== index);
-    setCampaignImageSource([...newImagesSource]);
+    const newImagePreviews = imagePreviews.filter((_, i) => i !== index);
+    setImagePreviews([...newImagePreviews]);
   };
 
   const handleSubmit = async (values: any) => {
@@ -317,7 +322,6 @@ export default function ProductForm({
               <div className="space-y-4">
                 <div>
                   <h3 className="text-xl mb-2">Type</h3>
-
                   {productOrService !== ProductOrService.ProductAndService && (
                     <Field
                       as="select"
@@ -366,11 +370,19 @@ export default function ProductForm({
                   <h3 className="text-xl mb-2">Logo</h3>
                   <ImageSelector
                     id="logo"
-                    images={logo ? [URL.createObjectURL(logo)] : []}
+                    images={logoPreview ? [logoPreview] : []}
                     onChange={({ target }) => {
                       const file = target.files ? target.files[0] : null;
                       setFieldValue("logo", file);
                       setLogo(file);
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          const dataUrl = e.target?.result as string;
+                          setLogoPreview(dataUrl);
+                        };
+                        reader.readAsDataURL(file);
+                      }
                     }}
                   />
                   <ErrorMessage
@@ -384,7 +396,7 @@ export default function ProductForm({
                   <ImageSelector
                     multiple
                     id="images"
-                    images={campaignImageSource}
+                    images={imagePreviews}
                     onRemove={removeImage}
                     onChange={onImagesChange}
                   />
@@ -394,7 +406,6 @@ export default function ProductForm({
                     className="text-redColor"
                   />
                 </div>
-
                 <div>
                   <h3 className="text-xl mb-2">Manufacturer ID</h3>
                   <Field
@@ -469,6 +480,35 @@ export default function ProductForm({
                   </Field>
                   <ErrorMessage
                     name="category.name"
+                    component="div"
+                    className="text-redColor"
+                  />
+                </div>
+
+                <div>
+                  <h3 className="text-xl mb-2">Fulfillment Details</h3>
+                  <Field
+                    as="textarea"
+                    name="fulfillmentDetails"
+                    placeholder="Enter fulfillment details"
+                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor h-24"
+                  />
+                  <ErrorMessage
+                    name="fulfillmentDetails"
+                    component="div"
+                    className="text-redColor"
+                  />
+                </div>
+
+                <div>
+                  <h3 className="text-xl mb-2">Delivery Date</h3>
+                  <Field
+                    type="date"
+                    name="deliveryDate"
+                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                  />
+                  <ErrorMessage
+                    name="deliveryDate"
                     component="div"
                     className="text-redColor"
                   />

@@ -76,11 +76,9 @@ export default function CreateProject() {
   }
 
   const handleCreateProject = async (values: NewCampaignInfo) => {
-    console.log("values----", values);
     try {
       const formData = new FormData();
 
-      // Append all form data
       formData.append("title", values.title);
       formData.append("description", values.description);
       formData.append("fund_amount", values.fundAmount.toString());

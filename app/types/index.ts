@@ -273,7 +273,6 @@ export interface ProductNew {
   type: ProductOrService;
   countryOfOrigin: string;
   category: { name: ProductCategory };
-
   description: string;
   price: {
     amount: number;
@@ -294,6 +293,7 @@ export interface ProductNew {
   userId: string;
   logo: string;
   images: File[];
-
   status: string;
+  fulfillmentDetails: string;
+  deliveryDate: string;
 }

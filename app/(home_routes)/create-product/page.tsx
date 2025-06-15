@@ -28,7 +28,7 @@ export default function CreateProductPage({ searchParams }: Props) {
     onSuccess: async (hash, responseData) => {
       try {
         setTransactionStatus("Confirming product creation...");
-        
+
         const confirmResponse = await fetch("/api/confirmCreationOfProduct", {
           method: "POST",
           headers: {
@@ -51,14 +51,19 @@ export default function CreateProductPage({ searchParams }: Props) {
           });
           router.push("/campaign?campaignId=" + campaignId);
         } else {
-          throw new Error(confirmData.error || "Failed to confirm product creation");
+          throw new Error(
+            confirmData.error || "Failed to confirm product creation"
+          );
         }
       } catch (confirmError: any) {
         console.error("Confirmation error:", confirmError);
-        toast.error(`Confirmation error: ${confirmError.message || "Unknown error"}`, {
-          position: "top-center",
-          autoClose: 5000,
-        });
+        toast.error(
+          `Confirmation error: ${confirmError.message || "Unknown error"}`,
+          {
+            position: "top-center",
+            autoClose: 5000,
+          }
+        );
         setTransactionStatus(null);
       } finally {
         setIsSubmitting(false);
@@ -66,7 +71,7 @@ export default function CreateProductPage({ searchParams }: Props) {
     },
     onError: async (error, responseData) => {
       console.error("Transaction error:", error);
-      
+
       // Clean up the product from database
       if (responseData?.productId) {
         try {
@@ -95,7 +100,7 @@ export default function CreateProductPage({ searchParams }: Props) {
           console.error("Error cleaning up product:", cleanupError);
         }
       }
-      
+
       toast.error(`Transaction error: ${error.message || "Unknown error"}`, {
         position: "top-center",
         autoClose: 5000,
@@ -168,6 +173,8 @@ export default function CreateProductPage({ searchParams }: Props) {
       formData.append("name", values.name);
       formData.append("description", values.description);
       formData.append("status", values.status);
+      formData.append("fulfillmentDetails", values.fulfillmentDetails);
+      formData.append("deliveryDate", values.deliveryDate);
 
       formData.append("category", JSON.stringify(values.category));
       formData.append("isDonationProduct", "false");
@@ -225,9 +232,9 @@ export default function CreateProductPage({ searchParams }: Props) {
         method: "POST",
         body: formData,
       });
-      
+
       const responseData = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(responseData.error || "Failed to create product");
       }
@@ -237,7 +244,7 @@ export default function CreateProductPage({ searchParams }: Props) {
       }
 
       setTransactionStatus("Transaction ready. Please sign in your wallet...");
-      
+
       // Send transaction
       await sendTransaction(
         {
