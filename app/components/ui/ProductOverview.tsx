@@ -15,6 +15,7 @@ export default function ProductOverview({
   product: ProductFetch;
   campaign: CampaignDetailsProps;
 }) {
+  console.log(product.fulfillmentDetails, "product");
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-100">
       <p className="text-gray-700 mb-6 text-lg leading-relaxed">
@@ -94,6 +95,28 @@ export default function ProductOverview({
             </CustomButton>
           </Link>
         </div>
+
+        {product.fulfillmentDetails && (
+          <div className="bg-blueColor/10 p-4 rounded-lg border-l-4 border-blueColor/80 shadow-sm hover:shadow-md transition-shadow">
+            <span className="font-customFont_extrabold text-gray-800 block mb-2">
+              Fulfillment Details
+            </span>
+            <p className="text-greenColorDull font-customFont_regular">
+              {product.fulfillmentDetails}
+            </p>
+          </div>
+        )}
+
+        {product.deliveryDate && (
+          <div className="bg-orangeColor/20 p-4 rounded-lg border-l-4 border-orangeColor/80  shadow-sm hover:shadow-md transition-shadow">
+            <span className="font-customFont_extrabold text-gray-800 block mb-2">
+              Expected Delivery Date
+            </span>
+            <p className="text-purpleColorDull font-customFont_regular">
+              {new Date(product.deliveryDate).toLocaleDateString()}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">

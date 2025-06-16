@@ -235,6 +235,8 @@ export interface ProductFetch {
   status: string;
   supply: number;
   sold_count: number;
+  fulfillmentDetails: string;
+  deliveryDate: string;
 }
 export interface NewProductInfo {
   image: string;

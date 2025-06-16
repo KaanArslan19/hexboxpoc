@@ -17,6 +17,7 @@ export const getProduct = async (
       console.error("No product found with the given product ID:", productId);
       return null;
     }
+    console.log("product details", product);
 
     const formattedProduct: ProductFetch = {
       id: product._id.toString(),
@@ -51,6 +52,8 @@ export const getProduct = async (
       status: product.status || "",
       supply: Number(product.supply) || 0,
       sold_count: Number(product.sold_count) || 0,
+      fulfillmentDetails: product.fulfillmentDetails || "",
+      deliveryDate: product.deliveryDate || "",
     };
 
     return formattedProduct;
