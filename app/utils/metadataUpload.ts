@@ -69,10 +69,6 @@ export async function uploadProductMetadataToR2(productMetadata: any) {
         image: `${process.env.R2_BUCKET_URL}/product_logos/${productMetadata.logo}`, //https://static.hexbox.money/campaign_products/images/${productMetadata.image}`, // Check to make sure this is accurate.
         attributes: [
             {
-                trait_type: "Details",
-                value: productMetadata.details
-            },
-            {
                 trait_type: "ID", // Probably unnecessary.
                 value: productMetadata.productId
             },
@@ -98,8 +94,16 @@ export async function uploadProductMetadataToR2(productMetadata: any) {
             },
             {
                 trait_type: "Return Policy",
-                value: productMetadata.returnPolicy
+                value: JSON.stringify(productMetadata.returnPolicy)
             },
+            {
+                trait_type: "Fullfillment Details",
+                value: productMetadata.fulfillmentDetails ? productMetadata.fulfillmentDetails : ""
+            },
+            {
+                trait_type: "Delivery Date",
+                value: productMetadata.deliveryDate ? productMetadata.deliveryDate : ""
+            }
         ]
     }
 
