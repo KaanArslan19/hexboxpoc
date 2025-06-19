@@ -96,6 +96,8 @@ export const getProducts = async (
         status: product.status || "",
         supply: Number(product.supply) || 0,
         sold_count: Number(product.sold_count) || 0,
+        fulfillmentDetails: product.fulfillmentDetails || "",
+        deliveryDate: product.deliveryDate || "",
       };
     });
 
