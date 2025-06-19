@@ -18,7 +18,7 @@ export default function SystemFeatures() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mt-8 mx-auto max-w-6xl">
         {featuresArray.map((item, index) => (
           <div
-            className={`flex flex-col items-center text-center lg:text-left relative `}
+            className="flex flex-col items-center text-center relative mx-4 "
             key={index}
           >
             <div className="relative w-48 h-48 rounded-full overflow-visible mb-6">
@@ -42,17 +42,25 @@ export default function SystemFeatures() {
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className={`object-cover ${
-                    item.isComingSoon ? "grayscale-[70%]" : ""
+                    item.isComingSoon ? "grayscale-[70%] opacity-70" : ""
                   }`}
                 />
               </div>
             </div>
 
-            <h4 className="text-xl font-semibold mb-4 text-blackColorDull">
+            <h4
+              className={`text-xl font-semibold mb-4 text-blackColorDull ${
+                item.isComingSoon ? " opacity-70" : ""
+              }`}
+            >
               {item.header}
             </h4>
 
-            <p className="text-base lg:text-lg max-w-[200px] ">
+            <p
+              className={`text-base lg:text-lg max-w-xs md:max-w-sm ${
+                item.isComingSoon ? " opacity-70" : ""
+              }`}
+            >
               {item.description}
             </p>
           </div>
