@@ -17,11 +17,12 @@ export default async function Home() {
           <FeaturedCampaigns listings={campaigns} />
           <div className="text-center mt-16   ">
             <h1 className="text-4xl md:text-6xl font-customFont_bold mb-4  text-blueColorDull ">
-              Create Support Make Impact
+              Create Support Make an Impact
             </h1>
             <p className="mx-auto text-lg lg:text-xl text-textPrimary">
-              Join a network where great ideas meet strategic investment. Bring
-              your project to something meaningful.
+              Whether you’re building something extraordinary or seeking the
+              next big thing, join our network where great ideas meet strategic
+              investment.
             </p>
           </div>
           <Funnel
@@ -32,9 +33,9 @@ export default async function Home() {
           />
           <CampaignList listings={campaigns} />
         </div>
-        <div className="bg-lightBlueColor">
+        {/*         <div className="bg-lightBlueColor">
           <AnalyticsBanner />
-        </div>
+        </div> */}
         <SystemFeatures />
         <About />
       </main>

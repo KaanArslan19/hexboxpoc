@@ -248,14 +248,15 @@ const CookieConsentBanner = () => {
                 className="text-blueColor hover:text-blueColor/80 underline"
               >
                 Privacy Policy
-              </a>{" "}
-              or{" "}
+              </a>
+              .{" "}
+              {/*   or{" "}
               <a
                 href="/cookie-settings"
                 className="text-blueColor hover:text-blueColor/80 underline"
               >
                 Cookie Settings
-              </a>
+              </a> */}
             </p>
           </div>
         </div>

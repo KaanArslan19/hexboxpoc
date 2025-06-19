@@ -52,7 +52,7 @@ export default function About() {
     },
     {
       image: "/images/about/launch.png",
-      header: "Launch Your Crowdfunding ",
+      header: "Launch Your Campaign ",
       description:
         "Ready to start raising funds? Hexbox offers a streamlined, secure platform for your crowdfunding needs for businesses and investors. Let’s turn your ideas into reality!",
     },
@@ -94,6 +94,7 @@ export default function About() {
           </li>
         ))}
       </ul>
+
       <Funnel
         firstButtonLink="campaigns"
         firstButtonText="Explore campaigns"

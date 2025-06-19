@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { ProductOrService } from "../types";
 import { useAccount } from "wagmi";
 import Link from "next/link";
