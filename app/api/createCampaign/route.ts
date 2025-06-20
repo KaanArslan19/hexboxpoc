@@ -36,7 +36,13 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
     console.log(logoFile, "logoFile");
 
-    const logoFileName = await uploadImageToR2(logoFile);
+    const logoFileName: string | { error: string } = await uploadImageToR2(logoFile);
+    if (typeof logoFileName === "object" && logoFileName.error) {
+      return NextResponse.json(
+        { error: "Failed to upload logo: " + logoFileName.error },
+        { status: 500 }
+      );
+    }
     const campaignEntries = Object.fromEntries(formData.entries());
     console.log("campaignEntries----", campaignEntries);
 

@@ -14,7 +14,7 @@ export default function ImageInput({ id, onChange, children, ...rest }: Props) {
         type="file"
         id={id}
         onChange={onChange}
-        accept="image/*"
+        accept="image/jpeg, image/png, image/gif, image/webp"
         {...rest}
       />
       <div className="w-20 h-20 rounded flex items-center justify-center border border-dashed border-gray-700 cursor-pointer">

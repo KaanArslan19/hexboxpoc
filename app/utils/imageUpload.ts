@@ -10,7 +10,7 @@ const s3Client = new S3Client({
   },
 });
 
-export async function uploadImageToR2(file: File) {
+export async function uploadImageToR2(file: File): Promise<string | { error: string }> {
   // Validate file type
   const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
   if (!allowedTypes.includes(file.type)) {

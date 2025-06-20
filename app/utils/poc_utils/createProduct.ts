@@ -6,7 +6,21 @@ import { uploadProductMetadataToR2 } from "@/app/utils/metadataUpload";
 import client from "@/app/utils/mongodb";
 import { parse } from "path";
 
-export async function createProduct(formData: FormData) {
+// Define the return types for createProduct function
+export type ProductCreationSuccess = {
+  productId: number | string;
+  price: number;
+  supply: number;
+};
+
+export type ProductCreationError = {
+  error: string;
+};
+
+export type ProductCreationResult = ProductCreationSuccess | ProductCreationError;
+
+export async function createProduct(formData: FormData): Promise<ProductCreationResult> {
+  try {
   const uuid = Math.floor(Math.random() * 1e16); // random 16 digit number for the product
 
   const productImagesFiles: File[] = [];
@@ -25,15 +39,38 @@ export async function createProduct(formData: FormData) {
   if (!productLogoFile) {
     throw new Error("Logo is required");
   }
-  const logoFileName = await uploadProductImageToR2(
+  
+  // Upload product logo
+  const logoUploadResult = await uploadProductImageToR2(
     productLogoFile,
     uuid.toString()
   );
-
-  const imagesFileNames = await uploadProductImagesToR2(
+  
+  // Check if logo upload returned an error
+  if (typeof logoUploadResult === 'object' && 'error' in logoUploadResult) {
+    console.error("Logo upload failed:", logoUploadResult.error);
+    return {
+      error: "Logo upload failed " + logoUploadResult.error,
+    }
+  }
+  
+  const logoFileName = logoUploadResult;
+  
+  // Upload product images
+  const imagesUploadResult = await uploadProductImagesToR2(
     productImagesFiles,
     uuid.toString()
   );
+  
+  // Check if there were any errors during image uploads
+  if (imagesUploadResult.errors && imagesUploadResult.errors.length > 0) {
+    console.error("Image upload errors:", imagesUploadResult.errors);
+    return {
+      error: "Image upload failed " + imagesUploadResult.errors.join(", "),
+    }
+  }
+  
+  const imagesFileNames = imagesUploadResult.uploadedFiles;
   console.log("imagesFileNames", imagesFileNames);
 
   const productEntries = Object.fromEntries(formData.entries());
@@ -99,10 +136,7 @@ export async function createProduct(formData: FormData) {
         ? false
         : productEntries.freeShipping === "true" || false,
 
-    images: {
-      uploadedFiles: imagesFileNames,
-      errors: null,
-    },
+    images: imagesFileNames,
     category:
       typeof productEntries.category === "string"
         ? JSON.parse(productEntries.category)
@@ -154,9 +188,9 @@ export async function createProduct(formData: FormData) {
   const result = await db.collection("products").insertOne(product);
   const productId = result.insertedId.toString();
 
-  return [
-    product.productId,
-    (() => {
+  return {
+    productId: product.productId,
+    price: (() => {
       try {
         if (product.price && typeof product.price.amount === "number") {
           return product.price.amount;
@@ -174,6 +208,12 @@ export async function createProduct(formData: FormData) {
         return 1;
       }
     })(),
-    product.supply,
-  ];
+    supply: product.supply,
+  };
+  } catch (error) {
+    console.error("Error creating product:", error);
+    return {
+      error: "Error creating product",
+    }
+  }
 }

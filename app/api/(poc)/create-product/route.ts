@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createProduct } from "@/app/utils/poc_utils/createProduct";
+import { createProduct, ProductCreationResult } from "@/app/utils/poc_utils/createProduct";
 import { ethers } from "ethers";
 import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 import { getCampaign } from "@/app/utils/getCampaign";
@@ -45,13 +45,21 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
 
     // Create product in database first
-    const [productId, price, supply] = await createProduct(formData);
+    const productCreationResult: ProductCreationResult = await createProduct(formData);
+    
+    // Check if product creation returned an error
+    if ('error' in productCreationResult) {
+      return NextResponse.json(
+        { error: productCreationResult.error },
+        { status: 500 }
+      );
+    }
     
     // Prepare the product data for the blockchain
     const product = {
-      productId: BigInt(productId as string),
-      price: ethers.parseUnits(price.toString(), 6),
-      supplyLimit: BigInt(supply as string),
+      productId: BigInt(productCreationResult.productId.toString()),
+      price: ethers.parseUnits(productCreationResult.price.toString(), 6),
+      supplyLimit: BigInt(productCreationResult.supply.toString()),
     };
     
     // Initialize provider
@@ -81,7 +89,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     };
 
     return NextResponse.json({ 
-      productId,
+      productId: productCreationResult.productId,
       transaction,
       campaignId: formData.get("campaignId")
     });
