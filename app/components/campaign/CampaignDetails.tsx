@@ -144,9 +144,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row  w-full sm:items-center gap-4 my-4">
-        <div className="flex self-start w-full  gap-4 p-4 rounded-lg  ">
-          <h2 className="text-xl lg:text-2xl font-semibold ">
+      <div className="flex flex-col sm:flex-row w-full sm:items-start gap-4 my-4">
+        <div className="flex self-start w-full sm:w-auto gap-4 p-4 rounded-lg">
+          <h2 className="text-xl lg:text-2xl font-semibold">
             Desired Fund Amount
           </h2>
           <div className="flex items-center bg-blueColor px-3 py-1 rounded-md">
@@ -163,9 +163,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           )}
         </div>
 
-        <div className="flex  self-end w-full overflow-hidden gap-4">
-          {/* Social Links Row */}
-          <div className="flex gap-4 justify-end flex-shrink-0">
+        <div className="flex flex-col sm:flex-row w-full sm:w-auto items-end sm:items-start gap-4 sm:ml-auto">
+          <div className="flex gap-4 justify-end order-2 sm:order-1">
             {social_links?.website && (
               <Link href={social_links.website}>
                 <TbWorld className="w-8 h-8 lg:w-10 lg:h-10 bg-blueColor/30 text-white mix-blend-difference backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
@@ -188,9 +187,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
             )}
           </div>
 
-          {/* Location and Buttons Row */}
-          <div className="flex flex-col items-end w-full min-w-0 gap-4">
-            <div className="flex items-center gap-2  min-w-0 flex-1">
+          <div className="flex flex-col items-end gap-4 order-1 sm:order-2">
+            <div className="flex items-center gap-2 min-w-0">
               <span className="text-lg lg:text-xl truncate max-w-[400px]">
                 {location}
               </span>

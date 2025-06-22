@@ -55,7 +55,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
             <p className="text-sm text-gray-500 mb-1">Total Raised</p>
             <div className="flex items-center">
               <span
-                className={`text-2xl font-bold ${
+                className={`text-2xl font-bold  ${
                   isFinalized ? "text-gray-600" : "text-blueColor"
                 }`}
               >
@@ -67,8 +67,8 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
             <span>Target</span>
             <span>Status</span>
           </div>
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between mt-3 gap-4">
+            <div className="flex items-center space-x-2 truncate max-w-full">
               <span className="text-xl">{formatPrice(fundAmount)}</span>
             </div>
             <span
