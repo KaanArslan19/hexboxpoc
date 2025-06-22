@@ -35,35 +35,6 @@ const fileSizeValidator = Yup.mixed().test(
   }
 );
 
-const validationSchema = [
-  Yup.object({
-    title: Yup.string().required("Title is required"),
-    one_liner: Yup.string().required("One Liner is required"),
-    logo: fileSizeValidator.required("Logo is required"),
-  }),
-  Yup.object({
-    description: Yup.string().required("Description is required"),
-    location: Yup.string().required("Location is required"),
-    deadline: Yup.date()
-      .required("Project Deadline date is required")
-      .min(new Date(), "Deadline must be in the future"),
-    email: Yup.string().required("Email is required"),
-    phoneNumber: Yup.string().required("Phone Number is required"),
-  }),
-  Yup.object({
-    fundAmount: Yup.number()
-      .typeError("Fund amount must be a number")
-      .required("Fund amount is required")
-      .min(0.0000001, "Fund amount must be greater than 0"),
-    wallet_address: Yup.string().required("Wallet address is required"),
-  }),
-  Yup.object({
-    funding_type: Yup.string()
-      .oneOf(Object.values(FundingType))
-      .required("Please select a funding type"),
-  }),
-];
-
 interface Props {
   onSubmit(values: NewCampaignInfo): Promise<any>;
   onImageRemove?(source: string): void;
@@ -392,26 +363,61 @@ export default function CampaignForm(props: Props) {
 
   const validationSchema = [
     Yup.object({
-      title: Yup.string().required("Title is required"),
-      one_liner: Yup.string().required("One Liner is required"),
+      title: Yup.string()
+        .max(60, "Title must be 60 characters or less")
+        .required("Title is required"),
+      one_liner: Yup.string()
+        .max(80, "One Liner must be 80 characters or less")
+        .required("One Liner is required"),
       logo: fileSizeValidator.required("Logo is required"),
     }),
     Yup.object({
-      description: Yup.string().required("Description is required"),
-      location: Yup.string().required("Location is required"),
+      description: Yup.string()
+        .max(10000, "Description must be 10000 characters or less")
+        .required("Description is required"),
+      location: Yup.string()
+        .max(60, "Location must be 60 characters or less")
+        .required("Location is required"),
       deadline: Yup.date()
         .required("Project Deadline date is required")
         .min(new Date(), "Deadline must be in the future"),
-      email: Yup.string().required("Email is required"),
-      phoneNumber: Yup.string().required("Phone Number is required"),
+      email: Yup.string()
+        .email("Invalid email format")
+        .max(60, "Email must be 60 characters or less")
+        .required("Email is required"),
+      phoneNumber: Yup.string()
+        .max(18, "Phone Number must be 18 characters or less")
+        .required("Phone Number is required"),
+      website: Yup.string().max(
+        100,
+        "Website URL must be 100 characters or less"
+      ),
+      discord: Yup.string().max(
+        100,
+        "Discord URL must be 100 characters or less"
+      ),
+      telegram: Yup.string().max(
+        100,
+        "Telegram URL must be 100 characters or less"
+      ),
+      linkedIn: Yup.string().max(
+        100,
+        "LinkedIn URL must be 100 characters or less"
+      ),
     }),
     Yup.object({
       fundAmount: Yup.number()
         .typeError("Fund amount must be a number")
         .required("Fund amount is required")
-        .min(0.0000001, "Fund amount must be greater than 0"),
-
-      wallet_address: Yup.string().required("Wallet address is required"),
+        .min(0.0000001, "Fund amount must be greater than 0")
+        .max(1000000000000, "Fund amount must be less than 1 trillion"),
+      wallet_address: Yup.string()
+        .max(42, "Wallet address must be 42 characters or less")
+        .matches(
+          /^0x[a-fA-F0-9]{40}$/,
+          "Wallet address must be a valid EVM address"
+        )
+        .required("Wallet address is required"),
     }),
     Yup.object({
       funding_type: Yup.string()
@@ -490,7 +496,7 @@ export default function CampaignForm(props: Props) {
 
   // Debounced effect for saving form data changes
   useEffect(() => {
-    // Skip initial load to avoid saving when form first renders
+    // Skip initial load to avoid saving when form first renders/*  */
     if (enableDraftSaving) {
       // Save initial values to ref for future comparison
       if (formikRef.current?.values) {

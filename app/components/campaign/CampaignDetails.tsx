@@ -115,7 +115,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     "0%": "#FFC629",
     "100%": "#CE0E2D",
   };
-
+  console.log(fund_amount, "fundsss----------------------");
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative w-full h-[400px]">
@@ -136,21 +136,21 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
         </div>
       </div>
       <div className="text-center my-4">
-        <h1 className="text-2xl md:text-3xl font-semibold  text-blueColor z-10">
+        <h1 className="text-2xl md:text-3xl  font-semibold text-blueColor z-10 break-words truncate max-w-full mx-8 overflow-hidden">
           {title}
         </h1>
-        <p className="text-lg lg:text-xl font-semibold text-lightBlueColor/50 z-10">
+        <p className="text-lg lg:text-xl font-semibold text-lightBlueColor/50 z-10 break-words truncate max-w-full overflow-hidden">
           {one_liner}
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 my-4">
-        <div className="flex items-center justify-center gap-4 bg-BlueColor p-4 rounded-lg  ">
+      <div className="flex flex-col sm:flex-row  w-full sm:items-center gap-4 my-4">
+        <div className="flex self-start w-full  gap-4 p-4 rounded-lg  ">
           <h2 className="text-xl lg:text-2xl font-semibold ">
             Desired Fund Amount
           </h2>
           <div className="flex items-center bg-blueColor px-3 py-1 rounded-md">
-            <p className="text-xl font-medium text-white ">
+            <p className="text-xl font-medium text-white truncate max-w-[250px]">
               {formatPrice(fund_amount)}
             </p>
           </div>
@@ -163,8 +163,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           )}
         </div>
 
-        <div className="flex flex-col items-end gap-4">
-          <div className="flex gap-4">
+        <div className="flex  self-end w-full overflow-hidden gap-4">
+          {/* Social Links Row */}
+          <div className="flex gap-4 justify-end flex-shrink-0">
             {social_links?.website && (
               <Link href={social_links.website}>
                 <TbWorld className="w-8 h-8 lg:w-10 lg:h-10 bg-blueColor/30 text-white mix-blend-difference backdrop-blur rounded-full p-2 hover:bg-lightBlueColor/30 transition-colors cursor-pointer" />
@@ -186,11 +187,15 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
               </Link>
             )}
           </div>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2 text-white">
-              <span className="text-lg lg:text-xl">{location}</span>
+
+          {/* Location and Buttons Row */}
+          <div className="flex flex-col items-end w-full min-w-0 gap-4">
+            <div className="flex items-center gap-2  min-w-0 flex-1">
+              <span className="text-lg lg:text-xl truncate max-w-[400px]">
+                {location}
+              </span>
               <svg
-                className="w-5 h-5"
+                className="w-5 h-5 flex-shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -209,10 +214,14 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
                 />
               </svg>
             </div>
-            <div className="flex items-center gap-4">
+
+            <div className="flex items-center gap-4 flex-shrink-0">
               <Link href={`/executor?userId=${user_id}`}>
-                <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg flex items-center gap-2">
-                  <span>View Executor Profile</span>
+                <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg flex items-center gap-2 whitespace-nowrap">
+                  <span className="hidden sm:inline">
+                    View Executor Profile
+                  </span>
+                  <span className="sm:hidden">Profile</span>
                   <FaUserAlt className="w-4 h-4" />
                 </CustomButton>
               </Link>

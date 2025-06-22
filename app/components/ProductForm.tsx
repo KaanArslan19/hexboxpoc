@@ -18,19 +18,32 @@ const steps = [
 
 const baseValidationSchemas = {
   basicInfo: Yup.object({
-    name: Yup.string().required("Name is required"),
+    name: Yup.string()
+      .max(60, "Product name must be 60 characters or less")
+      .required("Name is required"),
     logo: fileValidator.required("Logo is required"),
     images: Yup.array().of(fileValidator),
-    manufacturerId: Yup.string().required("Manufacturer ID is required"),
+    manufacturerId: Yup.string()
+      .max(60, "Manufacturer ID must be 60 characters or less")
+      .required("Manufacturer ID is required"),
     type: Yup.string().required("Type is required"),
-    countryOfOrigin: Yup.string().required("Country of origin is required"),
+    countryOfOrigin: Yup.string()
+      .max(60, "Country of origin must be 60 characters or less")
+      .required("Country of origin is required"),
   }),
 
   details: Yup.object({
-    description: Yup.string().required("Description is required"),
+    description: Yup.string()
+      .max(10000, "Description must be 10000 characters or less")
+      .required("Description is required"),
     category: Yup.object({
       name: Yup.string().required("Category is required"),
     }),
+    fulfillmentDetails: Yup.string().max(
+      1000,
+      "Fulfillment details must be 1000 characters or less"
+    ),
+    deliveryDate: Yup.string(),
   }),
 
   pricingProduct: Yup.object({
@@ -38,7 +51,8 @@ const baseValidationSchemas = {
       amount: Yup.number()
         .typeError("Price must be a number")
         .required("Price is required")
-        .positive("Price must be greater than 0"),
+        .positive("Price must be greater than 0")
+        .max(1000000000000, "Price must be less than 1 trillion"),
       tax_inclusive: Yup.boolean().required("Tax inclusive status is required"),
       gst_rate: Yup.number().when("tax_inclusive", {
         is: true,
@@ -46,6 +60,7 @@ const baseValidationSchemas = {
           schema
             .min(0, "GST rate cannot be negative")
             .max(90, "GST rate cannot exceed 90%")
+            .max(99999, "GST rate must be 5 characters or less")
             .required("GST rate is required"),
         otherwise: (schema) => schema.nullable(),
       }),
@@ -54,6 +69,7 @@ const baseValidationSchemas = {
         then: (schema) =>
           schema
             .min(0, "GST amount cannot be negative")
+            .max(99999, "GST amount must be 5 characters or less")
             .required("GST amount is required"),
         otherwise: (schema) => schema.nullable(),
       }),
@@ -63,7 +79,8 @@ const baseValidationSchemas = {
         .typeError("Stock level must be a number")
         .required("Stock level is required")
         .integer("Stock level must be an integer")
-        .min(1, "Stock level must be at least 1"),
+        .min(1, "Stock level must be at least 1")
+        .max(1000000000000, "Stock level must be less than 1 trillion"),
     }),
   }),
 
@@ -72,7 +89,8 @@ const baseValidationSchemas = {
       amount: Yup.number()
         .typeError("Price must be a number")
         .required("Price is required")
-        .positive("Price must be greater than 0"),
+        .positive("Price must be greater than 0")
+        .max(1000000000000, "Price must be less than 1 trillion"),
       tax_inclusive: Yup.boolean().required("Tax inclusive status is required"),
       gst_rate: Yup.number().when("tax_inclusive", {
         is: true,
@@ -80,6 +98,7 @@ const baseValidationSchemas = {
           schema
             .min(0, "GST rate cannot be negative")
             .max(90, "GST rate cannot exceed 90%")
+            .max(99999, "GST rate must be 5 characters or less")
             .required("GST rate is required"),
         otherwise: (schema) => schema.nullable(),
       }),
@@ -88,6 +107,7 @@ const baseValidationSchemas = {
         then: (schema) =>
           schema
             .min(0, "GST amount cannot be negative")
+            .max(99999, "GST amount must be 5 characters or less")
             .required("GST amount is required"),
         otherwise: (schema) => schema.nullable(),
       }),
@@ -101,9 +121,12 @@ const baseValidationSchemas = {
       eligible: Yup.boolean().required("Return eligibility is required"),
       return_period_days: Yup.number()
         .integer("Return period must be a whole number")
-        .min(0, "Return period cannot be negative")
+        .min(1, "Return period must be greater than 0")
+        .max(9999999999, "Return period must be 10 characters or less")
         .required("Return period is required"),
-      conditions: Yup.string().required("Return conditions are required"),
+      conditions: Yup.string()
+        .max(1000, "Return conditions must be 1000 characters or less")
+        .required("Return conditions are required"),
     }),
   }),
 

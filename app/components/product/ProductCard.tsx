@@ -28,10 +28,10 @@ const ProductCard: React.FC<ProductFetch> = ({
           className="object-contain rounded-md"
         />
       </div>
-      <h3 className="text-md font-bold text-gray-800 text-center truncate max-w-full mb-2">
+      <h3 className="text-md font-bold text-gray-800 text-center truncate max-w-[90%] mb-2">
         {name}
       </h3>
-      <span className="text-sm text-gray-600 text-center line-clamp-2 mb-4">
+      <span className="text-sm text-gray-600 text-center line-clamp-2 max-w-[90%] mb-4">
         {description}
       </span>
       <span className="text-lg font-semibold text-gray-900 mb-1">
