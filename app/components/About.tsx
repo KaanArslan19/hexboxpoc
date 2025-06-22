@@ -40,21 +40,21 @@ export default function About() {
   const ABOUT_DATA: AboutData[] = [
     {
       image: "/images/about/join_waitlist.png",
-      header: "Join our Waitlist",
+      header: "On-Chain Refundable Investment",
       description:
-        "Be part of our exclusive community by joining our waitlist. Fill out the form to secure your spot and stay updated on our exciting launch!",
+        "Join campaigns where your funds are secured in escrow smart contracts. If funding goals aren’t met, your investment is refunded.",
     },
     {
       image: "/images/about/collaborate.png",
-      header: "Collaborate with Us",
+      header: "NFT Ticket Mechanism",
       description:
-        "Once you’re on our list, we’ll reach out with opportunities for collaboration. Let’s build a safer, smarter fundraising future together.",
+        "Every investment is tied to an NFT ticket that proves your stake and unlocks campaign utility. Track, trade, or redeem your ticket for access to products, services, or updates — all on-chain.",
     },
     {
       image: "/images/about/launch.png",
-      header: "Launch Your Campaign ",
+      header: "Invest with Confidence",
       description:
-        "Ready to start raising funds? Hexbox offers a streamlined, secure platform for your crowdfunding needs for businesses and investors. Let’s turn your ideas into reality!",
+        "With Hexbox, capital flows through smart contracts built for transparency. You choose campaigns with flexible or milestone-based models, monitor fund usage, and make informed moves with real-time insights.",
     },
   ];
   return (
@@ -72,7 +72,7 @@ export default function About() {
             key={index}
             className="w-full max-w-sm h-[28rem] flex flex-col bg-gradient-to-bl from-yellowColor/40 via-orangeColor/50 to-blueColor/20 rounded-2xl overflow-hidden shadow-lg"
           >
-            <div className="h-48 flex items-center justify-center p-4">
+            <div className="h-32 flex items-center justify-center p-4">
               <Image
                 className="h-32 w-32 rounded-full object-contain"
                 src={item.image}
@@ -82,7 +82,7 @@ export default function About() {
               />
             </div>
             <div className="flex-1 p-6 flex flex-col">
-              <h4 className="text-2xl font-customFont_regular text-center mb-4 text-orangeColor">
+              <h4 className="text-2xl font-customFont_regular text-center mb-4 text-orangeColor h-[60px]">
                 {item.header}
               </h4>
               <div className="flex-1 overflow-y-auto">
@@ -98,8 +98,9 @@ export default function About() {
       <Funnel
         firstButtonLink="campaigns"
         firstButtonText="Explore campaigns"
-        secondButtonLink="/campaign/create"
-        secondButtonText="Create a campaign"
+        secondButtonLink="https://hexbox.gitbook.io/hexbox/faq/investor-buyer-questions"
+        secondButtonText="Read the Docs"
+        secondButtonOpenInNewTab={true}
       />
     </div>
   );
