@@ -40,7 +40,7 @@ export const MobileMenuItems: MenuItem[] = [
     label: "About",
   },
   {
-    href: "https://discord.com/invite/MYCvTmThYN",
+    href: "https://t.me/+anTI_T_M629lOTM1",
     label: "Contact",
   },
   {

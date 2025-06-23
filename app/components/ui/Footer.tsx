@@ -30,14 +30,14 @@ export const Footer = () => {
             <p className="text-gray-600 text-sm mb-4">
               Building the future of decentralized collaboration and innovation.
             </p>
-            <div className="flex space-x-4">
+            {/*            <div className="flex space-x-4">
               <Link
                 href="https://discord.gg/7XudEQ56"
                 className="text-gray-500 hover:text-indigo-600"
               >
                 <FaDiscord className="w-6 h-6" />
               </Link>
-            </div>
+            </div> */}
           </div>
 
           <div className="mb-6">

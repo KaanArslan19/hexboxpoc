@@ -60,11 +60,12 @@ export default function About() {
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont_bold text-blueColorDull">
-        Explore the Hexbox World <br className="hidden sm:inline " />
-        In no time
+        Invest in Real-World Innovation, <br className="hidden sm:inline " />
+        On-Chain
       </h1>
       <p className="mb-8 text-lg lg:text-xl text-center text-textPrimary">
-        Follow these steps to launch your own project
+        Back real products and services with milestone-based smart contracts,
+        refundable investments, and NFT-proven access
       </p>
       <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-items-center">
         {ABOUT_DATA.map((item, index) => (

@@ -251,39 +251,6 @@ export default function ProfilePageClient({
           tab={
             <span>
               <WalletOutlined />
-              Wallet
-            </span>
-          }
-          key="wallet"
-        >
-          <div className="p-8 text-center bg-gray-50 rounded-lg">
-            <Title level={4}>Crypto Wallet</Title>
-            <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-              <Statistic
-                title="Current Balance"
-                value={dashboardStats.walletBalance}
-                precision={4}
-                suffix="ETH"
-                className="mb-6"
-              />
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <CustomButton>Deposit</CustomButton>
-                <CustomButton>Withdraw</CustomButton>
-              </div>
-              <div className="mt-8 pt-4 border-t text-left">
-                <Text type="secondary">Recent Transactions</Text>
-                <p className="text-center text-gray-400 my-6">
-                  No recent transactions
-                </p>
-              </div>
-            </div>
-          </div>
-        </TabPane>
-
-        <TabPane
-          tab={
-            <span>
-              <WalletOutlined />
               Transactions
             </span>
           }

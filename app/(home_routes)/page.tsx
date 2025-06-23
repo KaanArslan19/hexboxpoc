@@ -17,12 +17,10 @@ export default async function Home() {
           <FeaturedCampaigns listings={campaigns} />
           <div className="text-center mt-16  px-4 ">
             <h1 className="text-4xl md:text-6xl font-customFont_bold mb-4  text-blueColorDull ">
-              Fuel the spark, ignite the action.{" "}
+              Make an Impact
             </h1>
             <p className="mx-auto text-lg lg:text-xl text-textPrimary">
-              Whether you’re building something extraordinary or seeking the
-              next big thing, join our network where great ideas meet strategic
-              investment.
+              Fuel the spark, ignite the action.
             </p>
             <Funnel
               firstButtonLink="/campaign/create"

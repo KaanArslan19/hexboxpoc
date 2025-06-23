@@ -242,14 +242,14 @@ const CookieConsentBanner = () => {
 
           <div className="mt-6 pt-4 border-t text-center">
             <p className="text-xs text-gray-500">
-              You can change your preferences anytime in our{" "}
+              For more information about how we use cookies, please see our{" "}
               <a
                 href="/privacy-policy"
                 className="text-blueColor hover:text-blueColor/80 underline"
               >
                 Privacy Policy
               </a>
-              .{" "}
+              .
               {/*   or{" "}
               <a
                 href="/cookie-settings"

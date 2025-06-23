@@ -7,6 +7,7 @@ import {
 import { ProductFetch, CampaignDetailsProps } from "@/app/types";
 import Link from "next/link";
 import CustomButton from "./CustomButton";
+import { DescriptionAccordion } from "./DescriptionAccordion";
 
 export default function ProductOverview({
   product,
@@ -101,14 +102,15 @@ export default function ProductOverview({
             <span className="font-customFont_extrabold text-gray-800 block mb-2">
               Fulfillment Details
             </span>
-            <p className="text-greenColorDull font-customFont_regular">
-              {product.fulfillmentDetails}
-            </p>
+            <DescriptionAccordion
+              description={product.fulfillmentDetails}
+              maxChars={100}
+            />
           </div>
         )}
 
         {product.deliveryDate && (
-          <div className="bg-orangeColor/20 p-4 rounded-lg border-l-4 border-orangeColor/80  shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-orangeColor/20 p-4 rounded-lg border-l-4 border-orangeColor/80  shadow-sm hover:shadow-md transition-shadow max-h-[100px]">
             <span className="font-customFont_extrabold text-gray-800 block mb-2">
               Expected Delivery Date
             </span>

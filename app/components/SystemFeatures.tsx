@@ -68,10 +68,10 @@ export default function SystemFeatures() {
       </div>
 
       <Funnel
-        firstButtonLink="https://hexbox.gitbook.io/hexbox/"
-        firstButtonText="Read the Docs"
-        secondButtonLink="/campaign/create"
-        secondButtonText="Create a campaign"
+        firstButtonLink="/campaign/create"
+        firstButtonText="Create a campaign"
+        secondButtonLink="https://hexbox.gitbook.io/hexbox/"
+        secondButtonText="Read the Docs"
       />
     </div>
   );
