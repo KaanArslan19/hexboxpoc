@@ -463,13 +463,20 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
           ...prevProduct,
           sold_count: (prevProduct.sold_count || 0) + productQuantity,
         }));
-        console.log(commissionInfo)
-        console.log(commissionInfo?.finalAmount)
-        console.log(localCampaign.total_raised)
-        console.log((localCampaign.total_raised || 0) + (commissionInfo?.finalAmount || 0))
+        console.log(commissionInfo);
+        console.log(commissionInfo?.finalAmount);
+        console.log(localCampaign.total_raised);
+        console.log(
+          (localCampaign.total_raised || 0) + (commissionInfo?.finalAmount || 0)
+        );
         setLocalCampaign((prevCampaign) => ({
           ...prevCampaign,
-          total_raised: Number(((prevCampaign.total_raised || 0) + (commissionInfo?.finalAmount || 0)).toFixed(3)),
+          total_raised: Number(
+            (
+              (prevCampaign.total_raised || 0) +
+              (commissionInfo?.finalAmount || 0)
+            ).toFixed(3)
+          ),
         }));
         // Refresh token balance after successful purchase
         await checkTokenBalance(_campaignAddress);
@@ -564,7 +571,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
         setLocalCampaign((prevCampaign) => ({
           ...prevCampaign,
-          total_raised: Number(((prevCampaign.total_raised || 0) - (commissionInfo?.finalAmount || 0)).toFixed(3)),
+          total_raised: Number(
+            (
+              (prevCampaign.total_raised || 0) -
+              (commissionInfo?.finalAmount || 0)
+            ).toFixed(3)
+          ),
         }));
 
         // Refresh token balance after successful refund
@@ -632,7 +644,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       setShowCommissionInfo(true);
 
-      return {totalAmount, commissionAmount, finalAmount}
+      return { totalAmount, commissionAmount, finalAmount };
     } catch (error) {
       console.error("Error calculating commission:", error);
     }
@@ -662,7 +674,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             <div className="space-y-6">
               <div>
                 <p className="text-gray-600 text-sm">Funds Pledged</p>
-                <p className="text-3xl font-bold">${localCampaign.total_raised}</p>
+                <p className="text-3xl font-bold">
+                  ${localCampaign.total_raised}
+                </p>
                 <p className="text-sm text-gray-600">
                   Pledged of ${localCampaign.fund_amount} campaign goal
                 </p>
@@ -778,9 +792,19 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   {tokenBalance > 0 && (
                     <CustomButton
                       onClick={handleRefund}
-                      disabled={isRefunding || isLoading || isApproving || isVerifying || !acceptTerms}
+                      disabled={
+                        isRefunding ||
+                        isLoading ||
+                        isApproving ||
+                        isVerifying ||
+                        !acceptTerms
+                      }
                       className={`py-2 md:py-4 my-2 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto border-redColorDull ${
-                        isRefunding || isLoading || isApproving || isVerifying || !acceptTerms
+                        isRefunding ||
+                        isLoading ||
+                        isApproving ||
+                        isVerifying ||
+                        !acceptTerms
                           ? "opacity-50 cursor-not-allowed"
                           : ""
                       }`}

@@ -26,7 +26,8 @@ import {
 import CampaignsProfile from "./CampaignsProfile";
 import ProductsProfile from "./ProductsProfile";
 import { CampaignDetailsProps, ProductFetch } from "@/app/types";
-
+import ProductTransactionHistory from "./ProductTransactionHistory";
+import CustomButton from "../ui/CustomButton";
 const { TabPane } = Tabs;
 const { Title, Text } = Typography;
 
@@ -246,7 +247,7 @@ export default function ProfilePageClient({
           <ProductsProfile products={products} userId={userId} />
         </TabPane>
 
-        {/*         <TabPane
+        <TabPane
           tab={
             <span>
               <WalletOutlined />
@@ -266,12 +267,8 @@ export default function ProfilePageClient({
                 className="mb-6"
               />
               <div className="grid grid-cols-2 gap-4 mt-6">
-                <Button type="primary" size="large" block>
-                  Deposit
-                </Button>
-                <Button size="large" block>
-                  Withdraw
-                </Button>
+                <CustomButton>Deposit</CustomButton>
+                <CustomButton>Withdraw</CustomButton>
               </div>
               <div className="mt-8 pt-4 border-t text-left">
                 <Text type="secondary">Recent Transactions</Text>
@@ -281,7 +278,23 @@ export default function ProfilePageClient({
               </div>
             </div>
           </div>
-        </TabPane> */}
+        </TabPane>
+
+        <TabPane
+          tab={
+            <span>
+              <WalletOutlined />
+              Transactions
+            </span>
+          }
+          key="transactions"
+        >
+          <ProductTransactionHistory
+            products={products}
+            userAddress={userId}
+            providerUrl={process.env.NEXT_PUBLIC_TESTNET_RPC_URL!}
+          />
+        </TabPane>
       </Tabs>
     </div>
   );
