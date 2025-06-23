@@ -13,16 +13,13 @@ import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductTo
 import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 import { Tabs } from "antd";
 import { Input } from "@material-tailwind/react";
-import {
-  fundingTypeLabels,
-  productOrServiceLabels,
-} from "@/app/utils/nameConvention";
-import { FundingType, ProductOrService } from "@/app/types";
+import { productOrServiceLabels } from "@/app/utils/nameConvention";
+import { ProductOrService } from "@/app/types";
 import ProductOverview from "./ui/ProductOverview";
 import ProductTechDetails from "./ui/ProductTechDetails";
 import ReactConfetti from "react-confetti";
 import Modal from "react-modal";
-
+import { DescriptionAccordion } from "./ui/DescriptionAccordion";
 interface CampaignProductsProps {
   product: ProductFetch;
 }
@@ -653,46 +650,66 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   return (
     <main className="overflow-hidden p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <div className="relative w-full h-96">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 flex flex-col min-h-0">
+            <div className="relative w-full h-96 mb-6">
               <Image
                 src={`${process.env.R2_BUCKET_URL}/product_logos/${product.logo}`}
                 alt={product.name}
                 fill
-                className="object-contain rounded-lg"
+                className="object-contain rounded-xl shadow-lg"
                 priority
               />
             </div>
-            <h1 className="text-3xl font-bold mt-6 mb-4">{product.name}</h1>
-            <p className="text-lg text-gray-700 truncate-md">
-              {product.description}
-            </p>
+            <div className="flex-1 min-w-0">
+              <div className="mb-4">
+                <h1 className="text-3xl font-bold text-gray-900 break-words leading-tight">
+                  {product.name}
+                </h1>
+              </div>
+              <div className="overflow-hidden">
+                <DescriptionAccordion
+                  description={product.description}
+                  maxChars={300}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm border border-gray-200 h-fit max-h-[650px] overflow-auto sticky top-0">
             <div className="space-y-6">
-              <div>
-                <p className="text-gray-600 text-sm">Funds Pledged</p>
-                <p className="text-3xl font-bold">
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <p className="text-gray-600 text-sm font-medium">
+                  Funds Pledged
+                </p>
+                <p className="text-3xl font-bold text-green-600">
                   ${localCampaign.total_raised}
                 </p>
                 <p className="text-sm text-gray-600">
                   Pledged of ${localCampaign.fund_amount} campaign goal
                 </p>
               </div>
-              <div>
-                <p className="text-gray-600 text-sm">Sold</p>
-                <p className="text-3xl font-bold">{localProduct.sold_count}</p>
+
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <p className="text-gray-600 text-sm font-medium">Sold</p>
+                <p className="text-3xl font-bold text-blueColorDull">
+                  {localProduct.sold_count}
+                </p>
               </div>
-              <div>
-                <p className="text-lightBlueColor/80 text-sm">Days to Go</p>
-                <p className="text-3xl font-bold">{daysToGo}</p>
+
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <p className="text-lightBlueColor/80 text-sm font-medium">
+                  Days to Go
+                </p>
+                <p className="text-3xl font-bold text-orangeColorDull">
+                  {daysToGo}
+                </p>
               </div>
+
               <div>
                 <Input
                   placeholder="Enter quantity of items to purchase"
-                  className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 "
+                  className="!border-2 !border-gray-300 bg-white text-gray-900 shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200"
                   labelProps={{
                     className: "hidden",
                   }}
@@ -703,35 +720,43 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   onChange={handleInputChange}
                 />
               </div>
+
               <div>
                 {showCommissionInfo && productQuantity > 0 && (
-                  <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
-                    <p className="text-gray-700 mb-2">
-                      <strong>Important:</strong> A 2.5% commission fee will be
-                      applied to your contribution.
+                  <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 text-sm">
+                    <p className="text-gray-700 mb-3">
+                      <strong className="text-blue-700">Important:</strong> A
+                      2.5% commission fee will be applied to your contribution.
                     </p>
-                    <div className="flex justify-between mb-1">
-                      <span>Total contribution:</span>
-                      <span>
-                        ${calculatedAmount.totalAmount.toFixed(2)} USDC
-                      </span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span>Commission (2.5%):</span>
-                      <span>
-                        ${calculatedAmount.commissionAmount.toFixed(2)} USDC
-                      </span>
-                    </div>
-                    <div className="flex justify-between font-semibold">
-                      <span>Campaign receives:</span>
-                      <span>
-                        ${calculatedAmount.finalAmount.toFixed(2)} USDC
-                      </span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          Total contribution:
+                        </span>
+                        <span className="font-semibold">
+                          ${calculatedAmount.totalAmount.toFixed(2)} USDC
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          Commission (2.5%):
+                        </span>
+                        <span className="font-semibold text-red-600">
+                          ${calculatedAmount.commissionAmount.toFixed(2)} USDC
+                        </span>
+                      </div>
+                      <div className="flex justify-between font-bold text-green-700 pt-2 border-t border-blue-200">
+                        <span>Campaign receives:</span>
+                        <span>
+                          ${calculatedAmount.finalAmount.toFixed(2)} USDC
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
+
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-start">
+                  <div className="flex items-start bg-white p-3 rounded-lg">
                     <input
                       type="checkbox"
                       id="acceptTerms"
@@ -741,14 +766,14 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     />
                     <label
                       htmlFor="acceptTerms"
-                      className="text-sm text-gray-700"
+                      className="text-sm text-gray-700 leading-relaxed"
                     >
                       I have read and agree to the{" "}
                       <a
                         href="/terms-and-conditions"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blueColor hover:underline"
+                        className="text-blueColor hover:underline font-medium"
                       >
                         Terms and Conditions
                       </a>{" "}
@@ -757,7 +782,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         href="/privacy-policy"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blueColor hover:underline"
+                        className="text-blueColor hover:underline font-medium"
                       >
                         Privacy Policy.
                       </a>
@@ -774,9 +799,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         isRefunding ||
                         !acceptTerms
                       }
-                      className={`py-2 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full md:w-full mt-2 ${
+                      className={`py-3 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full font-semibold rounded-lg shadow-md transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 ${
                         isLoading || isApproving || isVerifying || !acceptTerms
-                          ? "opacity-50 cursor-not-allowed"
+                          ? "opacity-50 cursor-not-allowed hover:transform-none"
                           : ""
                       }`}
                     >
@@ -789,6 +814,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         : "Back this Project"}
                     </CustomButton>
                   </Link>
+
                   {tokenBalance > 0 && (
                     <CustomButton
                       onClick={handleRefund}
@@ -799,13 +825,13 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         isVerifying ||
                         !acceptTerms
                       }
-                      className={`py-2 md:py-4 my-2 hover:bg-redColor/80 bg-redColor text-white w-full md:w-auto border-redColorDull ${
+                      className={`py-3 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full font-semibold rounded-lg shadow-md border-redColorDull transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 ${
                         isRefunding ||
                         isLoading ||
                         isApproving ||
                         isVerifying ||
                         !acceptTerms
-                          ? "opacity-50 cursor-not-allowed"
+                          ? "opacity-50 cursor-not-allowed hover:transform-none"
                           : ""
                       }`}
                     >
