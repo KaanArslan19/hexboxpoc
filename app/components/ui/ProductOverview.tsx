@@ -18,11 +18,13 @@ export default function ProductOverview({
 }) {
   console.log(product.fulfillmentDetails, "product");
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-      <p className="text-gray-700 mb-6 text-lg leading-relaxed">
-        {product.description}
-      </p>
-
+    <div className="p-6 bg-white  border-gray-100">
+      <div className="text-gray-700 mb-6 text-lg leading-relaxed">
+        <DescriptionAccordion
+          description={product.description}
+          maxChars={300}
+        />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         <div className="bg-blueColor/10 p-4 rounded-lg border-l-4 border-blueColor/80 shadow-sm hover:shadow-md transition-shadow">
           <span className="font-customFont_extrabold text-gray-800 block mb-2">
@@ -120,7 +122,6 @@ export default function ProductOverview({
           </div>
         )}
       </div>
-
       <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
         <p className="text-sm text-gray-600">
           This contract is deployed on the Avalanche Testnet. Inspect the NFT
