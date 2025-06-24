@@ -256,11 +256,7 @@ export default function ProfilePageClient({
           }
           key="transactions"
         >
-          <ProductTransactionHistory
-            products={products}
-            userAddress={userId}
-            providerUrl={process.env.NEXT_PUBLIC_TESTNET_RPC_URL!}
-          />
+          <ProductTransactionHistory userAddress={userId} />
         </TabPane>
       </Tabs>
     </div>

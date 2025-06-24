@@ -676,7 +676,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm border border-gray-200 h-fit max-h-[650px] overflow-auto sticky top-0">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm border border-gray-200 h-fit max-h-[750px] overflow-auto sticky top-0">
             <div className="space-y-6">
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <p className="text-gray-600 text-sm font-medium">
