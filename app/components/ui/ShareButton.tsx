@@ -18,7 +18,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
   const [shareUrl, setShareUrl] = useState("");
 
   useEffect(() => {
-    const url = new URL(window.location.origin + window.location.pathname);
+    const url = new URL(window.location.origin + "/campaign");
     url.searchParams.set("campaignId", campaignId);
     setShareUrl(url.toString());
   }, [campaignId]);
