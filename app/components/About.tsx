@@ -42,7 +42,7 @@ export default function About() {
       image: "/images/about/join_waitlist.png",
       header: "On-Chain Refundable Investment",
       description:
-        "Join campaigns where your funds are secured in escrow smart contracts. If funding goals aren’t met, your investment is refunded.",
+        "Join campaigns where your funds are secured in escrow smart contracts. If funding goals aren’t met, you can request your funds back.",
     },
     {
       image: "/images/about/collaborate.png",

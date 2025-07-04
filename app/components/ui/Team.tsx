@@ -6,6 +6,9 @@ import { LuTwitter, LuLinkedin } from "react-icons/lu";
 const Team = () => {
   return (
     <div className="container mx-auto px-4 py-16">
+      <h1 className="text-4xl md:text-6xl font-customFont_bold text-blueColorDull text-center mb-8">
+        Hexbox Team
+      </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {TeamDetails.map((member) => (
           <div key={member.name} className="overflow-hidden">
