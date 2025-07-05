@@ -60,7 +60,7 @@ const OurStory = () => {
           <h2 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont text-blueColorDull tracking-tight">
             Our Story
           </h2>
-          <div className="relative h-[500px] md:h-[300px] lg:h-[300px] w-full">
+          <div className="relative min-h-[400px] sm:min-h-[350px] md:h-[300px] lg:h-[300px] w-full pb-12 md:pb-8">
             <div className="h-full cursor-grab active:cursor-grabbing">
               <Slider {...sliderSettings} className="h-full story-slider">
                 {storyContent.map((content) => (

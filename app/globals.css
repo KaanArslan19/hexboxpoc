@@ -277,3 +277,15 @@ h2 {
 .clip-hexagon {
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
+
+/* our Story slider styling */
+
+.story-slider .slick-dots {
+  bottom: -10px !important;
+}
+
+@media (max-width: 768px) {
+  .story-slider .slick-dots {
+    bottom: -25px !important;
+  }
+}
