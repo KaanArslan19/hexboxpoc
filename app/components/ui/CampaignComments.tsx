@@ -296,10 +296,11 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
               className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blueColor/30 focus:border-transparent"
               rows={3}
               disabled={!currentUserId || isSubmitting}
+              maxLength={500}
             />
             <div className="flex justify-between items-center mt-2">
               <span className="text-sm text-gray-500">
-                {newComment.length > 0 && `${newComment.length} characters`}
+                {newComment.length > 0 && `${newComment.length}/500 characters`}
               </span>
               <button
                 onClick={handleNewComment}
@@ -413,22 +414,31 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                             className="w-full p-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             rows={2}
                             disabled={isSubmittingReply}
+                            maxLength={500}
                           />
-                          <div className="flex justify-end gap-2 mt-2">
-                            <button
-                              onClick={() => setReplyingTo(null)}
-                              disabled={isSubmittingReply}
-                              className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-md text-sm transition-colors disabled:opacity-50"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={() => handleReply(comment.id)}
-                              disabled={!replyText.trim() || isSubmittingReply}
-                              className="px-3 py-1 bg-blueColor text-white rounded-md hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
-                            >
-                              {isSubmittingReply ? "Replying..." : "Reply"}
-                            </button>
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-sm text-gray-500">
+                              {replyText.length > 0 &&
+                                `${replyText.length}/500 characters`}
+                            </span>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setReplyingTo(null)}
+                                disabled={isSubmittingReply}
+                                className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-md text-sm transition-colors disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => handleReply(comment.id)}
+                                disabled={
+                                  !replyText.trim() || isSubmittingReply
+                                }
+                                className="px-3 py-1 bg-blueColor text-white rounded-md hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
+                              >
+                                {isSubmittingReply ? "Replying..." : "Reply"}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
