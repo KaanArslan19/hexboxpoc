@@ -14,7 +14,7 @@ import FundingTypeSelector from "./ui/FundingTypeSelector";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { debounce } from "lodash";
-
+import CampaignFormDescription from "./ui/CampaignFormDescription";
 const steps = [
   { title: "Project Info" },
   { title: "Description" },
@@ -72,10 +72,31 @@ export default function CampaignForm(props: Props) {
   const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
     FundingType.Limitless
   );
+  const [expandedSections, setExpandedSections] = useState<number[]>([]);
 
   const formikRef = useRef<FormikProps<any>>(null);
   const { address } = useAccount();
 
+  //Description Section Related State and Functions
+  const toggleDescriptionSection = (sectionNumber: number) => {
+    setExpandedSections((prev) =>
+      prev.includes(sectionNumber)
+        ? prev.filter((num) => num !== sectionNumber)
+        : [...prev, sectionNumber]
+    );
+  };
+
+  const formatText = (text: string) => {
+    return text.split("*").map((part, index) =>
+      index % 2 === 1 ? (
+        <em key={index} className="text-gray-600 font-medium">
+          {part}
+        </em>
+      ) : (
+        part
+      )
+    );
+  };
   // Initialize campaign draft functionality
   const {
     formData,
@@ -650,12 +671,7 @@ export default function CampaignForm(props: Props) {
                 {currentStep === 1 && (
                   <div>
                     <h2 className="text-2xl mb-2">Details</h2>
-                    <p className="text-md mb-8 font-thin">
-                      Provide the essential details about your campaign
-                      including campaign description, location, deadline, and
-                      contact information. These details help potential
-                      supporters understand your campaign and how to reach you.
-                    </p>
+                    <CampaignFormDescription />
                     <div className="mb-2">
                       <h3 className="text-xl mb-2">Campaign Description</h3>
 
