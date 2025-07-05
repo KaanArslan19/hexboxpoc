@@ -101,7 +101,7 @@ export interface CampaignBackendDetails {
 }
 export enum Status {
   active = "active",
-  inactive = "inactive",
+  inactive = "verified",
   finalized = "finalized",
 }
 export enum FundingType {

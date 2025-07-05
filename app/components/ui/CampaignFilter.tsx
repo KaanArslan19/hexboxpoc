@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export type Status = "active" | "inactive" | "finalized" | "All";
+export type Status = "active" | "verified" | "finalized" | "All";
 
 interface CampaignFilterProps {
   defaultStatus?: Status;
@@ -41,7 +41,7 @@ export default function CampaignFilter({
     router.push(url);
   };
 
-  const statuses: Status[] = ["active", "inactive", "finalized", "All"];
+  const statuses: Status[] = ["active", "verified", "finalized", "All"];
 
   return (
     <div className="flex flex-wrap items-stretch h-full gap-2">
