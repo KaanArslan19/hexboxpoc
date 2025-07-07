@@ -1,3 +1,5 @@
+"use client";
+
 import { MobileMenuItems } from "@/app/utils/menuItems";
 import Link from "next/link";
 import {
@@ -140,6 +142,17 @@ export const Footer = () => {
             >
               Privacy Policy
             </Link>
+            <button
+              onClick={() => {
+                // Use the global function to show the cookie banner
+                if (typeof window !== "undefined" && window.showCookieBanner) {
+                  window.showCookieBanner();
+                }
+              }}
+              className="text-gray-500 hover:text-blueColor/80 text-sm"
+            >
+              Cookie Settings
+            </button>
             {/*       <Link
               href="/"
               className="text-gray-500 hover:text-blueColor/80 text-sm"

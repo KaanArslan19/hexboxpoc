@@ -1,12 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import CustomButton from "./ui/CustomButton";
 
 interface CookiePreferences {
   necessary: boolean;
   analytics: boolean;
   marketing: boolean;
   functional: boolean;
+}
+
+// Global function to show cookie banner
+declare global {
+  interface Window {
+    showCookieBanner: () => void;
+  }
 }
 
 const CookieConsentBanner = () => {
@@ -25,6 +33,17 @@ const CookieConsentBanner = () => {
     if (!consent) {
       setShowBanner(true);
     }
+
+    // Add global function to show banner
+    window.showCookieBanner = () => {
+      const existingConsent = localStorage.getItem("hexbox-cookie-consent");
+      if (existingConsent) {
+        const consentData = JSON.parse(existingConsent);
+        setPreferences(consentData.preferences);
+        setShowDetails(true); // Show detailed view for modifications
+      }
+      setShowBanner(true);
+    };
   }, []);
 
   const handleAcceptAll = () => {
@@ -112,7 +131,6 @@ const CookieConsentBanner = () => {
           </p>
 
           {!showDetails ? (
-            // Simple view
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
@@ -224,18 +242,18 @@ const CookieConsentBanner = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <button
+                <CustomButton
                   onClick={handleSavePreferences}
-                  className="flex-1 bg-blueColor text-white px-6 py-3 rounded-lg hover:bg-blueColor/80 transition-colors font-medium"
+                  className="flex-1 bg-blueColor text-white px-6 py-3 rounded-lg hover:bg-blueColor/80 transition-colors font-medium border-none"
                 >
                   Save My Preferences
-                </button>
-                <button
+                </CustomButton>
+                <CustomButton
                   onClick={() => setShowDetails(false)}
-                  className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                  className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium border-none"
                 >
                   Back to Simple View
-                </button>
+                </CustomButton>
               </div>
             </div>
           )}
