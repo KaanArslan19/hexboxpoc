@@ -27,7 +27,7 @@ import CampaignsProfile from "./CampaignsProfile";
 import ProductsProfile from "./ProductsProfile";
 import { CampaignDetailsProps, ProductFetch } from "@/app/types";
 import ProductTransactionHistory from "./ProductTransactionHistory";
-import CustomButton from "../ui/CustomButton";
+import { Select } from "antd";
 const { TabPane } = Tabs;
 const { Title, Text } = Typography;
 
@@ -42,14 +42,18 @@ interface DashboardStats {
 interface ProfilePageClientProps {
   userId: string;
   campaigns: CampaignDetailsProps[];
+  allCampaigns: CampaignDetailsProps[];
   products: ProductFetch[];
+  allProducts: ProductFetch[];
   dashboardStats: DashboardStats;
 }
 
 export default function ProfilePageClient({
   userId,
   campaigns,
+  allCampaigns,
   products,
+  allProducts,
   dashboardStats,
 }: ProfilePageClientProps) {
   const contactDetails =
@@ -95,6 +99,53 @@ export default function ProfilePageClient({
     },
   ];
   console.log(campaigns, "campaigns");
+  const [campaignFilter, setCampaignFilter] = React.useState<
+    "created" | "invested"
+  >("created");
+  const [productFilter, setProductFilter] = React.useState<
+    "created" | "invested"
+  >("created");
+
+  // Campaigns created by user
+  const createdCampaigns = campaigns.filter((c) => c.user_id === userId);
+  // Campaigns invested by user (use allCampaigns)
+  const investedCampaigns = allCampaigns.filter(
+    (c) =>
+      Array.isArray(c.transactions) &&
+      c.transactions.some(
+        (tx) =>
+          tx.decodedFunction?.name === "deposit" &&
+          tx.from?.toLowerCase() === userId.toLowerCase()
+      )
+  );
+
+  // Products created by user
+  const createdProducts = products.filter((p) => p.userId === userId);
+  // Products invested by user (from all campaigns' transactions)
+  const investedProductIds = new Set<string>();
+  allCampaigns.forEach((c) => {
+    if (Array.isArray(c.transactions)) {
+      c.transactions.forEach((tx) => {
+        if (
+          tx.decodedFunction?.name === "deposit" &&
+          tx.from?.toLowerCase() === userId.toLowerCase()
+        ) {
+          const productId =
+            Array.isArray(tx.decodedFunction.args) &&
+            tx.decodedFunction.args.length > 0
+              ? String(tx.decodedFunction.args[0])
+              : undefined;
+          if (productId) investedProductIds.add(productId);
+        }
+      });
+    }
+  });
+  console.log(investedProductIds, "investedProductIds");
+  // Products invested by user (from all products)
+  const investedProducts = allProducts.filter((p) =>
+    investedProductIds.has(String(p.productId))
+  );
+
   return (
     <div className="container mx-auto py-8 px-4">
       <Card className="mb-8 overflow-hidden rounded-xl ">
@@ -232,7 +283,39 @@ export default function ProfilePageClient({
           }
           key="campaigns"
         >
-          <CampaignsProfile campaigns={campaigns} userId={userId} />
+          <div className="mb-4 flex items-center gap-2">
+            <span>Show:</span>
+            <Select
+              value={campaignFilter}
+              onChange={(v) => setCampaignFilter(v)}
+              style={{
+                width: 120,
+                backgroundColor:
+                  campaignFilter === "created" || campaignFilter === "invested"
+                    ? "var(--lightBlueColor)"
+                    : "white",
+                border: "1px solid #d9d9d9",
+                borderRadius: 6,
+                boxShadow: "none",
+              }}
+              dropdownStyle={{
+                borderRadius: 6,
+              }}
+              className="custom-select"
+              options={[
+                { value: "created", label: "Created" },
+                { value: "invested", label: "Invested" },
+              ]}
+            />
+          </div>
+          <CampaignsProfile
+            campaigns={
+              campaignFilter === "created"
+                ? createdCampaigns
+                : investedCampaigns
+            }
+            userId={userId}
+          />
         </TabPane>
 
         <TabPane
@@ -244,7 +327,24 @@ export default function ProfilePageClient({
           }
           key="products"
         >
-          <ProductsProfile products={products} userId={userId} />
+          <div className="mb-4 flex items-center gap-2">
+            <span>Show:</span>
+            <Select
+              value={productFilter}
+              onChange={(v) => setProductFilter(v)}
+              style={{ width: 120 }}
+              options={[
+                { value: "created", label: "Created" },
+                { value: "invested", label: "Invested" },
+              ]}
+            />
+          </div>
+          <ProductsProfile
+            products={
+              productFilter === "created" ? createdProducts : investedProducts
+            }
+            userId={userId}
+          />
         </TabPane>
 
         <TabPane

@@ -54,7 +54,7 @@ export default function CampaignsContent() {
             {query ? `Search Results` : `Explore Campaigns`}
           </h1>
           <Link href="/campaign/create">
-            <CustomButton className="bg-none border-[1px] border-blueColor w-3/4 hover:bg-lightBlueColor md:w-full mt-4 md:mt-0">
+            <CustomButton className=" border-[1px] bg-blueColor text-white hover:bg-blueColor/90 w-3/4  md:w-full mt-4 md:mt-0">
               Create a Campaign
             </CustomButton>
           </Link>
@@ -76,7 +76,7 @@ export default function CampaignsContent() {
               <span className="font-semibold">{query}</span>
             </p>
           ) : (
-            <p className="mx-auto text-lg lg:text-xl mt-4">
+            <p className="mx-auto text-lg lg:text-xl mt-4 font-bold">
               Explore the projects that get funded by our precious community!
             </p>
           )}

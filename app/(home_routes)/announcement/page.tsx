@@ -15,6 +15,7 @@ import {
   Lock,
   Sparkles,
 } from "lucide-react";
+import Link from "next/link";
 
 const AnalyticsAnnouncement = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -341,11 +342,15 @@ const AnalyticsAnnouncement = () => {
               <p className="text-lg text-gray-300 mb-8">
                 To unlock your access, all you need is to:
               </p>
-
-              <div className="bg-gradient-to-r from-[#E94E1B] to-[#FFC629] text-white px-8 py-4 rounded-xl text-xl font-bold inline-flex items-center gap-3 hover:from-[#D04A22] hover:to-[#E5B226] transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                <Sparkles className="w-6 h-6" />
-                Buy a GSD NFT piece today
-              </div>
+              <Link
+                href="https://opensea.io/collection/hexbox-gif-collection/overview"
+                target="_blank"
+              >
+                <button className="bg-gradient-to-r from-[#E94E1B] to-[#FFC629] text-white px-8 py-4 rounded-xl text-xl font-bold inline-flex items-center gap-3 hover:from-[#D04A22] hover:to-[#E5B226] transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                  <Sparkles className="w-6 h-6" />
+                  Buy a GSD NFT piece today
+                </button>
+              </Link>
 
               <div className="mt-8 text-gray-300">
                 <p className="mb-2">

@@ -1,12 +1,10 @@
 "use client";
-import { useRouter } from "next/navigation";
 import React from "react";
 import Image from "next/image";
 import { MoveLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function NotFound() {
-  const router = useRouter();
-
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-2xl w-full text-center">
@@ -28,15 +26,15 @@ export default function NotFound() {
           changed, or is temporarily unavailable.
         </p>
 
-        <button
-          onClick={() => router.back()}
+        <Link
+          href="/"
           className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orangeColor/80 to-redColor/80 
                       rounded-lg transform transition-all duration-300
                      hover:from-orangeColor hover:to-redColor hover:scale-105 hover:shadow-lg"
         >
           <MoveLeft className="w-5 h-5 " color="white" />
           <span className="text-white">Go Back</span>
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -725,8 +725,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 {showCommissionInfo && productQuantity > 0 && (
                   <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 text-sm">
                     <p className="text-gray-700 mb-3">
-                      <strong className="text-blue-700">Important:</strong> A
-                      2.5% commission fee will be applied to your contribution.
+                      <strong className="text-blueColorDull">Important:</strong>{" "}
+                      A 2.5% commission fee will be applied to your
+                      contribution.
                     </p>
                     <div className="space-y-2">
                       <div className="flex justify-between">
