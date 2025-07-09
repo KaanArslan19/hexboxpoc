@@ -1,9 +1,10 @@
 import React from "react";
 
-import { fetchCampaignsByUser } from "@/app/utils/apiHelpers";
+import { fetchCampaignsByUser, fetchCampaigns } from "@/app/utils/apiHelpers";
 import ProfilePageClient from "@/app/components/profile/ProfilePageClient";
 import { CampaignDetailsProps } from "@/app/types";
 import { getUserProducts } from "@/app/utils/poc_utils/getUserProducts";
+import { getAllProducts } from "@/app/utils/poc_utils/getProducts";
 interface Props {
   searchParams: { userId: string };
 }
@@ -22,6 +23,8 @@ export default async function ExecutorPage({ searchParams }: Props) {
     : campaignsData.campaigns;
 
   const products = await getUserProducts(userId);
+  const allCampaigns = await fetchCampaigns(1000, 0, undefined, "All");
+  const allProducts = await getAllProducts();
 
   // Calculate real dashboard statistics
   const totalFundsRaised = campaigns.reduce(
@@ -56,7 +59,9 @@ export default async function ExecutorPage({ searchParams }: Props) {
     <ProfilePageClient
       userId={userId}
       campaigns={campaigns}
+      allCampaigns={allCampaigns}
       products={products}
+      allProducts={allProducts}
       dashboardStats={dashboardStats}
     />
   );
