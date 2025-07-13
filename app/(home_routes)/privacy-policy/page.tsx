@@ -9,33 +9,33 @@ import {
 } from "lucide-react";
 
 const privacyData = {
-  title: "Hexbox™ Privacy Policy",
-  effectiveDate: "May 21, 2025",
-  lastUpdated: "May 21, 2025",
+  title: "Hexbox Privacy Policy",
+  effectiveDate: "July 8, 2025",
+  lastUpdated: "July 8, 2025",
   company: {
-    name: "Hexbox™ LLC",
-    location: "Wyoming, United States",
+    name: "OTOCO MATIC LLC - hexbox - Series 126",
+    location: "5830 E 2nd St Ste 8, Casper, WY 82609, United States",
     email: "hello@hexbox.money",
   },
-  introduction: `Thank you for visiting the Hexbox™ Privacy Policy. This Policy explains how Hexbox™ LLC ("Hexbox™," "we," "our," or "us") collects, uses, stores, and discloses personal information. It applies to all Users who access or use our Services, including through our website, smart contracts, NFT functionalities, or third-party integrations such as Discord.
+  introduction: `Thank you for visiting the Hexbox Privacy Policy. This Policy explains how OTOCO MATIC LLC - hexbox - Series 126 (“Hexbox,” “we,” “our,” or “us”) collects, uses, stores, and discloses personal information. It applies to all Users who access or use our Services, including through our website, smart contracts, token functionalities, or third-party integrations such as Discord.
 
-Hexbox™ LLC is a company registered in the State of Wyoming, United States. We operate a blockchain-based crowdfunding platform that enables decentralized fundraising through the issuance of NFTs known as Tickets. We are committed to respecting your privacy rights and ensuring transparency about our practices.`,
+OTOCO MATIC LLC - hexbox - Series 126 is a company registered in the State of Wyoming, United States. We operate a blockchain-based crowdfunding platform that enables decentralized fundraising through the issuance of tokens known as Tickets. We are committed to respecting your privacy rights and ensuring transparency about our practices.`,
 
   definitions: [
     {
       term: "User",
       definition:
-        "Any individual who interacts with the Hexbox™ platform, whether logged in or not, including Investors and Executors.",
+        "Any individual who interacts with the Hexbox platform, whether logged in or not, including Investors and Executors.",
     },
     {
       term: "Investor",
       definition:
-        "An individual who purchases NFTs (referred to as Tickets) in exchange for products, services, or donations.",
+        "An individual who purchases tokens (referred to as Tickets) in exchange for products, services, or donations.",
     },
     {
       term: "Executor",
       definition:
-        "An individual or organization that creates and manages a campaign offering products, services, or donation options via NFTs.",
+        "An individual or organization that creates and manages a campaign offering products, services, or donation options via tokens.",
     },
     {
       term: "Campaign",
@@ -45,12 +45,12 @@ Hexbox™ LLC is a company registered in the State of Wyoming, United States. We
     {
       term: "Tickets",
       definition:
-        "NFTs minted when an Investor purchases a product, service, or makes a donation through a campaign.",
+        "Tokens issued when an Investor purchases a product, service, or makes a donation through a campaign.",
     },
     {
       term: "Donation Product",
       definition:
-        "An NFT issued in exchange for a contribution equal to one United States dollar's equivalent Circles Crypto Stable Token (USDC), typically without the expectation of receiving a physical product or service.",
+        "A token issued in exchange for a contribution equal to one United States dollar’s equivalent Circles Crypto Stable Token (USDC), typically without the expectation of receiving a physical product or service.",
     },
     {
       term: "Wallet Address",
@@ -70,7 +70,7 @@ Hexbox™ LLC is a company registered in the State of Wyoming, United States. We
     {
       term: "Platform",
       definition:
-        "The Hexbox™ suite of services including its website, smart contracts, APIs, and integrations with third-party tools.",
+        "The Hexbox suite of services including its website, smart contracts, APIs, and integrations with third-party tools.",
     },
   ],
 
@@ -79,14 +79,12 @@ Hexbox™ LLC is a company registered in the State of Wyoming, United States. We
       number: 1,
       title: "Scope of Policy",
       content:
-        "This Policy applies to all personal data that we collect through our Platform, whether directly or indirectly. By accessing or using any part of the Hexbox™ Platform, you are consenting to the collection, use, and disclosure of your personal data in accordance with this Policy.",
+        "This Policy applies to all personal data that we collect through our Platform, whether directly or indirectly. By accessing or using any part of the Hexbox Platform, you are consenting to the collection, use, and disclosure of your personal data in accordance with this Policy.",
     },
     {
       number: 2,
       title: "Personal Data We Collect",
-      content: `Hexbox™ may collect both on-chain and off-chain data when you interact with our Platform. The specific data we collect depends on your role as an Investor, Executor, or visitor.
-
-We may collect the following information, depending on whether you are interacting with Hexbox™ as an Investor, Executor, or as a logged-out visitor:
+      content: `Hexbox may collect both on-chain and off-chain data when you interact with our Platform. The specific data we collect depends on your role as an Investor, Executor, or visitor.
 
 **Data you voluntarily provide:** This includes your email address, phone number, Discord handle, or other contact information when registering a campaign or submitting a form. Executors are required to provide this data for campaign creation.
 
@@ -97,34 +95,34 @@ We may collect the following information, depending on whether you are interacti
     {
       number: 3,
       title: "Legal Basis and Purpose of Data Processing",
-      content: `Hexbox™ processes personal data on the basis of legitimate interests, contractual necessity, compliance with legal obligations, and, where applicable, user consent. The data we collect enables us to deliver our Services, ensure the integrity of campaigns, and maintain platform security.
+      content: `Hexbox processes personal data on the basis of legitimate interests, contractual necessity, compliance with legal obligations, and, where applicable, user consent. The data we collect enables us to deliver our Services, ensure the integrity of campaigns, and maintain platform security.
 
-Specifically, we process personal data to allow Users to interact with the Platform, including but not limited to minting and managing NFTs. This also includes recording transactions and making them auditable to uphold transparency.
+Specifically, we process personal data to allow Users to interact with the Platform, including but not limited to minting and managing tokens. This also includes recording transactions and making them auditable to uphold transparency.
 
 We use personal data to support the delivery of campaign rewards and services by facilitating communication between Executors and Investors. As part of our commitment to platform integrity, we monitor and prevent fraudulent or malicious activity. We also comply with regulatory requirements, including tax and anti-fraud obligations.
 
-In order to improve the user experience, we analyze platform usage and conduct usability testing. Where you have given your consent, we may use your contact information to communicate updates, promotional content, or marketing messages related to Hexbox™ and its services.`,
+In order to improve the user experience, we analyze platform usage and conduct usability testing. Where you have given your consent, we may use your contact information to communicate updates, promotional content, or marketing messages related to Hexbox and its services.`,
     },
     {
       number: 4,
       title: "Disclosure and Sharing of Personal Data",
-      content: `Hexbox™ may share personal data in limited circumstances when it is necessary for the operation of the Platform, the fulfillment of campaign obligations, or to comply with applicable law.
+      content: `Hexbox may share personal data in limited circumstances when it is necessary for the operation of the Platform, the fulfillment of campaign obligations, or to comply with applicable law.
 
 We may disclose information to Executors or Investors when such disclosure is required for the fulfillment of products, services, or donation-based commitments linked to a Campaign. This ensures that both parties can coordinate delivery and communication effectively.
 
-We may also disclose personal data to third-party service providers that support our technical infrastructure. These include database hosting providers such as MongoDB, server hosting providers such as Vercel & NetCup VPS, and communication integrations such as Discord bots. These providers only receive the minimum data necessary to perform their duties on our behalf and are bound by confidentiality and data protection obligations.
+We may also disclose personal data to third-party service providers that support our technical infrastructure. These include database hosting providers such as MongoDB, server hosting providers such as NetCup VPS, and communication integrations such as Discord bots. These providers only receive the minimum data necessary to perform their duties on our behalf and are bound by confidentiality and data protection obligations.
 
 In accordance with applicable legal requirements, we may share personal information with law enforcement authorities, regulatory bodies, or government agencies if we are legally compelled to do so by subpoena, court order, or other lawful process.
 
 Additionally, we may share data with analytics and monitoring services in order to detect security issues, monitor platform performance, and improve user experience.
 
-Hexbox™ does not sell your personal identity data under any circumstances. Furthermore, we do not link on-chain behavioral data to personally identifiable information unless we have expressly disclosed such practices and received your informed consent.`,
+Hexbox does not sell your personal identity data under any circumstances. Furthermore, we do not link on-chain behavioral data to personally identifiable information unless we have expressly disclosed such practices and received your informed consent.`,
     },
     {
       number: 5,
       title: "Blockchain-Specific Limitations",
       content:
-        "Due to the nature of blockchain technology, certain information, such as wallet addresses, token transactions, and NFT activity, is publicly available and permanently stored. Such data cannot be modified or deleted. While this information is considered pseudonymous, it may still be subject to privacy regulations depending on how it is combined with off-chain data.",
+        "Due to the nature of blockchain technology, certain information, such as wallet addresses, token transactions, and token activity, is publicly available and permanently stored. Such data cannot be modified or deleted. While this information is considered pseudonymous, it may still be subject to privacy regulations depending on how it is combined with off-chain data.",
     },
     {
       number: 6,
@@ -133,7 +131,7 @@ Hexbox™ does not sell your personal identity data under any circumstances. Fur
 
 In addition, you may have the right to object to our processing of your data, or to withdraw any previously granted consent where the processing is based on consent. You may also request information about the ways in which we use your data, including the legal basis and specific purposes.
 
-All requests will be evaluated and processed in accordance with the legal obligations applicable to Hexbox™ and within the timeframes prescribed by law.`,
+All requests will be evaluated and processed in accordance with the legal obligations applicable to Hexbox and within the timeframes prescribed by law.`,
     },
     {
       number: 7,
@@ -146,19 +144,19 @@ All requests will be evaluated and processed in accordance with the legal obliga
       title: "International Data Transfers",
       content: `If you are located outside of the United States, please be aware that your data may be transferred to, stored in, or processed within the United States or other jurisdictions. By using our Platform, you consent to such international data transfers.
 
-At this time, Hexbox™ does not implement Standard Contractual Clauses or similar frameworks, but may consider doing so as regulatory requirements evolve.`,
+At this time, Hexbox does not implement Standard Contractual Clauses or similar frameworks, but may consider doing so as regulatory requirements evolve.`,
     },
     {
       number: 9,
       title: "Children's Privacy",
       content:
-        "The Hexbox™ Platform is not intended for use by individuals under the age of 16. We do not knowingly collect personal data from minors. If a parent or legal guardian believes that their child has submitted data to us, they may contact us to request deletion or restriction of access for the associated wallet address.",
+        "The Hexbox Platform is not intended for use by individuals under the age of 16. We do not knowingly collect personal data from minors. If a parent or legal guardian believes that their child has submitted data to us, they may contact us to request deletion or restriction of access for the associated wallet address.",
     },
     {
       number: 10,
       title: "Data Retention and Storage",
       content:
-        "Hexbox™ retains off-chain personal data only for as long as necessary to fulfill the purposes for which it was originally collected. This may include account management, service delivery, legal compliance, and dispute resolution. Once the data is no longer required for these purposes, we delete or anonymize it in accordance with our internal retention policies and applicable legal requirements. Please note that data stored on the blockchain is not subject to modification or deletion, as its permanence is a fundamental feature of decentralized ledger technology.",
+        "Hexbox retains off-chain personal data only for as long as necessary to fulfill the purposes for which it was originally collected. This may include account management, service delivery, legal compliance, and dispute resolution. Once the data is no longer required for these purposes, we delete or anonymize it in accordance with our internal retention policies and applicable legal requirements. Please note that data stored on the blockchain is not subject to modification or deletion, as its permanence is a fundamental feature of decentralized ledger technology.",
     },
     {
       number: 11,
@@ -169,7 +167,7 @@ At this time, Hexbox™ does not implement Standard Contractual Clauses or simil
     {
       number: 12,
       title: "Legal Disclosures and Jurisdictional Statements",
-      content: `Hexbox™ operates on a global scale but is headquartered in the United States. While we strive to align with key international privacy frameworks, such as the General Data Protection Regulation and the California Consumer Privacy Act, there are specific mechanisms and representations we do not currently maintain.
+      content: `Hexbox operates on a global scale but is headquartered in the United States. While we strive to align with key international privacy frameworks, such as the General Data Protection Regulation and the California Consumer Privacy Act, there are specific mechanisms and representations we do not currently maintain.
 
 These include the appointment of designated representatives in the European Union or United Kingdom, the implementation of consumer privacy mechanisms as set forth under the California Privacy Rights Act, the use of standard contractual clauses or equivalent safeguards for cross-border data transfers, and the establishment of formal processes to receive privacy-related requests through authorized third-party agents.
 
@@ -179,19 +177,21 @@ Although these measures are not yet in place, we continue to evaluate our data p
       number: 13,
       title: "Policy Updates and Revisions",
       content:
-        "We occasionally revise this Policy to reflect updates in privacy regulations or changes in how we manage your data. We encourage you to review it regularly. By continuing to use Hexbox™ after updates are published, you agree to the latest version. This Policy may be provided in other languages for convenience, but the English version shall prevail in case of discrepancies.",
+        "We occasionally revise this Policy to reflect updates in privacy regulations or changes in how we manage your data. We encourage you to review it regularly. By continuing to use Hexbox after updates are published, you agree to the latest version. This Policy may be provided in other languages for convenience, but the English version shall prevail in case of discrepancies.",
     },
     {
       number: 14,
       title: "Contact Information",
       content: `For any questions, concerns, or data-related requests regarding this Privacy Policy, you may contact:
 
-**Hexbox™ LLC**
-Wyoming, United States
+**OTOCO MATIC LLC - hexbox - Series 126**
+5830 E 2nd St Ste 8
+Casper, WY 82609
 Email: hello@hexbox.money`,
     },
   ],
 };
+
 
 const PrivacyAndPolicy: React.FC = () => {
   const [expandedDefinitions, setExpandedDefinitions] = useState(false);

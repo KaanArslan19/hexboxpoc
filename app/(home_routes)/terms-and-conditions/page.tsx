@@ -9,9 +9,9 @@ import {
 } from "lucide-react";
 
 const termsData = {
-  title: "Hexbox Investor Terms of Use",
-  effectiveDate: "23.05.2025",
-  lastUpdated: "23.05.2025",
+  title: "Hexbox Executors Terms and Conditions",
+  effectiveDate: "08.07.2025",
+  lastUpdated: "08.07.2025",
   company: {
     name: "Hexbox",
     website: "hexbox.money",
@@ -19,57 +19,58 @@ const termsData = {
 
   definitions: [
     {
+      term: "Executor",
+      definition:
+        "The individual or entity who creates and manages a fundraising campaign on Hexbox.",
+    },
+    {
       term: "Investor",
       definition:
-        "An individual or entity contributing digital assets to a campaign.",
+        "Any individual or entity who contributes funds to a campaign.",
     },
     {
-      term: "Executor",
-      definition: "An individual or entity launching a campaign.",
-    },
-    {
-      term: "Campaign",
-      definition: "A public fundraising initiative hosted on Hexbox.",
-    },
-    {
-      term: "NFT",
-      definition:
-        "A non-fungible token (NFT) is a blockchain-based digital certificate issued upon contribution. It functions as a record of participation and access pass to campaign-specific rights, but does not represent a financial product.",
-    },
-    {
-      term: "Finalization",
-      definition:
-        "A blockchain-based event that releases campaign funds to the Executor and revokes refund eligibility.",
-    },
-    {
-      term: "Smart Contract",
-      definition:
-        "Self-executing blockchain code governing transactions, ticket issuance, and refund logic.",
-    },
-    {
-      term: "Escrow Account",
-      definition:
-        "A smart contract-controlled account that securely holds contributed funds during the campaign period. This account acts as a neutral digital escrow and ensures that funds are only released to the Executor upon Finalization or returned to the Investor if a refund is requested within the Refund Window.",
-    },
-    {
-      term: "Wallet",
-      definition:
-        "A blockchain address under the Investor's control where NFTs and digital assets are held.",
-    },
-    {
-      term: "Refund Window",
-      definition:
-        "The period before Finalization during which a refund can be requested.",
-    },
-    {
-      term: "Reward",
-      definition:
-        "Any benefit, product, service, or priority access offered in return for contribution, subject to campaign-specific terms.",
+      term: "Platform",
+      definition: "The Hexbox website, smart contracts, and related services.",
     },
     {
       term: "User",
       definition:
-        "Any individual accessing Hexbox, whether logged in or anonymous.",
+        "Any person accessing the Hexbox platform, including Executors, Investors, or general visitors.",
+    },
+    {
+      term: "Escrow Smart Contract",
+      definition:
+        "The blockchain-based mechanism holding funds until specified conditions are met.",
+    },
+    {
+      term: "Finalization",
+      definition:
+        "The formal process where campaign conditions are verified, and funds are released to the Executor.",
+    },
+    {
+      term: "Funding Types",
+      definition:
+        "The available funding models on Hexbox, including All or Nothing, Flexible Funding, and Limitless Funding.",
+    },
+    {
+      term: "All or Nothing",
+      definition:
+        "Funds are only released if the campaign reaches its full fundraising target by the set deadline. No partial funding is disbursed if the goal is not met.",
+    },
+    {
+      term: "Flexible Funding",
+      definition:
+        "Any amount raised, even if less than the original target, is transferred to the Executor. The Executor must scale project delivery proportionally and communicate transparently with Investors.",
+    },
+    {
+      term: "Limitless Funding",
+      definition:
+        "There is no predefined fundraising cap, and funds can be collected continuously over time.",
+    },
+    {
+      term: "Ticket",
+      definition:
+        "A blockchain-based digital proof of contribution issued automatically to the Investor upon successful donation. Tickets enforce refund eligibility and finalization logic via smart contracts.",
     },
   ],
 
@@ -78,96 +79,135 @@ const termsData = {
       number: 1,
       title: "Agreement to Terms",
       content:
-        "This Article sets forth the terms of agreement between you, the Investor, and Hexbox. By accessing or using Hexbox, including visiting the website hexbox.money or participating in any campaign, you agree to enter into a binding legal agreement with Hexbox under these Terms of Use. This agreement incorporates our Privacy Policy and Cookie Policy by reference. If you do not agree to all the terms, you may not use or access Hexbox or its services.",
+        "These Executors Terms and Conditions establish the legal framework between you and Hexbox for your use of the Platform as an Executor. By using the Platform, you agree to be bound by these Terms.",
     },
     {
       number: 2,
-      title: "Purpose and Scope",
+      title: "Goodwill Rules and Fair Trade",
       content:
-        "Hexbox is a blockchain-based crowdfunding platform designed to facilitate presale access and early-stage support for projects through smart contract infrastructure. In addition to campaign contributions, Hexbox also enables the issuance of digital tickets in the form of NFTs that may serve as vouchers or priority access to future products and services offered by Executors. These digital tickets are not financial products and are not intended to represent ownership, debt, or equity. These Terms govern all contributions made to campaigns, rights attached to NFT Receipts, refund mechanisms, and responsibilities of Investors.",
+        "Parties shall act in accordance with goodwill rules and fair-trade principles while fulfilling their obligations under this agreement.",
     },
     {
       number: 3,
-      title: "Eligibility and Registration",
+      title: "Scope of the Agreement",
       content:
-        "To use Hexbox, you must be at least 18 years of age and have the legal capacity to form binding contracts. Your jurisdiction must not prohibit participation in blockchain or crowdfunding platforms. We may require identity verification under KYC/AML regulations.",
+        "These Terms apply to all Executors using the Hexbox Platform to raise funds, including project posting, campaign management, fund usage, and interactions with Investors and the Platform.",
     },
     {
       number: 4,
-      title: "Investment Mechanism",
+      title: "Eligibility",
       content:
-        "By contributing to a campaign on Hexbox, you enter into a direct, on-chain arrangement with the Executor. All contributions are executed via smart contracts, which manage the logic of fund custody, finalization, and refund conditions. Upon successful contribution, a blockchain-based NFT is issued to your designated wallet. This NFT functions as a non-custodial proof of participation and must be retained to access any campaign-related rights, such as initiating a refund during the Refund Window or claiming products, services, or other forms of campaign utility as described by the Executor.",
+        "You must be at least 18 years old and have the legal capacity to bind any entity you represent. Executors are responsible for providing accurate, current, and complete information.",
     },
     {
       number: 5,
-      title: "Refund and Withdrawal Terms",
+      title: "Responsibilities of the Executor",
       content:
-        "Refunds are available only during the Refund Window. Finalization, which may be automatic or triggered by the Executor, releases the funds and burns the NFT. Hexbox does not guarantee refunds after finalization. If you lose access to your wallet before claiming a refund, your rights may be permanently lost.",
+        "Executors must provide truthful project details, fulfill promised deliverables, use funds solely for campaign purposes, comply with all laws, and provide transparent updates to Investors.",
       isImportant: true,
     },
     {
       number: 6,
-      title: "Investor Responsibilities and Risk Disclosure",
-      content: `You accept the following risks when using Hexbox: the possibility of project failure, fraudulent activity by Executors, legal non-compliance by third parties, delays in delivery or communication, and general volatility in blockchain-based ecosystems. 
-
-As an Investor, it is your responsibility to take reasonable precautions, which include conducting thorough due diligence before investing in a campaign, securing your wallet credentials and the NFT Receipt issued to you, and complying with all tax and legal obligations in your jurisdiction.`,
-      isImportant: true,
+      title: "Responsibilities of Hexbox",
+      content:
+        "Hexbox provides platform infrastructure, smart contracts, and digital ticket issuance. Hexbox does not guarantee campaign success or act as a broker, financial institution, or intermediary.",
     },
     {
       number: 7,
-      title: "Fees and Taxes",
+      title: "Fees and Payment",
       content:
-        "Fees applicable to your transaction will be clearly presented and must be acknowledged prior to confirming any contribution. These may include service charges imposed by Hexbox, smart contract execution fees, and third-party transaction processing costs. Additionally, you are solely responsible for all blockchain gas fees associated with initiating, interacting with, or reversing transactions on the network. You are also responsible for reporting and paying any local, national, or international taxes that may arise as a result of your activity on the platform. Hexbox does not provide tax advice or act as a withholding agent.",
+        "Hexbox charges a standard commission of 2.5% per donation. Blockchain gas fees are also the responsibility of users and deducted automatically.",
     },
     {
       number: 8,
-      title: "Platform Role and Disclaimers",
+      title: "Funding Types",
       content:
-        "Hexbox acts solely as a neutral infrastructure and technology provider. We do not act as a broker, dealer, investment advisor, financial institution, custodian, or intermediary in any transaction. We do not originate, structure, endorse, or promote specific campaigns, nor do we provide financial, legal, or tax advice. Our role is strictly limited to providing smart contract tools and platform access that enable Executors and Investors to interact directly with one another. Hexbox does not mediate disputes between parties, validate the legitimacy of campaigns, or guarantee the outcome, delivery, or success of any project. All risk and decision-making rest entirely with the Users.",
+        "Executors must select their funding model before launch. This choice is binding and includes All or Nothing, Flexible Funding, and Limitless Funding, each with specific rules and obligations.",
     },
     {
       number: 9,
-      title: "Prohibited Activities",
+      title: "Late Pledges and Additional Funding",
       content:
-        "You may not engage in any conduct that violates these Terms or applicable laws. This includes, but is not limited to, fraudulent or deceptive behavior, misrepresentation of your identity or intentions, or any unlawful activity. You are prohibited from interfering with the technical operation of Hexbox, including tampering with smart contracts or attempting to circumvent security protocols. Additionally, you must not use automated bots, scripts, or any manipulative tools to influence campaign mechanics or outcomes.",
+        "Late pledges are not permitted. Executors must conduct fundraising only through official Platform channels.",
     },
     {
       number: 10,
-      title: "Suspension and Termination",
+      title: "Escrow and Disbursement",
       content:
-        "Hexbox reserves the right to suspend or permanently terminate your access to the platform, services, and any related systems at any time if you are found to have violated these Terms, attempted to circumvent platform operations, engaged in fraudulent behavior, or otherwise posed a legal or reputational risk to Hexbox or its users. Such action may be taken without prior notice and at Hexbox's sole discretion. In such events, any rights attached to NFTs held by the affected party—including access to refunds, rewards, or campaign-related benefits—may be invalidated without compensation. This includes cases where an account is associated with malicious activity, regulatory non-compliance, abuse of smart contracts, impersonation, or any other conduct detrimental to the integrity or lawful operation of the platform.",
+        "Funds are held in escrow smart contracts until campaign conditions are met. Executors may not access funds prior to release and must use funds only for stated campaign purposes.",
     },
     {
       number: 11,
-      title: "Intellectual Property",
+      title: "Reporting Errors and Failures",
       content:
-        "All intellectual property, including but not limited to the text, graphics, code, features, design elements, trademarks, and any other materials displayed or made available through the Hexbox platform, are the exclusive property of Hexbox or its licensors. You are strictly prohibited from copying, distributing, modifying, reverse engineering, publicly displaying, or otherwise exploiting any part of the platform or its content for commercial or non-commercial purposes without the express prior written consent of Hexbox. Unauthorized use may constitute a violation of intellectual property laws and could result in legal action.",
+        "Executors must promptly report any bugs, errors, or failures and are prohibited from exploiting vulnerabilities in the Platform.",
     },
     {
       number: 12,
-      title: "Limitation of Liability",
-      content: `Hexbox disclaims all warranties. We are not liable for indirect or consequential losses, including but not limited to lost funds, campaign failures, product failures, delays, or service interruptions. 
-
-Additionally, Hexbox shall not be held liable for any issues resulting from consumer error or misconduct, including but not limited to: failure to maintain control over one's wallet or private keys; transferring funds to an incorrect address; losing or deleting the NFT Receipt; misunderstanding campaign terms; failing to claim a refund within the Refund Window; reliance on external third-party tools or services; or misinterpreting reward eligibility or delivery timelines.`,
-      isImportant: true,
+      title: "Force Majeure",
+      content:
+        "Neither party is liable for delays or failures due to events beyond their control, such as natural disasters or wars.",
     },
     {
       number: 13,
-      title: "Dispute Resolution",
+      title: "Refunds and Cancellations",
       content:
-        "Any dispute, controversy, or claim arising out of or relating to this Agreement, including the breach, termination, or validity thereof, shall be finally resolved by arbitration under the Rules of Arbitration of the International Chamber of Commerce (ICC). The number of arbitrators shall be one. The seat of arbitration shall be Victoria, Australia. The language of arbitration shall be English. This Agreement shall be governed exclusively by the laws of the United States of America. All disputes shall be resolved solely through arbitration; no party shall have recourse to any court of law for any reason related to this Agreement, except to enforce an arbitral award.",
+        "Refunds are governed by Platform rules. Executors must comply fully with refund policies and communicate with Investors in good faith.",
     },
     {
       number: 14,
-      title: "Amendments",
+      title: "Intellectual Property",
       content:
-        "We may modify these Terms at any time. Updates will be published on the platform. Continued use signifies acceptance.",
+        "Executors retain ownership of their intellectual property but grant Hexbox a non-exclusive license to use submitted content for platform operations and promotion.",
     },
     {
       number: 15,
-      title: "Contact and Notices",
+      title: "Limitation of Liability",
       content:
-        "Please direct inquiries to our support team through the platform or via the channels listed in our Privacy Policy.",
+        "Hexbox provides the Platform on an 'as is' basis and is not liable for project outcomes, delays, or third-party actions.",
+    },
+    {
+      number: 16,
+      title: "Indemnification",
+      content:
+        "Executors agree to indemnify Hexbox against all claims arising from their misuse of the Platform or legal violations.",
+      isImportant: true,
+    },
+    {
+      number: 17,
+      title: "Dispute Resolution",
+      content:
+        "Disputes will be resolved by binding arbitration under ICC rules, governed by U.S. law.",
+    },
+    {
+      number: 18,
+      title: "Blockchain Irreversibility Notice",
+      content:
+        "Even if campaigns are removed from Hexbox, blockchain records remain immutable and publicly accessible.",
+    },
+    {
+      number: 19,
+      title: "Jurisdiction-Specific Compliance",
+      content:
+        "Executors must comply with all relevant jurisdiction-specific laws and provide evidence of compliance if requested.",
+    },
+    {
+      number: 20,
+      title: "Post-Finalization Dispute Limitation",
+      content:
+        "After funds are finalized and disbursed, all disputes are solely between the Executor and Investors.",
+    },
+    {
+      number: 21,
+      title: "Amendments Fairness and Notice",
+      content:
+        "Hexbox will provide reasonable notice for material amendments to these Terms. Continued use after notice constitutes acceptance.",
+    },
+    {
+      number: 22,
+      title: "Governing Law and Sanctioned Countries Disclosure",
+      content:
+        "These Terms are governed by U.S. law. Executors must not operate from countries under international sanctions.",
     },
   ],
 };

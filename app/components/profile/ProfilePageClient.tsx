@@ -199,7 +199,7 @@ export default function ProfilePageClient({
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center md:items-end p-4 -mt-16 md:-mt-12 relative z-10">
+          <div className="flex flex-col xl:flex-row items-center xl:items-end p-4 -mt-16 md:-mt-12 relative z-10">
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blueColor to-orangeColor rounded-full opacity-75 group-hover:opacity-100 blur group-hover:blur-sm transition-all duration-300"></div>
               <Avatar
@@ -209,29 +209,41 @@ export default function ProfilePageClient({
               />
             </div>
 
-            <div className="md:ml-6 mt-4 md:mt-0 text-center md:text-left flex-grow">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-end">
+            <div className="xl:ml-6 mt-4 xl:mt-0 text-center xl:text-left flex-grow">
+              <div className="flex flex-col xl:flex-row xl:justify-between xl:items-end gap-4">
                 <div>
-                  <Title level={3} className="m-0 flex items-center">
+                  <Title
+                    level={3}
+                    className="m-0 flex items-center justify-center lg:justify-start"
+                  >
                     {userId}
                     <span className="ml-2 inline-block bg-gradient-to-r from-blueColor to-orangeColor rounded-full h-2 w-2 animate-ping"></span>
                   </Title>
-                  <Text type="secondary" className="flex items-center gap-1">
+                  <Text
+                    type="secondary"
+                    className="flex items-center justify-center lg:justify-start gap-1"
+                  >
                     <ClockCircleOutlined className="animate-pulse-slow" />
                     Member since {new Date().getFullYear()}
                   </Text>
                 </div>
 
-                <div className="mt-4 md:mt-0 p-3 bg-gray-50 rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-300">
-                  <div className="flex items-center gap-2 mb-2">
-                    <PhoneOutlined className="text-blueColor" />
-                    <Text strong>Phone:</Text>
-                    <Text copyable>{contactDetails.phoneNumber}</Text>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MailOutlined className="text-orangeColorDull" />
-                    <Text strong>Email:</Text>
-                    <Text copyable>{contactDetails.email}</Text>
+                <div className="w-full lg:w-auto">
+                  <div className="mt-4 lg:mt-0 p-3 bg-gray-50 rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                    <div className="flex items-center gap-2 mb-2">
+                      <PhoneOutlined className="text-blueColor" />
+                      <Text strong>Phone:</Text>
+                      <Text copyable className="break-words">
+                        {contactDetails.phoneNumber}
+                      </Text>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MailOutlined className="text-orangeColorDull" />
+                      <Text strong>Email:</Text>
+                      <Text copyable className="break-words">
+                        {contactDetails.email}
+                      </Text>
+                    </div>
                   </div>
                 </div>
               </div>
