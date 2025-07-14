@@ -31,10 +31,10 @@ export interface InitialCampaignValue {
     linkedIn: string;
   };
 }
-const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB in bytes
+const FILE_SIZE_LIMIT = 1024 * 1024 * 5; // 5MB in bytes
 const fileSizeValidator = Yup.mixed().test(
   "fileSize",
-  "File size must be less than 1MB",
+  "File size must be less than 5MB",
   (value: unknown) => {
     if (value instanceof File) {
       return value.size <= FILE_SIZE_LIMIT;
