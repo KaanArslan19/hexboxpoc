@@ -239,10 +239,6 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       `/api/getCampaignFromProduct?productId=${product.id}`
     );
     const data = await response.json();
-    console.log(data);
-
-    //setCampaignAddress(data.campaign.fundraiser_address);
-    console.log(data.campaign.fundraiser_address);
 
     return data.campaign.fundraiser_address;
   };

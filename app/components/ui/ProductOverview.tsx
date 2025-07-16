@@ -16,7 +16,6 @@ export default function ProductOverview({
   product: ProductFetch;
   campaign: CampaignDetailsProps;
 }) {
-  console.log(product.fulfillmentDetails, "product");
   return (
     <div className="p-6 bg-white  border-gray-100">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
@@ -71,7 +70,7 @@ export default function ProductOverview({
             Smart Contract
           </span>
           <Link
-            href={`https://testnet.snowtrace.io/nft/0x49216924D47184954e25940a6352abc4b03AbAeD/${product.productId}?chainid=43113&type=erc1155`}
+            href={`https://testnet.snowtrace.io/nft/0xC0095941F79c6C44f6Bbb4Fe92E9612B5f1aD80a/${product.productId}?chainid=43113&type=erc1155`}
             target="_blank"
             className="w-full"
           >
