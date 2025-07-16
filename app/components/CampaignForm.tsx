@@ -407,24 +407,36 @@ export default function CampaignForm(props: Props) {
         .max(60, "Email must be 60 characters or less")
         .required("Email is required"),
       phoneNumber: Yup.string()
-        .max(18, "Phone Number must be 18 characters or less")
+        .matches(
+          /^\+?[0-9]{1,4}[0-9\s.-]{5,}$/,
+          "Please enter a valid phone number (e.g., +123 456789012 +44 7911 123456)"
+        )
+        .max(20, "Phone Number must be 20 characters or less")
         .required("Phone Number is required"),
-      website: Yup.string().max(
-        100,
-        "Website URL must be 100 characters or less"
-      ),
-      discord: Yup.string().max(
-        100,
-        "Discord URL must be 100 characters or less"
-      ),
-      telegram: Yup.string().max(
-        100,
-        "Telegram URL must be 100 characters or less"
-      ),
-      linkedIn: Yup.string().max(
-        100,
-        "LinkedIn URL must be 100 characters or less"
-      ),
+      website: Yup.string()
+        .url("Website must be a valid URL format (e.g., https://example.com)")
+        .max(
+          100,
+          "Website URL must be 100 characters or less"
+        ),
+      discord: Yup.string()
+        .url("Discord must be a valid URL format (e.g., https://discord.gg/example)")
+        .max(
+          100,
+          "Discord URL must be 100 characters or less"
+        ),
+      telegram: Yup.string()
+        .url("Telegram must be a valid URL format (e.g., https://t.me/example)")
+        .max(
+          100,
+          "Telegram URL must be 100 characters or less"
+        ),
+      linkedIn: Yup.string()
+        .url("LinkedIn must be a valid URL format (e.g., https://linkedin.com/in/example)")
+        .max(
+          100,
+          "LinkedIn URL must be 100 characters or less"
+        ),
     }),
     Yup.object({
       fundAmount: Yup.number()
