@@ -343,7 +343,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     }
   };
 
-  const handleBackProject = async () => {
+  const handleBackProject = async (): Promise<void> => {
     setIsLoading(true);
 
     if (!isConnected) {
@@ -408,6 +408,13 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       }
 
       // Call the API to prepare the transaction
+      console.log("About to call /api/buyProduct with:", {
+        campaignAddress: _campaignAddress,
+        userAddress: address,
+        productId: product.productId,
+        quantity: productQuantity,
+      });
+
       const response = await fetch("/api/buyProduct", {
         method: "POST",
         headers: {
@@ -421,13 +428,56 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         }),
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (!response.ok) {
-        setIsLoading(false);
-        const errorData = await response.json();
-        throw new Error(`Failed to prepare transaction: ${errorData.error}`);
+        let errorData: { error?: string; errorType?: string } = {};
+
+        try {
+          errorData = await response.json();
+          console.log("Error data from backend:", errorData);
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError);
+          errorData = { error: "Failed to parse error response" };
+        }
+
+        // Handle specific error types
+        if (errorData.errorType === "CAMPAIGN_FINALIZED") {
+          alert(
+            "This campaign has been finalized and is no longer accepting contributions. Please check back for future campaigns!"
+          );
+          setIsLoading(false);
+          return;
+        } else if (errorData.errorType === "INSUFFICIENT_SUPPLY") {
+          alert(
+            "Sorry, there isn't enough supply remaining for this product. Please reduce your quantity or try another product."
+          );
+          setIsLoading(false);
+          return;
+        } else if (response.status === 404) {
+          alert("Product not found. This product may no longer be available.");
+          setIsLoading(false);
+          return;
+        } else {
+          // Generic error handling with more details
+          console.error("Unhandled API error:", {
+            status: response.status,
+            errorData,
+            headers: Object.fromEntries(response.headers.entries()),
+          });
+          alert(
+            `Failed to prepare transaction: ${
+              errorData.error ||
+              `HTTP ${response.status}: ${response.statusText}`
+            }`
+          );
+          setIsLoading(false);
+          return;
+        }
       }
 
-      const data = await response.json();
+      const data: { to: string; data: string } = await response.json();
       console.log("Transaction data:", data);
 
       if (!walletClient) {
@@ -476,9 +526,22 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       } else {
         throw new Error("Transaction failed");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error backing project:", error);
-      alert("Failed to back project. Please try again.");
+
+      // More specific error handling for different types of errors
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      if (errorMessage.includes("user rejected")) {
+        alert("Transaction was cancelled by user.");
+      } else if (errorMessage.includes("insufficient funds")) {
+        alert("Insufficient funds to complete the transaction.");
+      } else if (errorMessage.includes("network")) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Failed to back project. Please try again.");
+      }
     } finally {
       setIsLoading(false);
       setIsVerifying(false);
@@ -672,7 +735,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm border border-gray-200 h-fit max-h-[750px] overflow-auto sticky top-0">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm border border-gray-200 h-fit max-h-[900px] overflow-auto sticky top-0">
             <div className="space-y-6">
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <p className="text-gray-600 text-sm font-medium">

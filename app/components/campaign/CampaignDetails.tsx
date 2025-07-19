@@ -149,8 +149,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           <h2 className="text-xl lg:text-2xl font-semibold">
             Desired Fund Amount
           </h2>
-          <div className="flex items-center bg-blueColor px-3 py-1 rounded-md">
-            <p className="text-xl font-medium text-white truncate max-w-[250px]">
+          <div className="flex items-center border-2 border-blueColorDull px-3 py-1 rounded-md">
+            <p className="text-xl font-semibold text-blueColorDull truncate max-w-[250px]">
               {formatPrice(fund_amount)}
             </p>
           </div>

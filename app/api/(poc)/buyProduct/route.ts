@@ -12,8 +12,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { campaignAddress, userAddress, productId, quantity } = await req.json();
-    
+    const { campaignAddress, userAddress, productId, quantity } =
+      await req.json();
+
     // Add detailed logging
     console.log("Raw request data:", {
       campaignAddress,
@@ -21,13 +22,13 @@ export async function POST(req: NextRequest) {
       productId: {
         value: productId,
         type: typeof productId,
-        string: productId.toString()
+        string: productId.toString(),
       },
       quantity: {
         value: quantity,
         type: typeof quantity,
-        string: quantity.toString()
-      }
+        string: quantity.toString(),
+      },
     });
 
     // Initialize provider
@@ -46,14 +47,47 @@ export async function POST(req: NextRequest) {
     const convertedProductId = ethers.parseUnits(productId.toString(), 0);
     const convertedQuantity = ethers.parseUnits(quantity.toString(), 0);
 
-    // Try to get the product first to verify the ID exists
+    // Check if the campaign is finalized
+    try {
+      console.log("Checking if campaign is finalized...");
+      const isFinalized = await contract.finalized();
+      console.log("Campaign finalized status:", isFinalized);
+
+      if (isFinalized) {
+        console.log("Campaign is finalized, returning error");
+        return NextResponse.json(
+          {
+            error:
+              "This campaign has been finalized and is no longer accepting contributions.",
+            errorType: "CAMPAIGN_FINALIZED",
+          },
+          { status: 400 }
+        );
+      }
+    } catch (finalizedError) {
+      console.error("Error checking finalized status:", finalizedError);
+      return NextResponse.json(
+        { error: "Unable to verify campaign status" },
+        { status: 500 }
+      );
+    }
+
+    // Try to get the product to verify the ID exists and check its status
     try {
       const product = await contract.products(convertedProductId);
       console.log("Product from contract:", {
         productId: product[0].toString(),
         price: product[1].toString(),
-        supplyLimit: product[2].toString()
+        supplyLimit: product[2].toString(),
       });
+
+      // Additional check: verify product exists (productId should not be 0)
+      if (product[0].toString() === "0") {
+        return NextResponse.json(
+          { error: "Product not found" },
+          { status: 404 }
+        );
+      }
     } catch (error) {
       console.error("Error fetching product:", error);
       return NextResponse.json(
@@ -61,7 +95,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
- 
+
     console.log("Converted values:", {
       productId: {
         original: productId,
@@ -70,26 +104,34 @@ export async function POST(req: NextRequest) {
       quantity: {
         original: quantity,
         converted: convertedQuantity.toString(),
-      }
+      },
     });
 
     // Try encoding with the converted values
     const txData = contract.interface.encodeFunctionData("deposit", [
       convertedProductId,
-      convertedQuantity
+      convertedQuantity,
     ]);
 
     console.log("Generated transaction data:", txData);
 
     return NextResponse.json({
       to: campaignAddress,
-      data: txData
+      data: txData,
     });
-
   } catch (error) {
     console.error("Error preparing transaction:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined,
+    });
+
     return NextResponse.json(
-      { error: String(error) },
+      {
+        error: error instanceof Error ? error.message : String(error),
+        details: "Check server logs for more information",
+      },
       { status: 500 }
     );
   }

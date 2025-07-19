@@ -8,20 +8,54 @@ interface Props {
 }
 
 export default async function ProductDetailsPage({ searchParams }: Props) {
-  const productId = searchParams.productId;
+  const productId = searchParams?.productId;
 
   if (!productId) {
-    console.error("No product ID provided in search params");
-    return null;
+    return (
+      <div className="text-center text-redColor py-8">
+        No product ID provided in the URL.
+      </div>
+    );
   }
 
-  const product: ProductFetch | null = await getProduct(productId);
+  let product: ProductFetch | null = null;
+  try {
+    product = await getProduct(productId);
+  } catch (err) {
+    return (
+      <div className="text-center text-redColor py-8">
+        Invalid product ID format.
+      </div>
+    );
+  }
 
   if (!product) {
-    console.error("Product not found with the given ID:", productId);
-    return <div>Product not found</div>;
+    return (
+      <div className="text-center text-redColor py-8">
+        Product not found for the given ID.
+      </div>
+    );
   }
-  const campaign = await fetchSingleCampaign(product.campaignId);
+
+  let campaign = null;
+  try {
+    campaign = await fetchSingleCampaign(product.campaignId);
+  } catch (err) {
+    return (
+      <div className="text-center text-redColor py-8">
+        Failed to load campaign for this product.
+      </div>
+    );
+  }
+
+  if (!campaign) {
+    return (
+      <div className="text-center text-redColor py-8">
+        Campaign not found for this product.
+      </div>
+    );
+  }
+
   const plainCampaign = {
     ...campaign,
     _id: campaign._id.toString(),
