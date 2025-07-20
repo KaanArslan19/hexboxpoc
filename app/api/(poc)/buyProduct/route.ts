@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { ethers } from "ethers";
-import { CONTRACTS } from "@/app/utils/contracts/contracts";
-// Import your contract ABI
 import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
 
 export async function POST(req: NextRequest) {
@@ -87,6 +85,48 @@ export async function POST(req: NextRequest) {
           { error: "Product not found" },
           { status: 404 }
         );
+      }
+
+      // Check if product has supply limit and if it's exceeded
+      const supplyLimit = product[2];
+      console.log("Product supply limit:", supplyLimit.toString());
+
+      if (supplyLimit > 0) {
+        try {
+          const productSoldCount = await contract.productSoldCount(
+            convertedProductId
+          );
+          console.log("Product sold count:", productSoldCount.toString());
+          console.log("Requested quantity:", convertedQuantity.toString());
+          console.log(
+            "Remaining supply:",
+            (supplyLimit - productSoldCount).toString()
+          );
+
+          if (
+            BigInt(productSoldCount) + BigInt(convertedQuantity) >
+            BigInt(supplyLimit)
+          ) {
+            console.log("Insufficient supply - returning error");
+            return NextResponse.json(
+              {
+                error: `Insufficient product supply remaining. Available: ${(
+                  supplyLimit - productSoldCount
+                ).toString()}, Requested: ${convertedQuantity.toString()}`,
+                errorType: "INSUFFICIENT_SUPPLY",
+                available: (supplyLimit - productSoldCount).toString(),
+                requested: convertedQuantity.toString(),
+              },
+              { status: 400 }
+            );
+          }
+        } catch (supplyError) {
+          console.error("Error checking product supply:", supplyError);
+          return NextResponse.json(
+            { error: "Unable to verify product supply" },
+            { status: 500 }
+          );
+        }
       }
     } catch (error) {
       console.error("Error fetching product:", error);

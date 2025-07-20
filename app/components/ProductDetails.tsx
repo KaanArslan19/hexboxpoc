@@ -257,8 +257,8 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       );
 
       const balance = await usdcContract.balanceOf(address);
-      console.log("User USDC balance:", ethers.formatUnits(balance, 6));
-
+      /*       console.log("User USDC balance:", ethers.formatUnits(balance, 6));
+       */
       return balance;
     } catch (error) {
       console.error("Error checking USDC balance:", error);
