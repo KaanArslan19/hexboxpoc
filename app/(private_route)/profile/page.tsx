@@ -3,6 +3,7 @@ import ProfilePageClient from "@/app/components/profile/ProfilePageClient";
 import { CampaignDetailsProps } from "@/app/types";
 import { getUserProducts } from "@/app/utils/poc_utils/getUserProducts";
 import { getAllProducts } from "@/app/utils/poc_utils/getProducts";
+import { ErrorMessage } from "@/app/components/ui/ErrorMessage";
 interface Props {
   searchParams: { userId: string };
 }
@@ -10,18 +11,42 @@ interface Props {
 export default async function ProfilePage({ searchParams }: Props) {
   const userId = searchParams?.userId;
   if (!userId) {
-    return <p>User ID is required</p>;
+    return (
+      <ErrorMessage
+        title="User ID Required"
+        message="No user ID was provided in the URL. Please check the link or log in again."
+      />
+    );
   }
-
-  const allCampaigns = await fetchCampaigns(1000, 0, undefined, "All");
-  const campaignsData = await fetchCampaignsByUser(userId);
-
-  const campaigns = Array.isArray(campaignsData)
-    ? campaignsData
-    : campaignsData.campaigns;
-
-  const allProducts = await getAllProducts();
-  const products = await getUserProducts(userId);
+  let allCampaigns, campaignsData, campaigns, allProducts, products;
+  try {
+    allCampaigns = await fetchCampaigns(1000, 0, undefined, "All");
+    campaignsData = await fetchCampaignsByUser(userId);
+    campaigns = Array.isArray(campaignsData)
+      ? campaignsData
+      : campaignsData.campaigns;
+    allProducts = await getAllProducts();
+    products = await getUserProducts(userId);
+  } catch (error: any) {
+    return (
+      <ErrorMessage
+        title="Failed to Load Profile"
+        message={
+          error?.message ||
+          "There was an error loading this profile. Please check the user ID or try again later."
+        }
+        showRetry
+      />
+    );
+  }
+  if (!campaigns || !Array.isArray(campaigns) || campaigns.length === 0) {
+    return (
+      <ErrorMessage
+        title="No Campaigns Found"
+        message="No campaigns were found for this user. The user ID may be incorrect or the user has not created any campaigns."
+      />
+    );
+  }
 
   // Calculate real dashboard statistics
   const totalFundsRaised = campaigns.reduce(

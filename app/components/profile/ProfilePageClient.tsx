@@ -73,32 +73,6 @@ export default function ProfilePageClient({
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(dashboardStats.totalFundsRaised);
-  const stats = [
-    {
-      title: "Total Raised",
-      value: formattedTotalFunds,
-    },
-    {
-      title: "Active Backers",
-      value: dashboardStats.activeBackers,
-      prefix: <TeamOutlined />,
-    },
-    {
-      title: "Campaigns",
-      value: campaigns.length,
-      prefix: <RocketOutlined />,
-    },
-    {
-      title: "Products",
-      value: products.length,
-      prefix: <ShopOutlined />,
-    },
-    {
-      title: "Products Sold",
-      value: dashboardStats.productsSold,
-    },
-  ];
-  console.log(campaigns, "campaigns");
   const [campaignFilter, setCampaignFilter] = React.useState<
     "created" | "invested"
   >("created");
@@ -140,11 +114,46 @@ export default function ProfilePageClient({
       });
     }
   });
-  console.log(investedProductIds, "investedProductIds");
   // Products invested by user (from all products)
   const investedProducts = allProducts.filter((p) =>
     investedProductIds.has(String(p.productId))
   );
+
+  // Dynamic stats for campaigns and products
+  const campaignCount =
+    campaignFilter === "created"
+      ? createdCampaigns.length
+      : investedCampaigns.length;
+  const productCount =
+    productFilter === "created"
+      ? createdProducts.length
+      : investedProducts.length;
+
+  const stats = [
+    {
+      title: "Total Raised",
+      value: formattedTotalFunds,
+    },
+    {
+      title: "Active Backers",
+      value: dashboardStats.activeBackers,
+      prefix: <TeamOutlined />,
+    },
+    {
+      title: "Campaigns",
+      value: campaigns.length,
+      prefix: <RocketOutlined />,
+    },
+    {
+      title: "Products",
+      value: products.length,
+      prefix: <ShopOutlined />,
+    },
+    {
+      title: "Products Sold",
+      value: dashboardStats.productsSold,
+    },
+  ];
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -285,12 +294,17 @@ export default function ProfilePageClient({
         type="card"
         size="large"
         className="bg-white rounded-lg shadow-sm p-4"
+        onChange={(key) => {
+          // Reset stats when switching tabs
+          if (key === "campaigns") setCampaignFilter(campaignFilter);
+          if (key === "products") setProductFilter(productFilter);
+        }}
       >
         <TabPane
           tab={
             <span>
               <RocketOutlined />
-              Campaigns ({campaigns.length})
+              Campaigns ({campaignCount})
             </span>
           }
           key="campaigns"
@@ -334,7 +348,7 @@ export default function ProfilePageClient({
           tab={
             <span>
               <ShopOutlined />
-              Products ({products.length})
+              Products ({productCount})
             </span>
           }
           key="products"
