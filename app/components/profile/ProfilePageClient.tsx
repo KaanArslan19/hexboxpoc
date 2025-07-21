@@ -202,6 +202,7 @@ export default function ProfilePageClient({
                   alt="Blockchain"
                   width={50}
                   height={50}
+                  priority
                   className="w-12 h-12"
                 />
               </div>
@@ -299,92 +300,99 @@ export default function ProfilePageClient({
           if (key === "campaigns") setCampaignFilter(campaignFilter);
           if (key === "products") setProductFilter(productFilter);
         }}
-      >
-        <TabPane
-          tab={
-            <span>
-              <RocketOutlined />
-              Campaigns ({campaignCount})
-            </span>
-          }
-          key="campaigns"
-        >
-          <div className="mb-4 flex items-center gap-2">
-            <span>Show:</span>
-            <Select
-              value={campaignFilter}
-              onChange={(v) => setCampaignFilter(v)}
-              style={{
-                width: 120,
-                backgroundColor:
-                  campaignFilter === "created" || campaignFilter === "invested"
-                    ? "var(--lightBlueColor)"
-                    : "white",
-                border: "1px solid #d9d9d9",
-                borderRadius: 6,
-                boxShadow: "none",
-              }}
-              dropdownStyle={{
-                borderRadius: 6,
-              }}
-              className="custom-select"
-              options={[
-                { value: "created", label: "Created" },
-                { value: "invested", label: "Invested" },
-              ]}
-            />
-          </div>
-          <CampaignsProfile
-            campaigns={
-              campaignFilter === "created"
-                ? createdCampaigns
-                : investedCampaigns
-            }
-            userId={userId}
-          />
-        </TabPane>
-
-        <TabPane
-          tab={
-            <span>
-              <ShopOutlined />
-              Products ({productCount})
-            </span>
-          }
-          key="products"
-        >
-          <div className="mb-4 flex items-center gap-2">
-            <span>Show:</span>
-            <Select
-              value={productFilter}
-              onChange={(v) => setProductFilter(v)}
-              style={{ width: 120 }}
-              options={[
-                { value: "created", label: "Created" },
-                { value: "invested", label: "Invested" },
-              ]}
-            />
-          </div>
-          <ProductsProfile
-            products={
-              productFilter === "created" ? createdProducts : investedProducts
-            }
-            userId={userId}
-          />
-        </TabPane>
-
-        <TabPane
-          tab={
-            <span>
-              <WalletOutlined />
-              Transactions
-            </span>
-          }
-          key="transactions"
-        >
-          <ProductTransactionHistory userAddress={userId} />
-        </TabPane>
-      </Tabs>
+        items={[
+          {
+            key: "campaigns",
+            label: (
+              <span>
+                <RocketOutlined />
+                Campaigns ({campaignCount})
+              </span>
+            ),
+            children: (
+              <div>
+                <div className="mb-4 flex items-center gap-2">
+                  <span>Show:</span>
+                  <Select
+                    value={campaignFilter}
+                    onChange={(v) => setCampaignFilter(v)}
+                    style={{
+                      width: 120,
+                      backgroundColor:
+                        campaignFilter === "created" ||
+                        campaignFilter === "invested"
+                          ? "var(--lightBlueColor)"
+                          : "white",
+                      border: "1px solid #d9d9d9",
+                      borderRadius: 6,
+                      boxShadow: "none",
+                    }}
+                    dropdownStyle={{
+                      borderRadius: 6,
+                    }}
+                    className="custom-select"
+                    options={[
+                      { value: "created", label: "Created" },
+                      { value: "invested", label: "Invested" },
+                    ]}
+                  />
+                </div>
+                <CampaignsProfile
+                  campaigns={
+                    campaignFilter === "created"
+                      ? createdCampaigns
+                      : investedCampaigns
+                  }
+                  userId={userId}
+                />
+              </div>
+            ),
+          },
+          {
+            key: "products",
+            label: (
+              <span>
+                <ShopOutlined />
+                Products ({productCount})
+              </span>
+            ),
+            children: (
+              <div>
+                <div className="mb-4 flex items-center gap-2">
+                  <span>Show:</span>
+                  <Select
+                    value={productFilter}
+                    onChange={(v) => setProductFilter(v)}
+                    style={{ width: 120 }}
+                    options={[
+                      { value: "created", label: "Created" },
+                      { value: "invested", label: "Invested" },
+                    ]}
+                  />
+                </div>
+                <ProductsProfile
+                  products={
+                    productFilter === "created"
+                      ? createdProducts
+                      : investedProducts
+                  }
+                  userId={userId}
+                />
+              </div>
+            ),
+          },
+          {
+            key: "transactions",
+            label: (
+              <span>
+                <WalletOutlined />
+                Transactions
+              </span>
+            ),
+            children: <ProductTransactionHistory userAddress={userId} />,
+          },
+        ]}
+      />
     </div>
   );
 }

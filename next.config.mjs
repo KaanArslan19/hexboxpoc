@@ -24,6 +24,7 @@ const nextConfig = {
     NEXT_PUBLIC_TESTNET_RPC_URL: process.env.NEXT_PUBLIC_TESTNET_RPC_URL,
     DEPLOYER_PRIVATE_KEY: process.env.DEPLOYER_PRIVATE_KEY,
   },
+  productionBrowserSourceMaps: false, //added to fix the source Map ERR
   images: {
     remotePatterns: [
       {

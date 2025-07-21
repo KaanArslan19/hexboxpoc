@@ -15,8 +15,6 @@ interface Props {
 }
 
 export default function CampaignsProfile({ campaigns, userId }: Props) {
-  console.log(campaigns, "campaigns");
-
   const campaignsArray = Array.isArray(campaigns)
     ? campaigns
     : campaigns.campaigns;

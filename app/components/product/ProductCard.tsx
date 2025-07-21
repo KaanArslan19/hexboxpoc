@@ -24,7 +24,8 @@ const ProductCard: React.FC<ProductFetch> = ({
         <Image
           src={`${process.env.R2_BUCKET_URL}/product_logos/${logo}`}
           alt={name}
-          layout="fill"
+          fill
+          sizes="112px"
           className="object-contain rounded-md"
         />
       </div>
