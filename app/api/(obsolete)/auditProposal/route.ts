@@ -1,5 +1,5 @@
 // import client from "@/app/utils/mongodb";
-// import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 // import { getServerSession } from "next-auth/next";
 // import { uploadImageToR2 } from "@/app/utils/imageUpload";
 // import { ObjectId } from "mongodb";
@@ -7,7 +7,7 @@
 // import { buyToken } from "@/app/utils/poc_utils/buyToken";
 // import { auditProposal } from "@/app/utils/poc_utils/auditProposal";
 
-// export const POST = async (req: NextRequest, res: NextResponse) => {
+export const POST = async (req: NextRequest, res: NextResponse) => {
 //   try {
 //     /*     const session = await getServerSession(authOptions)
 
@@ -63,4 +63,5 @@
 //       { status: 500 }
 //     );
 //   }
-// };
+return NextResponse.json("", { status: 200 });
+};
