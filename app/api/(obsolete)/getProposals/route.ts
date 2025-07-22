@@ -1,30 +1,30 @@
-import client from "@/app/utils/mongodb";
-import { ObjectId } from "mongodb";
-import { NextRequest, NextResponse } from "next/server";
+// import client from "@/app/utils/mongodb";
+// import { ObjectId } from "mongodb";
+// import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req: NextRequest) => {
-  try {
+// export const GET = async (req: NextRequest) => {
+//   try {
 
-    console.log(req.nextUrl.searchParams);
-    if (!req.nextUrl.searchParams.has("walletAddress")) {
-        return NextResponse.json({ error: "Wallet address is required" }, { status: 400 });
-    }
+//     console.log(req.nextUrl.searchParams);
+//     if (!req.nextUrl.searchParams.has("walletAddress")) {
+//         return NextResponse.json({ error: "Wallet address is required" }, { status: 400 });
+//     }
 
-    const walletAddress = req.nextUrl.searchParams.get("walletAddress")
+//     const walletAddress = req.nextUrl.searchParams.get("walletAddress")
 
-    const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+//     const mdbClient = client;
+//     const db = mdbClient.db("hexbox_poc");
 
-    const token = await db
-      .collection("proposals")
-      .find({wallet_address: walletAddress})
-      .toArray();
+//     const token = await db
+//       .collection("proposals")
+//       .find({wallet_address: walletAddress})
+//       .toArray();
 
-    console.log(token)
+//     console.log(token)
 
-    return NextResponse.json(token);
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: e }, { status: 500 });
-  }
-};
+//     return NextResponse.json(token);
+//   } catch (e) {
+//     console.error(e);
+//     return NextResponse.json({ error: e }, { status: 500 });
+//   }
+// };
