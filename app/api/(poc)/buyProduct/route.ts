@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { ethers } from "ethers";
 import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import { isAddressValidCampaign } from "@/app/utils/poc_utils/isAddressValidCampaign";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,13 +11,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { campaignAddress, userAddress, productId, quantity } =
-      await req.json();
+    // First, safely try to parse the request body
+    let parsedBody;
+    try {
+      parsedBody = await req.json();
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      return NextResponse.json({ 
+        error: "Invalid request body. Please provide a valid JSON payload.",
+        details: error instanceof Error ? error.message : String(error)
+      }, { status: 400 });
+    }
+    
+    // Now that we've safely parsed the body, validate required fields
+    const { campaignAddress, productId, quantity } = parsedBody;
+    
+    if (!campaignAddress || productId === undefined || quantity === undefined) {
+      return NextResponse.json({ 
+        error: "Missing required fields", 
+        details: "Required fields: campaignAddress, productId, quantity" 
+      }, { status: 400 });
+    }
+    
+    // Log the parsed data for debugging
+    console.log("Received request data:", parsedBody);
 
     // Add detailed logging
     console.log("Raw request data:", {
       campaignAddress,
-      userAddress,
       productId: {
         value: productId,
         type: typeof productId,
@@ -28,6 +50,34 @@ export async function POST(req: NextRequest) {
         string: quantity.toString(),
       },
     });
+
+    const isValidCampaign = await isAddressValidCampaign(campaignAddress);
+    if (!isValidCampaign) {
+      return NextResponse.json(
+        { error: "Invalid campaign address" },
+        { status: 400 }
+      );
+    }
+
+    // check if productId is a number or a string which contains a number (string must be a number)
+    if (typeof productId !== "number") {
+      if (isNaN(Number(productId))) {
+        return NextResponse.json(
+          { error: "Invalid product ID" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // check if quantity is a number or a string which contains a number (string must be a number)
+    if (typeof quantity !== "number") {
+      if (isNaN(Number(quantity))) {
+        return NextResponse.json(
+          { error: "Invalid quantity" },
+          { status: 400 }
+        );
+      }
+    }
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(

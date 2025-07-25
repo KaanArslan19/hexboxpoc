@@ -410,7 +410,6 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       // Call the API to prepare the transaction
       console.log("About to call /api/buyProduct with:", {
         campaignAddress: _campaignAddress,
-        userAddress: address,
         productId: product.productId,
         quantity: productQuantity,
       });
@@ -422,7 +421,6 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         },
         body: JSON.stringify({
           campaignAddress: _campaignAddress,
-          userAddress: address,
           productId: product.productId,
           quantity: productQuantity,
         }),
