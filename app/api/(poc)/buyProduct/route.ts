@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
     try {
       parsedBody = await req.json();
     } catch (error) {
-      console.error("Error parsing request body:", error);
       return NextResponse.json({ 
         error: "Invalid request body. Please provide a valid JSON payload.",
         details: error instanceof Error ? error.message : String(error)
@@ -35,21 +34,6 @@ export async function POST(req: NextRequest) {
     
     // Log the parsed data for debugging
     console.log("Received request data:", parsedBody);
-
-    // Add detailed logging
-    console.log("Raw request data:", {
-      campaignAddress,
-      productId: {
-        value: productId,
-        type: typeof productId,
-        string: productId.toString(),
-      },
-      quantity: {
-        value: quantity,
-        type: typeof quantity,
-        string: quantity.toString(),
-      },
-    });
 
     const isValidCampaign = await isAddressValidCampaign(campaignAddress);
     if (!isValidCampaign) {
@@ -97,12 +81,10 @@ export async function POST(req: NextRequest) {
 
     // Check if the campaign is finalized
     try {
-      console.log("Checking if campaign is finalized...");
       const isFinalized = await contract.finalized();
       console.log("Campaign finalized status:", isFinalized);
 
       if (isFinalized) {
-        console.log("Campaign is finalized, returning error");
         return NextResponse.json(
           {
             error:
@@ -146,18 +128,11 @@ export async function POST(req: NextRequest) {
           const productSoldCount = await contract.productSoldCount(
             convertedProductId
           );
-          console.log("Product sold count:", productSoldCount.toString());
-          console.log("Requested quantity:", convertedQuantity.toString());
-          console.log(
-            "Remaining supply:",
-            (supplyLimit - productSoldCount).toString()
-          );
 
           if (
             BigInt(productSoldCount) + BigInt(convertedQuantity) >
             BigInt(supplyLimit)
           ) {
-            console.log("Insufficient supply - returning error");
             return NextResponse.json(
               {
                 error: `Insufficient product supply remaining. Available: ${(
@@ -186,16 +161,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("Converted values:", {
-      productId: {
-        original: productId,
-        converted: convertedProductId.toString(),
-      },
-      quantity: {
-        original: quantity,
-        converted: convertedQuantity.toString(),
-      },
-    });
+    // console.log("Converted values:", {
+    //   productId: {
+    //     original: productId,
+    //     converted: convertedProductId.toString(),
+    //   },
+    //   quantity: {
+    //     original: quantity,
+    //     converted: convertedQuantity.toString(),
+    //   },
+    // });
 
     // Try encoding with the converted values
     const txData = contract.interface.encodeFunctionData("deposit", [
@@ -203,7 +178,7 @@ export async function POST(req: NextRequest) {
       convertedQuantity,
     ]);
 
-    console.log("Generated transaction data:", txData);
+    // console.log("Generated transaction data:", txData);
 
     return NextResponse.json({
       to: campaignAddress,
