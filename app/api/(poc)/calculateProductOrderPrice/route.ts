@@ -5,7 +5,7 @@ import { getServerSideUser } from "@/app/utils/getServerSideUser";
 export async function GET(req: NextRequest) {
 
     const session = await getServerSideUser(req);
-    console.log("Server side session:", session);
+    // console.log("Server side session:", session);
 
     if (!session.isAuthenticated) {
         console.log("User not authenticated");
@@ -20,9 +20,18 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Product ID and quantity are required" }, { status: 400 });
     }
 
-    console.log(productId, quantity);
+    if (isNaN(Number(productId)) || isNaN(Number(quantity))) {
+        return NextResponse.json({ error: "Product ID and quantity must be numbers" }, { status: 400 });
+    }
+
+    // check if quantity is above 0
+    if (Number(quantity) <= 0) {
+        return NextResponse.json({ error: "Quantity must be greater than 0" }, { status: 400 });
+    }
+
+   // console.log(productId, quantity);
     const product = await client.db("hexbox_poc").collection("products").findOne({ productId: Number(productId) });
-    console.log(product);
+    // console.log(product);
 
     if (!product) {
         return NextResponse.json({ error: "Product not found" }, { status: 404 });
