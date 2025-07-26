@@ -1,3 +1,56 @@
+export const fetchCampaignsWithCount = async (
+  limit: number,
+  skip: number,
+  query?: string,
+  status: string = "active",
+  sortBy: string = "total_raised",
+  sortOrder: string = "desc"
+): Promise<{ campaigns: any[]; total: number }> => {
+  try {
+    const url = new URL(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
+    url.searchParams.append("limit", limit.toString());
+    url.searchParams.append("skip", skip.toString());
+    url.searchParams.append("sortBy", sortBy);
+    url.searchParams.append("sortOrder", sortOrder);
+
+    if (status) {
+      url.searchParams.append("status", status);
+    }
+    if (query) {
+      url.searchParams.append("query", query);
+    }
+
+    const response = await fetch(url.toString(), {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch campaigns");
+    }
+
+    const data = await response.json();
+
+    if (data.campaigns && data.total !== undefined) {
+      return {
+        campaigns: data.campaigns,
+        total: data.total,
+      };
+    } else if (Array.isArray(data)) {
+      return {
+        campaigns: data,
+        total: data.length,
+      };
+    } else {
+      return {
+        campaigns: data.campaigns || [],
+        total: data.total || 0,
+      };
+    }
+  } catch (error) {
+    console.error("Failed to fetch campaigns with count:", error);
+    return { campaigns: [], total: 0 };
+  }
+};
 export const fetchCampaigns = async (
   limit: number,
   skip: number,

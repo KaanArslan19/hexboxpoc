@@ -5,7 +5,13 @@ import { CampaignListProps } from "@/app/types";
 import { fetchCampaigns } from "@/app/utils/apiHelpers";
 import CustomButton from "../ui/CustomButton";
 
-const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
+const CampaignList: React.FC<CampaignListProps> = ({
+  listings,
+  query,
+  status,
+  sortBy,
+  sortOrder,
+}) => {
   const [campaigns, setCampaigns] = useState(listings);
   const [skip, setSkip] = useState(listings.length);
   const [hasMore, setHasMore] = useState(true);
@@ -14,7 +20,14 @@ const CampaignList: React.FC<CampaignListProps> = ({ listings }) => {
   const loadMoreCampaigns = async () => {
     setLoading(true);
     try {
-      const newCampaigns = await fetchCampaigns(limit, skip);
+      const newCampaigns = await fetchCampaigns(
+        limit,
+        skip,
+        query,
+        status,
+        sortBy,
+        sortOrder
+      );
 
       if (newCampaigns && newCampaigns.length > 0) {
         setCampaigns((prev) => [...prev, ...newCampaigns]);

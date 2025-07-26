@@ -30,6 +30,10 @@ export interface CampaignListProps {
     status: Status;
     total_raised: number;
   }[];
+  query?: string;
+  status?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 interface Author {
   name: string;

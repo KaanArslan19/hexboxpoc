@@ -7,7 +7,7 @@ import SearchForm from "@/app/components/SearchForm";
 import CampaignFilter from "@/app/components/ui/CampaignFilter";
 import { Status } from "@/app/components/ui/CampaignFilter";
 import { useSearchParams } from "next/navigation";
-import { fetchCampaigns } from "@/app/utils/apiHelpers";
+import { fetchCampaignsWithCount } from "@/app/utils/apiHelpers"; // Import the new function
 import HexagonLoading from "@components/ui/HexagonLoading";
 
 export default function CampaignsContent() {
@@ -17,14 +17,18 @@ export default function CampaignsContent() {
   const status = (searchParams.get("status") as Status) || "active";
   const sortBy = searchParams.get("sortBy") || "total_raised";
   const sortOrder = searchParams.get("sortOrder") || "desc";
+
   const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0); // Add total count state
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await fetchCampaigns(
+      // Use the new function that returns both campaigns and total
+      const result = await fetchCampaignsWithCount(
         10,
         0,
         query,
@@ -32,11 +36,14 @@ export default function CampaignsContent() {
         sortBy,
         sortOrder
       );
-      setCampaigns(result);
+
+      setCampaigns(result.campaigns);
+      setTotalCount(result.total); // Set the total count
     } catch (error) {
       console.error("Failed to fetch campaigns:", error);
       setError("Failed to load campaigns. Please try again.");
       setCampaigns([]);
+      setTotalCount(0);
     } finally {
       setIsLoading(false);
     }
@@ -100,12 +107,16 @@ export default function CampaignsContent() {
         <>
           {campaigns && campaigns.length > 0 ? (
             <>
+              {/* Updated to show total count instead of current page count */}
               <div className="mb-4 text-left text-gray-600">
-                {campaigns.length}{" "}
-                {campaigns.length === 1 ? "campaign" : "campaigns"} found
+                {totalCount} {totalCount === 1 ? "campaign" : "campaigns"} found
               </div>
               <CampaignList
                 listings={campaigns}
+                query={query}
+                status={status}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
                 key={`campaigns-${status}-${query}`}
               />
             </>
