@@ -12,8 +12,18 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { transactionHash, status, productId, campaignId } = body;
+    // First, safely try to parse the request body
+    let parsedBody;
+    try {
+      parsedBody = await req.json();
+    } catch (error) {
+      return NextResponse.json({ 
+        error: "Invalid request body. Please provide a valid JSON payload.",
+        details: error instanceof Error ? error.message : String(error)
+      }, { status: 400 });
+    }
+
+    const { transactionHash, status, productId, campaignId } = parsedBody;
 
     if (!transactionHash) {
       return NextResponse.json(
@@ -27,21 +37,48 @@ export const POST = async (req: NextRequest) => {
 
     // If transaction failed
     if (status === "failed") {
-      // Delete the product from the database
+      // Delete the product from the database only if it's not active
       try {
         const mdbClient = client;
         const db = mdbClient.db("hexbox_poc");
-        await db.collection("products").deleteOne({
+        
+        // Check product status before deleting
+        const product = await db.collection("products").findOne({
           productId: productId,
         });
         
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Transaction failed on-chain, product deleted from database",
-          },
-          { status: 400 }
-        );
+        if (!product) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Transaction failed on-chain, but product not found in database",
+            },
+            { status: 404 }
+          );
+        }
+        
+        // Only delete if product status is "draft"
+        if (product.status === "draft") {
+          await db.collection("products").deleteOne({
+            productId: productId,
+          });
+          
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Transaction failed on-chain, draft product deleted from database",
+            },
+            { status: 400 }
+          );
+        } else {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Transaction failed on-chain, but product is in '${product.status}' status and was not deleted`,
+            },
+            { status: 400 }
+          );
+        }
       } catch (error) {
         console.error("Error deleting product:", error);
         return NextResponse.json(
@@ -62,21 +99,48 @@ export const POST = async (req: NextRequest) => {
     // Wait for transaction receipt
     const receipt = await provider.getTransactionReceipt(transactionHash);
     if (!receipt || !receipt.status) {
-      // Delete the product from the database
+      // Delete the product from the database only if it's not active
       try {
         const mdbClient = client;
         const db = mdbClient.db("hexbox_poc");
-        await db.collection("products").deleteOne({
+        
+        // Check product status before deleting
+        const product = await db.collection("products").findOne({
           productId: productId,
         });
         
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Transaction failed or not found, product deleted from database",
-          },
-          { status: 400 }
-        );
+        if (!product) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Transaction failed or not found, but product not found in database",
+            },
+            { status: 404 }
+          );
+        }
+        
+        // Only delete if product status is "draft"
+        if (product.status === "draft") {
+          await db.collection("products").deleteOne({
+            productId: productId,
+          });
+          
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Transaction failed or not found, draft product deleted from database",
+            },
+            { status: 400 }
+          );
+        } else {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Transaction failed or not found, but product is in '${product.status}' status and was not deleted`,
+            },
+            { status: 400 }
+          );
+        }
       } catch (error) {
         console.error("Error deleting product:", error);
         return NextResponse.json(
@@ -132,24 +196,36 @@ export const POST = async (req: NextRequest) => {
       const productConfig = await fundraiserContract.products(product.productId);
       
       if (productConfig.price.toString() === "0") {
-        // Product not found in contract, delete from database
-        await db.collection("products").deleteOne({
-          productId: productId,
-        });
+        // Product not found in contract, check status before deleting from database
         
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Product not found in contract, deleted from database",
-          },
-          { status: 400 }
-        );
+        // Only delete if product status is "draft"
+        if (product.status === "draft") {
+          await db.collection("products").deleteOne({
+            productId: productId,
+          });
+          
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Product not found in contract, draft product deleted from database",
+            },
+            { status: 400 }
+          );
+        } else {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Product not found in contract, but product is in '${product.status}' status and was not deleted`,
+            },
+            { status: 400 }
+          );
+        }
       }
       
       // Update product status in database
       await db.collection("products").updateOne(
         { productId: productId },
-        { $set: { status: "active" } }
+        { $set: { status: "available" } }
       );
       
       return NextResponse.json({
