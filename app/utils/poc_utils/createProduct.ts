@@ -41,7 +41,9 @@ export async function createProduct(
 
     const productLogoFile = formData.get("logo") as File;
     if (!productLogoFile) {
-      throw new Error("Logo is required");
+      return {
+        error: "Logo is required",
+      };
     }
 
     // Upload product logo
@@ -184,7 +186,7 @@ export async function createProduct(
 
       isDonationProduct: false,
 
-      status: productEntries.status || "available",
+      status: "draft",
       timestamp: Date.now(),
     };
 

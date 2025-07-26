@@ -17,8 +17,35 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
 
     const creatorWalletAddress = session.address;
+    
+    // Check Content-Type header
+    const contentType = req.headers.get('content-type') || '';
+    let formData;
 
-    const formData = await req.formData();
+    try {
+      // Only attempt to parse form data if content type is correct
+      if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
+        formData = await req.formData();
+      } else {
+        return NextResponse.json(
+          { 
+            error: "Invalid Content-Type", 
+            message: "Content-Type must be 'multipart/form-data' or 'application/x-www-form-urlencoded'" 
+          },
+          { status: 400 }
+        );
+      }
+    } catch (error) {
+      console.error("Error parsing form data:", error);
+      return NextResponse.json(
+        { 
+          error: "Failed to parse form data", 
+          message: error instanceof Error ? error.message : "Unknown error" 
+        },
+        { status: 400 }
+      );
+    }
+    
     if (!formData) {
       return NextResponse.json(
         { error: "Product data is required" },
@@ -26,7 +53,15 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       );
     }
 
-    const campaign = await getCampaign(formData.get("campaignId") as string);
+    const campaignId = formData.get("campaignId");
+    if (!campaignId) {
+      return NextResponse.json(
+        { error: "Campaign ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const campaign = await getCampaign(campaignId as string);
 
     if (!campaign) {
       return NextResponse.json(
@@ -47,11 +82,13 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     // Validate character limits for all product fields
     const characterLimitErrors: Record<string, string> = {};
     const formEntries = Object.fromEntries(formData.entries());
+    console.log("Form entries:", formEntries);
 
     // Stock max limit: 13 characters (1 trillion)
     let stock: any = null;
     try {
       if (formEntries.inventory && typeof formEntries.inventory === 'string') {
+        console.log("Inventory string:", formEntries.inventory);
         const inventoryObj = JSON.parse(formEntries.inventory);
         stock = inventoryObj?.stock_level;
       }

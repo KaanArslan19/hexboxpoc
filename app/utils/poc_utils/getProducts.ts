@@ -22,40 +22,37 @@ export const getProducts = async (
     }
 
     const formattedProducts: ProductFetch[] = products.map((product) => {
+      // Set default values for all products
+      let parsedPrice = {
+        amount: 0,
+        tax_inclusive: false,
+        gst_rate: 0,
+        gst_amount: 0,
+      };
+      
+      let parsedInventory = { stock_level: 0 };
+
       // Safe parsing for price
-      let parsedPrice;
       try {
         parsedPrice =
           typeof product.price === "string"
             ? JSON.parse(product.price)
-            : product.price || {
-                amount: 0,
-                tax_inclusive: false,
-                gst_rate: 0,
-                gst_amount: 0,
-              };
+          : product.price || parsedPrice;
       } catch (error) {
         console.error("Error parsing price:", error);
-        parsedPrice = {
-          amount: 0,
-          tax_inclusive: false,
-          gst_rate: 0,
-          gst_amount: 0,
-        };
       }
 
       // Safe parsing for inventory
-      let parsedInventory;
       try {
         parsedInventory =
           typeof product.inventory === "string"
             ? JSON.parse(product.inventory)
-            : product.inventory || { stock_level: 0 };
+            : product.inventory || parsedInventory;
       } catch (error) {
         console.error("Error parsing inventory:", error);
-        parsedInventory = { stock_level: 0 };
       }
-
+      
+      // Return a properly formatted product for all products, including drafts
       return {
         id: product._id.toString(),
         productId: product.productId || 0,
@@ -101,7 +98,9 @@ export const getProducts = async (
       };
     });
 
-    return formattedProducts;
+    return formattedProducts
+      .filter((product): product is ProductFetch => product !== undefined)
+      .filter(product => product.status !== "draft");
   } catch (error) {
     console.error("Error in getProducts:", error);
     return [];
@@ -195,7 +194,9 @@ export const getAllProducts = async (): Promise<ProductFetch[]> => {
         deliveryDate: product.deliveryDate || "",
       };
     });
-    return formattedProducts;
+    return formattedProducts
+      .filter((product): product is ProductFetch => product !== undefined)
+      .filter(product => product.status !== "draft");
   } catch (error) {
     console.error("Error in getAllProducts:", error);
     return [];
