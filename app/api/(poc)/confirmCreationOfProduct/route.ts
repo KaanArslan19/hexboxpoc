@@ -35,6 +35,17 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    // check if status, productId and campaignId exists
+    if (!status || !productId || !campaignId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Missing arguments",
+        },
+        { status: 400 }
+      );
+    }
+
     // If transaction failed
     if (status === "failed") {
       // Delete the product from the database only if it's not active
