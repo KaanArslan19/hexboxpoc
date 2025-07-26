@@ -13,7 +13,7 @@ const termsData = {
   effectiveDate: "08.07.2025",
   lastUpdated: "08.07.2025",
   company: {
-    name: "Hexbox",
+    name: "OTOCO MATIC LLC - hexbox - Series 126",
     website: "hexbox.money",
   },
 
@@ -50,7 +50,7 @@ const termsData = {
     {
       term: "Funding Types",
       definition:
-        "The available funding models on Hexbox, including All or Nothing, Flexible Funding, and Limitless Funding.",
+        "Funds are only released if the campaign reaches its full fundraising target by the set deadline. This ensures the project has the minimum resources required to deliver promised outcomes, and no partial funding is disbursed if the goal is not met.",
     },
     {
       term: "All or Nothing",
@@ -60,17 +60,17 @@ const termsData = {
     {
       term: "Flexible Funding",
       definition:
-        "Any amount raised, even if less than the original target, is transferred to the Executor. The Executor must scale project delivery proportionally and communicate transparently with Investors.",
+        "Any amount raised, even if less than the original target, is transferred to the Executor. Executors using this model must scale project delivery proportionally to the funds received and maintain transparent communication with Investors about any adjustments.",
     },
     {
       term: "Limitless Funding",
       definition:
-        "There is no predefined fundraising cap, and funds can be collected continuously over time.",
+        "There is no predefined cap or fundraising target, and funds can be collected continuously over time. This model suits ongoing or evolving projects, requiring Executors to provide regular updates and maintain accountability as funds accumulate indefinitely.",
     },
     {
       term: "Ticket",
       definition:
-        "A blockchain-based digital proof of contribution issued automatically to the Investor upon successful donation. Tickets enforce refund eligibility and finalization logic via smart contracts.",
+        "A blockchain-based digital proof of contribution issued automatically to the Investor upon successful donation to a campaign. Tickets serve as verifiable records of participation, may provide access to campaign-related rights, and are used to enforce refund eligibility and finalization logic via smart contracts. Tickets do not represent ownership, equity, or financial instruments.",
     },
   ],
 
@@ -79,7 +79,7 @@ const termsData = {
       number: 1,
       title: "Agreement to Terms",
       content:
-        "These Executors Terms and Conditions establish the legal framework between you and Hexbox for your use of the Platform as an Executor. By using the Platform, you agree to be bound by these Terms.",
+        "These Executors Terms and Conditions ('Terms') establish the legal framework between you ('Executor,' 'you,' or 'your') and OTOCO MATIC LLC - hexbox - Series 126 ('Hexbox','we,' 'us,' or 'our') for your use of the Hexbox crowdfunding platform ('Platform'). By using the Platform as an Executor, you agree to be bound by these Terms and to uphold the commitments detailed herein.",
     },
     {
       number: 2,
@@ -103,14 +103,14 @@ const termsData = {
       number: 5,
       title: "Responsibilities of the Executor",
       content:
-        "Executors must provide truthful project details, fulfill promised deliverables, use funds solely for campaign purposes, comply with all laws, and provide transparent updates to Investors.",
+        "Executors must provide truthful project details, fulfill promised deliverables, use funds solely for campaign purposes, comply with all laws (including tax, financial, and consumer protection regulations), provide transparent updates to Investors, and are prohibited from using the Platform to create or promote financial products subject to regulation under applicable financial or securities laws.",
       isImportant: true,
     },
     {
       number: 6,
       title: "Responsibilities of Hexbox",
       content:
-        "Hexbox provides platform infrastructure, smart contracts, and digital ticket issuance. Hexbox does not guarantee campaign success or act as a broker, financial institution, or intermediary.",
+        "Hexbox provides platform infrastructure, smart contracts, and digital ticket issuance. Hexbox does not guarantee campaign success or act as a broker, financial institution, or intermediary. It reserves the right to monitor, suspend, or remove campaigns that violate these Terms or applicable laws and provides refund mechanisms during active campaigns.",
     },
     {
       number: 7,
@@ -128,13 +128,13 @@ const termsData = {
       number: 9,
       title: "Late Pledges and Additional Funding",
       content:
-        "Late pledges are not permitted. Executors must conduct fundraising only through official Platform channels.",
+        "Late pledges are not permitted. Executors must conduct fundraising only through official Platform channels. Any unauthorized fundraising activities are prohibited, and Hexbox reserves the right to suspend campaigns, notify regulatory authorities, and take legal action in case of violations.",
     },
     {
       number: 10,
       title: "Escrow and Disbursement",
       content:
-        "Funds are held in escrow smart contracts until campaign conditions are met. Executors may not access funds prior to release and must use funds only for stated campaign purposes.",
+        "Funds are held in escrow smart contracts until campaign conditions are met. Executors may not access funds prior to release and must use funds only for stated campaign purposes. Hexbox provides mechanisms for issuing tickets as proof of contribution and ensuring refund rights during the fundraising phase. Misuse of funds or attempts to circumvent escrow mechanisms are strictly prohibited and may result in legal action.",
     },
     {
       number: 11,
@@ -183,7 +183,7 @@ const termsData = {
       number: 18,
       title: "Blockchain Irreversibility Notice",
       content:
-        "Even if campaigns are removed from Hexbox, blockchain records remain immutable and publicly accessible.",
+        "Even if campaigns are removed from Hexbox, blockchain records remain immutable, public, and permanently recorded on the blockchain. Executors are fully responsible for ensuring compliance with laws and Platform rules for all blockchain-recorded activities.",
     },
     {
       number: 19,
@@ -207,7 +207,7 @@ const termsData = {
       number: 22,
       title: "Governing Law and Sanctioned Countries Disclosure",
       content:
-        "These Terms are governed by U.S. law. Executors must not operate from countries under international sanctions.",
+        "These Terms are governed by U.S. law. Executors must not operate from countries under international sanctions or trade restrictions, including those listed by OFAC, the European Union, or the United Nations. Hexbox reserves the right to suspend or terminate campaigns in violation of these rules.",
     },
   ],
 };

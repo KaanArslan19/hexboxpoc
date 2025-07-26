@@ -415,28 +415,20 @@ export default function CampaignForm(props: Props) {
         .required("Phone Number is required"),
       website: Yup.string()
         .url("Website must be a valid URL format (e.g., https://example.com)")
-        .max(
-          100,
-          "Website URL must be 100 characters or less"
-        ),
+        .max(100, "Website URL must be 100 characters or less"),
       discord: Yup.string()
-        .url("Discord must be a valid URL format (e.g., https://discord.gg/example)")
-        .max(
-          100,
-          "Discord URL must be 100 characters or less"
-        ),
+        .url(
+          "Discord must be a valid URL format (e.g., https://discord.gg/example)"
+        )
+        .max(100, "Discord URL must be 100 characters or less"),
       telegram: Yup.string()
         .url("Telegram must be a valid URL format (e.g., https://t.me/example)")
-        .max(
-          100,
-          "Telegram URL must be 100 characters or less"
-        ),
+        .max(100, "Telegram URL must be 100 characters or less"),
       linkedIn: Yup.string()
-        .url("LinkedIn must be a valid URL format (e.g., https://linkedin.com/in/example)")
-        .max(
-          100,
-          "LinkedIn URL must be 100 characters or less"
-        ),
+        .url(
+          "LinkedIn must be a valid URL format (e.g., https://linkedin.com/in/example)"
+        )
+        .max(100, "LinkedIn URL must be 100 characters or less"),
     }),
     Yup.object({
       fundAmount: Yup.number()
@@ -1017,13 +1009,12 @@ export default function CampaignForm(props: Props) {
                     </button>
                   )}
                 </div>
-                {/* Save Draft Button with Anti-Spam Cooldown */}
                 <div className="flex items-center mt-4">
                   <button
                     className={`px-4 py-2 rounded ${
                       isSaving
                         ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blueColor hover:bg-blue-600"
+                        : "bg-blueColor hover:bg-blueColor/80"
                     } text-white transition duration-200`}
                     type="button"
                     disabled={isSaving}

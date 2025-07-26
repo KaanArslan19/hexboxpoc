@@ -115,12 +115,44 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     "0%": "#FFC629",
     "100%": "#CE0E2D",
   };
-  console.log(fund_amount, "fundsss----------------------");
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative w-full h-[400px]">
-        <div className="absolute inset-0 w-full h-full ">
-          <div className="absolute inset-0 bg-yellowColor/30 rounded-md" />
+        <div className="absolute inset-0 w-full h-full rounded-xl overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blueColor via-blueColorDull to-blueColor" />
+
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(233,78,27,0.7)_0%,transparent_80%)]" />
+          <div className="absolute inset-0 backdrop-blur-[100px]" />
+
+          <div className="absolute inset-0 opacity-30">
+            <div className="hexagon-pattern animate-pulse" />
+          </div>
+
+          <div className="absolute inset-0">
+            <div className="particles-container">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="particle absolute animate-float"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDuration: `${Math.random() * 8 + 8}s`,
+                    animationDelay: `${Math.random() * 5}s`,
+                  }}
+                >
+                  <svg
+                    width={Math.random() * 16 + 8}
+                    height={Math.random() * 16 + 8}
+                    viewBox="0 0 24 24"
+                    fill="rgba(255, 255, 255, 0.2)"
+                  >
+                    <path d="M12,0 L23.1,6 L23.1,18 L12,24 L0.9,18 L0.9,6 Z" />
+                  </svg>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="relative grid grid-cols-3 gap-4 h-full">

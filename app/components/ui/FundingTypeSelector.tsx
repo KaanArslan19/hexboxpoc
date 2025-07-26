@@ -54,7 +54,7 @@ export default function FundingTypeSelector({
             <div
               key={key}
               className={` rounded-2xl p-6 shadow-lg cursor-pointer transition-all duration-300 
-              hover:shadow-xl hover:border-blueColor/60 border-2
+              hover:shadow-xl hover:border-blueColor/60 border-2 mb-2 
               ${
                 selectedType === fundingKey
                   ? "border-blueColor/60 bg-lightBlueColor"

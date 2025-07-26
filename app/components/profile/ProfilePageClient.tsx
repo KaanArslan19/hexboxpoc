@@ -238,7 +238,7 @@ export default function ProfilePageClient({
                   </Text>
                 </div>
 
-                <div className="w-full lg:w-auto">
+                {/*          <div className="w-full lg:w-auto">
                   <div className="mt-4 lg:mt-0 p-3 bg-gray-50 rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-300">
                     <div className="flex items-center gap-2 mb-2">
                       <PhoneOutlined className="text-blueColor" />
@@ -255,7 +255,7 @@ export default function ProfilePageClient({
                       </Text>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
