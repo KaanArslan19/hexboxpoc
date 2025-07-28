@@ -28,6 +28,33 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       );
     }
     console.log("formData-----", formData);
+    
+    // Check for required fields
+    const requiredFields = [
+      "title",
+      "description", 
+      "wallet_address",
+      "fund_amount",
+      "one_liner",
+      "deadline",
+      "funding_type",
+      "email",
+      "phoneNumber",
+      "social_links",
+      "location"
+    ];
+    
+    const missingFields = requiredFields.filter(field => !formData.has(field) || !formData.get(field));
+    
+    if (missingFields.length > 0) {
+      return NextResponse.json(
+        { 
+          error: "Missing required fields", 
+          missingFields: missingFields 
+        },
+        { status: 400 }
+      );
+    }
 
     // Get the logo file from form data
     const logoFile = formData.get("logo") as File;
@@ -189,7 +216,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       token_address: "",
       logo: logoFileName,
       timestamp: Date.now(),
-      status: "active",
+      status: "draft",
       fund_amount: campaignEntries.fund_amount,
       total_raised: 0,
       one_liner: campaignEntries.one_liner,
@@ -199,7 +226,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       is_verified: false,
       factCheck: false,
       funding_type: campaignEntries.funding_type,
-      evm_wa: campaignEntries.wallet_address,
       configured: false,
       transactions: [],
       email: campaignEntries.email,
@@ -351,7 +377,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const functionData = factoryContract.interface.encodeFunctionData(
       "createFundraiser",
       [
-        campaign.evm_wa,
+        campaign.wallet_address,
         chosenFundingType,
         ethers.parseUnits(campaign.fund_amount.toString(), 6),
         campaign.deadline,

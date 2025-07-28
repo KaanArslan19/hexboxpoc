@@ -13,7 +13,7 @@ export const buyToken = async (campaign_id: string, amount: number) => {
       return { error: "Campaign not found" };
     }
 
-    const walletAddress = campaign.evm_wa; // CHANGE TO EVM WALLET ADDRESS
+    const walletAddress = campaign.wallet_address;
 
     const transaction = await createUSDCTransaction(walletAddress, amount);
     console.log(transaction);
