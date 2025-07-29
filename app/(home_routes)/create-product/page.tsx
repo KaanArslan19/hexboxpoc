@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { ProductOrService } from "@/app/types";
 import { useTransaction } from "@/app/hooks/useTransaction";
+import { apiFetch } from "@/app/utils/api-client";
 
 interface Props {
   searchParams: { campaignId: string };
@@ -29,7 +30,7 @@ export default function CreateProductPage({ searchParams }: Props) {
       try {
         setTransactionStatus("Confirming product creation...");
 
-        const confirmResponse = await fetch("/api/confirmCreationOfProduct", {
+        const confirmResponse = await apiFetch("/api/confirmCreationOfProduct", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export default function CreateProductPage({ searchParams }: Props) {
       if (responseData?.productId) {
         try {
           console.log("Attempting to delete product:", responseData.productId);
-          const cleanupResponse = await fetch("/api/confirm-product-creation", {
+          const cleanupResponse = await apiFetch("/api/confirm-product-creation", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -114,7 +115,7 @@ export default function CreateProductPage({ searchParams }: Props) {
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
-        const res = await fetch(`/api/getCampaign?campaignId=${campaignId}`);
+        const res = await apiFetch(`/api/getCampaign?campaignId=${campaignId}`);
         if (!res.ok) throw new Error("Campaign not found");
         const campaign = await res.json();
 
@@ -229,7 +230,7 @@ export default function CreateProductPage({ searchParams }: Props) {
 
       setTransactionStatus("Saving product to database...");
       console.log(formData);
-      const response = await fetch("/api/create-product", {
+      const response = await apiFetch("/api/create-product", {
         method: "POST",
         body: formData,
       });

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { debounce } from 'lodash';
 import { NewCampaignInfo } from '@/app/types';
+import { apiFetch } from '@/app/utils/api-client';
 
 // Extended campaign form data type to include logoPreview
 interface CampaignFormData extends Omit<Partial<NewCampaignInfo>, 'social_links' | 'deadline' | 'logo'> {
@@ -24,7 +25,7 @@ export function useCampaignDraft(initialData: any) {
   useEffect(() => {
     const checkForDraft = async () => {
       try {
-        const response = await fetch('/api/campaignDraft');
+        const response = await apiFetch('/api/campaignDraft');
         if (response.ok) {
           const data = await response.json();
           if (data?.formData) {
@@ -46,7 +47,7 @@ export function useCampaignDraft(initialData: any) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const saveDraft = debounce(async (data: CampaignFormData) => {
     try {
-      await fetch('/api/campaignDraft', {
+      await apiFetch('/api/campaignDraft', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formData: data })
@@ -66,7 +67,7 @@ export function useCampaignDraft(initialData: any) {
   // Load draft data
   const loadDraft = async (): Promise<CampaignFormData | null> => {
     try {
-      const response = await fetch('/api/campaignDraft');
+      const response = await apiFetch('/api/campaignDraft');
       if (response.ok) {
         const data = await response.json();
         if (data?.formData) {
@@ -83,7 +84,7 @@ export function useCampaignDraft(initialData: any) {
   // Delete draft after successful submission
   const deleteDraft = async () => {
     try {
-      await fetch('/api/campaignDraft', {
+      await apiFetch('/api/campaignDraft', {
         method: 'DELETE'
       });
     } catch (error) {

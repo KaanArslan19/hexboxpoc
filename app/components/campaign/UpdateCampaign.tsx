@@ -7,6 +7,7 @@ import {
   FundingType,
 } from "@/app/types";
 import UpdateCampaignForm from "./UpdateCampaignForm";
+import { apiFetch } from "@/app/utils/api-client";
 
 interface Props {
   campaign: NewCampaignInfoResponse;
@@ -92,7 +93,7 @@ export default function UpdateCampaign({ campaign }: Props) {
         campaignId
       );
 
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/updateCampaign?campaignId=${campaignId}`,
         {
           method: "POST",

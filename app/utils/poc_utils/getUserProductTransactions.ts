@@ -11,7 +11,7 @@ export interface ProductTransaction {
   amount: number;
   timestamp: number;
   txHash: string;
-}
+} 
 
 // Helper to query logs in chunks
 async function queryFilterInChunks(

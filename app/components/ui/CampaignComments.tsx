@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Heart, Reply, Flag, MoreHorizontal, Send, User } from "lucide-react";
 import CustomButton from "./CustomButton";
+import { apiFetch } from "@/app/utils/api-client";
 
 interface Comment {
   id: string;
@@ -93,7 +94,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
     }
 
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/like-comment?campaignId=${campaignId}`,
         {
           method: "POST",
@@ -161,7 +162,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
 
     setIsSubmittingReply(true);
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/add-comment?campaignId=${campaignId}`,
         {
           method: "POST",
@@ -214,7 +215,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/add-comment?campaignId=${campaignId}`,
         {
           method: "POST",

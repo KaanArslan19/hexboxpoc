@@ -20,6 +20,8 @@ import ProductTechDetails from "./ui/ProductTechDetails";
 import ReactConfetti from "react-confetti";
 import Modal from "react-modal";
 import { DescriptionAccordion } from "./ui/DescriptionAccordion";
+import { apiFetch } from "@/app/utils/api-client";
+
 interface CampaignProductsProps {
   product: ProductFetch;
 }
@@ -235,7 +237,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   ];
 
   const getCampaignAddress = async () => {
-    const response = await fetch(
+    const response = await apiFetch(
       `/api/getCampaignFromProduct?productId=${product.id}`
     );
     const data = await response.json();
@@ -284,7 +286,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         provider
       );
 
-      const getCalculatedPrice = await fetch(
+      const getCalculatedPrice = await apiFetch(
         `/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`,
         {
           method: "GET",
@@ -372,7 +374,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       console.log("Campaign address:", _campaignAddress);
 
       // Get the calculated price first
-      const getCalculatedPrice = await fetch(
+      const getCalculatedPrice = await apiFetch(
         `/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${productQuantity}`,
         {
           method: "GET",
@@ -414,7 +416,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         quantity: productQuantity,
       });
 
-      const response = await fetch("/api/buyProduct", {
+      const response = await apiFetch("/api/buyProduct", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -675,7 +677,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
     try {
       // Get the calculated price first (reusing your existing API call)
-      const getCalculatedPrice = await fetch(
+      const getCalculatedPrice = await apiFetch(
         `/api/calculateProductOrderPrice?productId=${product.productId}&quantity=${quantity}`,
         {
           method: "GET",

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ProductFetch } from "@/app/types";
 import Link from "next/link";
+import { apiFetch } from "@/app/utils/api-client";
 
 interface ProductTransactionHistoryProps {
   userAddress: string;
@@ -33,7 +34,7 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
     if (!userAddress) return;
     setLoading(true);
     setError(null);
-    fetch(
+    apiFetch(
       `/api/user-owned-products?userAddress=${encodeURIComponent(userAddress)}`
     )
       .then((res) => res.json())

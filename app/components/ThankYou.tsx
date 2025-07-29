@@ -6,6 +6,7 @@ import Image from "next/image";
 import { MoveRight } from "lucide-react";
 import ReactConfetti from "react-confetti";
 import ShareButton from "@/app/components/ui/ShareButton";
+import { apiFetch } from "@/app/utils/api-client";
 export default function ThankYou() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,7 +27,7 @@ export default function ThankYou() {
       }
 
       try {
-        const response = await fetch(
+        const response = await apiFetch(
           `/api/getCampaign?campaignId=${campaignId}`
         );
         const data = await response.json();

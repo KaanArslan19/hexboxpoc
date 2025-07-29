@@ -9,6 +9,7 @@ import { useAccount } from "wagmi";
 import { createCampaignTransaction } from "@/app/utils/poc_utils/campaignCreationTransaction";
 import { useTransaction } from "@/app/hooks/useTransaction";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { apiFetch } from "@/app/utils/api-client";
 
 export default function CreateProject() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function CreateProject() {
             "Attempting to delete campaign:",
             responseData.campaignId
           );
-          const cleanupResponse = await fetch("/api/deleteCampaign", {
+          const cleanupResponse = await apiFetch("/api/deleteCampaign", {
             method: "POST",
             credentials: "include",
             headers: {
@@ -92,7 +93,7 @@ export default function CreateProject() {
       formData.append("social_links", JSON.stringify(values.social_links));
       formData.append("funding_type", values.funding_type.toString());
 
-      const firstResponse = await fetch("/api/createCampaign", {
+      const firstResponse = await apiFetch("/api/createCampaign", {
         method: "POST",
         body: formData,
       });
