@@ -36,6 +36,7 @@ export default function CreateProductPage({ searchParams }: Props) {
           },
           body: JSON.stringify({
             transactionHash: hash,
+            status: "success",
             productId: responseData.productId,
             campaignId: responseData.campaignId,
           }),
