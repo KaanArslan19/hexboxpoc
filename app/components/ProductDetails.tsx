@@ -238,7 +238,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
   const getCampaignAddress = async () => {
     const response = await apiFetch(
-      `/api/getCampaignFromProduct?productId=${product.id}`
+      `/api/getCampaignFromProduct?productId=${product.id}&fields=fundraiser_address`
     );
     const data = await response.json();
 

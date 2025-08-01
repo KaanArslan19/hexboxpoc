@@ -22,7 +22,34 @@ export const getCampaignFromProduct = async (productId: string) => {
       throw new Error("Campaign not found");
     }
 
-    return campaign;
+    const campaignData = {
+      "campaign":{
+        "_id": campaign._id,
+        "user_id": campaign.user_id,
+        "title": campaign.title,
+        "description": campaign.description,
+        "wallet_address": campaign.wallet_address,
+        "logo": campaign.logo,
+        "timestamp": campaign.timestamp,
+        "status": campaign.status,
+        "fund_amount": campaign.fund_amount,
+        "total_raised": campaign.total_raised,
+        "one_liner": campaign.one_liner,
+        "social_links": campaign.social_links,
+        "location": campaign.location,
+        "deadline": campaign.deadline,
+        "is_verified": campaign.is_verified,
+        "factCheck": campaign.factCheck,
+        "funding_type": campaign.funding_type,
+        "evm_wa": campaign.evm_wa,
+        "configured": campaign.configured,
+        "transactions": campaign.transactions,
+        "fundraiser_address": campaign.fundraiser_address,
+        "last_synced": campaign.last_synced
+      }
+    };
+
+    return campaignData;
   } catch (error) {
     console.error("Error fetching campaign:", error);
     throw error;
