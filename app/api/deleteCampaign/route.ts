@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (campaign.configured == true) {
+    if (campaign.status != "draft") {
       return NextResponse.json(
         { success: false, error: "Campaign is configured" },
         { status: 400 }
