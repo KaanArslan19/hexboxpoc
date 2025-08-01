@@ -27,40 +27,55 @@ export const POST = async (req: NextRequest) => {
     }
 
     const body = await req.json();
-    const { transactionHash, status } = body;
+    const { transactionHash, campaignId } = body;
 
-    if (!transactionHash) {
+    if (!transactionHash || !campaignId) {
       return NextResponse.json(
         {
           success: false,
-          error: "Transaction hash is required",
+          error: "Transaction hash and campaign ID are required",
         },
         { status: 400 }
       );
     }
 
-    // If transaction failed
-    if (status === "failed") {
+    // Check if transactionHash is in valid EVM transaction hash format
+    // EVM transaction hash should be a 0x-prefixed 32-byte hex string (66 chars including 0x)
+    const validHashFormat = /^0x[0-9a-fA-F]{64}$/;
+    if (!validHashFormat.test(transactionHash)) {
       return NextResponse.json(
         {
           success: false,
-          error: "Transaction failed on-chain",
+          error: "Invalid transaction hash format. Must be a 0x-prefixed 32-byte hex string.",
         },
         { status: 400 }
       );
     }
 
-    const campaignId = body.campaignId;
     console.log("campaignId", campaignId);
+    let campaignIdObjectId;
+    try {
+      campaignIdObjectId = new ObjectId(campaignId as string);
+      console.log("campaignIdObjectId", campaignIdObjectId);
+    } catch (e) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid campaign ID format",
+        },
+        { status: 400 }
+      );
+    }
+
     const userWalletAddress = session.address;
     console.log("userWalletAddress", userWalletAddress);
 
     const mdbClient = client;
     const db = mdbClient.db("hexbox_poc");
     const result = await db.collection("campaigns").findOne({
-      _id: new ObjectId(campaignId),
+      _id: campaignIdObjectId,
       user_id: userWalletAddress,
-      configured: false,
+      status: "draft",
     });
 
     if (!result) {
@@ -134,14 +149,12 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           success: false,
-          error: "Fundraiser address not found",
+          error: "Fundraiser address not found in transaction receipt",
         },
         { status: 400 }
       );
     }
 
-    // TODO: Launch Chainlink Upkeep for the fundraiser
-    // This would be your implementation to register the upkeep with Chainlink
     const deployer = new ethers.Wallet(
       process.env.DEPLOYER_PRIVATE_KEY!,
       provider
