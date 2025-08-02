@@ -61,7 +61,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       );
     }
 
-    const campaign = await getCampaign(campaignId as string);
+    const campaign = await getCampaign(campaignId as string, true);
 
     if (!campaign) {
       return NextResponse.json(

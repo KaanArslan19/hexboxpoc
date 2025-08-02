@@ -9,14 +9,14 @@ interface Props {
 }
 
 const fetchCampaignInfo = async (campaignId: string) => {
-  const campaign = await getCampaign(campaignId);
+  const campaign = await getCampaign(campaignId, true);
   if (!campaign) return redirect("/404");
 
   const finalCampaign = {
     _id: campaign._id.toString(),
     title: campaign.title,
-    email: campaign.email,
-    phoneNumber: campaign.phoneNumber,
+    email: campaign.email || "",
+    phoneNumber: campaign.phoneNumber || 0,
     description: campaign.description,
     logo: campaign.logo,
     one_liner: campaign.one_liner,

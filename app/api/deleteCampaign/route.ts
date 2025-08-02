@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const campaign = await getCampaign(campaignId);
+    const campaign = await getCampaign(campaignId, false);
     console.log("Found campaign:", campaign);
 
     if (!campaign) {

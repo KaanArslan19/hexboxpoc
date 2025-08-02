@@ -8,7 +8,7 @@ import { getCampaign } from "../getCampaign";
 
 export const buyToken = async (campaign_id: string, amount: number) => {
   try {
-    const campaign = await getCampaign(campaign_id);
+    const campaign = await getCampaign(campaign_id, true);
     if (!campaign) {
       return { error: "Campaign not found" };
     }
