@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { COOKIE_KEYS } from "@/app/lib/auth/constants";
 import { sessionManager } from "@/app/lib/auth/utils/sessionManager";
+import mongodb from "@/app/utils/mongodb";
 
 export async function POST(request: Request) {
   try {
@@ -22,6 +23,11 @@ export async function POST(request: Request) {
         // Revoke the specific session
         await sessionManager.revokeSession(address, jti);
         console.log("Revoked session:", { address, jti });
+        const session = await mongodb.db("hexbox_poc").collection("sessions").findOne({ address: address, jti: jti });
+        console.log("Session:", session);
+        if (session) {
+          await mongodb.db("hexbox_poc").collection("sessions").updateOne({ address: address, jti: jti }, { $set: { status: "inactive" } });
+        }
       } catch (error) {
         console.error("Error revoking session:", error);
       }
