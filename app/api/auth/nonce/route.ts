@@ -9,9 +9,21 @@ async function generateNonceHandler(request: Request) {
   try {
     // For GET requests, use a default address
     // For POST requests, get address from body
+    // First, safely try to parse the request body
+    let parsedBody;
+    if (request.method === 'POST') {
+      try {
+        parsedBody = await request.json();
+      } catch (error) {
+        return NextResponse.json({ 
+          error: "Invalid request body. Please provide a valid JSON payload.",
+          details: error instanceof Error ? error.message : String(error)
+        }, { status: 400 });
+      }
+    }
     const address = request.method === 'GET' 
       ? 'default' 
-      : (await request.json()).address;
+      : parsedBody.address;
     
     if (!address) {
       return NextResponse.json(
