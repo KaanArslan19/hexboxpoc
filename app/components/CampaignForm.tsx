@@ -6,6 +6,11 @@ import { Steps } from "antd";
 import ImageSelector from "./ui/ImageSelector";
 import { NewCampaignInfo, FundingType } from "@/app/types";
 import { useCampaignDraft } from "../hooks/useCampaignDraft";
+import { 
+  campaignFormValidationSchemas, 
+  campaignFormInitialValues,
+  fileSizeValidator 
+} from "@/app/lib/validation/campaignDraftValidation";
 import RestoreDraftModal from "./RestoreDraftModal";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
@@ -23,42 +28,14 @@ const steps = [
   { title: "Review" },
 ];
 
-const FILE_SIZE_LIMIT = 1024 * 1024 * 5; // 5MB in bytes
-const fileSizeValidator = Yup.mixed().test(
-  "fileSize",
-  "File size must be less than 5MB",
-  (value: unknown) => {
-    if (value instanceof File) {
-      return value.size <= FILE_SIZE_LIMIT;
-    }
-    return true;
-  }
-);
+
 
 interface Props {
   onSubmit(values: NewCampaignInfo): Promise<any>;
   onImageRemove?(source: string): void;
 }
 
-// Define initialValues before using it in the component
-const initialValues = {
-  title: "",
-  description: "",
-  email: "",
-  phoneNumber: "",
-  fundAmount: 0,
-  logo: null,
-  deadline: "",
-  location: "",
-  wallet_address: "",
-  one_liner: "",
-  telegram: "",
-  discord: "",
-  website: "",
-  linkedIn: "",
-  funding_type: FundingType.Limitless,
-  acceptTerms: false,
-};
+
 
 export default function CampaignForm(props: Props) {
   const { onSubmit, onImageRemove } = props;
@@ -107,7 +84,9 @@ export default function CampaignForm(props: Props) {
     loadDraft,
     updateFormData,
     deleteDraft,
-  } = useCampaignDraft(initialValues);
+    saveError,
+    isSaving: isDraftSaving
+  } = useCampaignDraft(campaignFormInitialValues);
 
   // We need to manage the lifecycle of form tracking and saving very carefully to prevent empty saves
 
@@ -272,7 +251,7 @@ export default function CampaignForm(props: Props) {
 
       // Set form values
       formikRef.current.setValues({
-        ...initialValues,
+        ...campaignFormInitialValues,
         ...draftData,
       });
 
@@ -312,7 +291,7 @@ export default function CampaignForm(props: Props) {
     }, 1000)
   ).current;
 
-  const handleSubmit = async (values: typeof initialValues) => {
+  const handleSubmit = async (values: typeof campaignFormInitialValues) => {
     setIsPending(true);
     setSubmitError(null);
 
@@ -382,82 +361,7 @@ export default function CampaignForm(props: Props) {
     }
   );
 
-  const validationSchema = [
-    Yup.object({
-      title: Yup.string()
-        .max(60, "Title must be 60 characters or less")
-        .required("Title is required"),
-      one_liner: Yup.string()
-        .max(80, "One Liner must be 80 characters or less")
-        .required("One Liner is required"),
-      logo: fileSizeValidator.required("Logo is required"),
-    }),
-    Yup.object({
-      description: Yup.string()
-        .max(10000, "Description must be 10000 characters or less")
-        .required("Description is required"),
-      location: Yup.string()
-        .max(60, "Location must be 60 characters or less")
-        .required("Location is required"),
-      deadline: Yup.date()
-        .required("Project Deadline date is required")
-        .min(new Date(), "Deadline must be in the future"),
-      email: Yup.string()
-        .email("Invalid email format")
-        .max(60, "Email must be 60 characters or less")
-        .required("Email is required"),
-      phoneNumber: Yup.string()
-        .matches(
-          /^\+?[0-9]{1,4}[0-9\s.-]{5,}$/,
-          "Please enter a valid phone number (e.g., +123 456789012 +44 7911 123456)"
-        )
-        .max(20, "Phone Number must be 20 characters or less")
-        .required("Phone Number is required"),
-      website: Yup.string()
-        .url("Website must be a valid URL format (e.g., https://example.com)")
-        .max(100, "Website URL must be 100 characters or less"),
-      discord: Yup.string()
-        .url(
-          "Discord must be a valid URL format (e.g., https://discord.gg/example)"
-        )
-        .max(100, "Discord URL must be 100 characters or less"),
-      telegram: Yup.string()
-        .url("Telegram must be a valid URL format (e.g., https://t.me/example)")
-        .max(100, "Telegram URL must be 100 characters or less"),
-      linkedIn: Yup.string()
-        .url(
-          "LinkedIn must be a valid URL format (e.g., https://linkedin.com/in/example)"
-        )
-        .max(100, "LinkedIn URL must be 100 characters or less"),
-    }),
-    Yup.object({
-      fundAmount: Yup.number()
-        .typeError("Fund amount must be a number")
-        .required("Fund amount is required")
-        .min(0.0000001, "Fund amount must be greater than 0")
-        .max(1000000000000, "Fund amount must be less than 1 trillion"),
-      wallet_address: Yup.string()
-        .max(42, "Wallet address must be 42 characters or less")
-        .matches(
-          /^0x[a-fA-F0-9]{40}$/,
-          "Wallet address must be a valid EVM address"
-        )
-        .required("Wallet address is required"),
-    }),
-    Yup.object({
-      funding_type: Yup.string()
-        .oneOf(Object.values(FundingType))
-        .required("Please select a funding type"),
-    }),
-    Yup.object({
-      funding_type: Yup.string()
-        .oneOf(Object.values(FundingType))
-        .required("Please select a funding type"),
-      acceptTerms: Yup.boolean()
-        .oneOf([true], "You must accept the terms and conditions to proceed")
-        .required("You must accept the terms and conditions"),
-    }),
-  ];
+
 
   // const initialValues = {
   //   title: "",
@@ -579,12 +483,12 @@ export default function CampaignForm(props: Props) {
         </div>
       ) : (
         <Formik
-          initialValues={hasDraft && formData ? formData : initialValues}
-          validationSchema={validationSchema[currentStep]}
+          innerRef={formikRef}
+          initialValues={hasDraft && formData ? formData : campaignFormInitialValues}
+          validationSchema={campaignFormValidationSchemas[currentStep]}
           enableReinitialize={true}
           validateOnMount={true}
           onSubmit={handleSubmit}
-          innerRef={formikRef}
         >
           {({ validateForm, setFieldValue, submitForm, values, errors }) => {
             // We're not using an effect here anymore since we have a debounced effect at the component level
@@ -595,6 +499,26 @@ export default function CampaignForm(props: Props) {
                 <h1 className="text-3xl text-center mb-4">
                   Create Your Campaign
                 </h1>
+                
+                {/* Draft saving status indicator */}
+                <div className="mb-4 text-center">
+                  {isDraftSaving && (
+                    <div className="inline-flex items-center text-blue-600 text-sm">
+                      <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                      Saving draft...
+                    </div>
+                  )}
+                  {saveError && (
+                    <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-2 mt-2">
+                      <strong>Draft Save Error:</strong> {saveError}
+                    </div>
+                  )}
+                  {!isDraftSaving && !saveError && formData && (
+                    <div className="text-green-600 text-sm">
+                      ✓ Draft auto-saved
+                    </div>
+                  )}
+                </div>
                 <div className="mb-6">
                   <Steps
                     progressDot

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { debounce } from 'lodash';
 import { NewCampaignInfo } from '@/app/types';
 import { apiFetch } from '@/app/utils/api-client';
+import { toast } from 'react-toastify';
 
 // Extended campaign form data type to include logoPreview
 interface CampaignFormData extends Omit<Partial<NewCampaignInfo>, 'social_links' | 'deadline' | 'logo'> {
@@ -20,6 +21,8 @@ export function useCampaignDraft(initialData: any) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasDraft, setHasDraft] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Check for existing draft on component mount
   useEffect(() => {
@@ -46,14 +49,58 @@ export function useCampaignDraft(initialData: any) {
   // Save draft when form data changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const saveDraft = debounce(async (data: CampaignFormData) => {
+    setIsSaving(true);
+    setSaveError(null);
+    
     try {
-      await apiFetch('/api/campaignDraft', {
+      const response = await apiFetch('/api/campaignDraft', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formData: data })
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        
+        if (errorData.details && Array.isArray(errorData.details)) {
+          // Handle validation errors
+          const errorMessages = errorData.details.map((detail: any) => 
+            `${detail.field}: ${detail.message}`
+          ).join(', ');
+          
+          const errorMsg = `Draft save failed: ${errorMessages}`;
+          setSaveError(errorMsg);
+          toast.error(errorMsg, {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        } else {
+          // Handle general errors
+          const errorMsg = errorData.error || 'Failed to save draft';
+          setSaveError(errorMsg);
+          toast.error(`Draft save failed: ${errorMsg}`, {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
+      } else {
+        // Success - clear any previous errors
+        setSaveError(null);
+        toast.success('Draft saved successfully', {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      }
     } catch (error) {
       console.error('Error saving draft:', error);
+      const errorMsg = 'Network error while saving draft';
+      setSaveError(errorMsg);
+      toast.error(errorMsg, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    } finally {
+      setIsSaving(false);
     }
   }, 1000); // 1 second debounce
   
@@ -100,6 +147,8 @@ export function useCampaignDraft(initialData: any) {
     showRestoreModal,
     setShowRestoreModal,
     loadDraft,
-    deleteDraft
+    deleteDraft,
+    saveError,
+    isSaving
   };
 }
