@@ -36,10 +36,43 @@ class SessionManager {
   private readonly SESSION_VERSION = 1;
 
   generateDeviceId(request: Request): string {
+    // Collect multiple fingerprinting data points
     const userAgent = request.headers.get('user-agent') || '';
-    const ip = request.headers.get('x-forwarded-for') || '';
+    const acceptLanguage = request.headers.get('accept-language') || '';
+    const acceptEncoding = request.headers.get('accept-encoding') || '';
     const accept = request.headers.get('accept') || '';
-    return `${userAgent}-${ip}-${accept}`.slice(0, 64);
+    const connection = request.headers.get('connection') || '';
+    const cacheControl = request.headers.get('cache-control') || '';
+    const dnt = request.headers.get('dnt') || '';
+    const upgradeInsecureRequests = request.headers.get('upgrade-insecure-requests') || '';
+    
+    // Get IP with multiple fallbacks
+    const ip = request.headers.get('x-forwarded-for') || 
+              request.headers.get('x-real-ip') || 
+              request.headers.get('cf-connecting-ip') || 
+              'unknown';
+    
+    // Create comprehensive fingerprint string
+    const fingerprintData = [
+      userAgent,
+      acceptLanguage,
+      acceptEncoding, 
+      accept,
+      connection,
+      cacheControl,
+      dnt,
+      upgradeInsecureRequests,
+      ip
+    ].join('|');
+    
+    // Generate cryptographic hash for security and consistency
+    const crypto = require('crypto');
+    const hash = crypto.createHash('sha256')
+      .update(fingerprintData)
+      .digest('hex');
+    
+    // Return first 32 characters for reasonable length
+    return hash.substring(0, 32);
   }
 
   private parseUserAgent(userAgent: string): { browser: string; os: string; device: string } {

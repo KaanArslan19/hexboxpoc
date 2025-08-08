@@ -9,10 +9,36 @@ import { COOKIE_KEYS, JWT_CONFIG } from "@/app/lib/auth/constants";
 import { nonceTracker } from "@/app/lib/auth/utils/nonceTracker";
 import { sessionManager } from "@/app/lib/auth/utils/sessionManager";
 import { mongoSessionStore } from "@/app/lib/auth/utils/mongoSessionStore";
+import { withRateLimit, verifyRateLimiter } from "@/app/lib/auth/utils/rateLimiter";
+import { securityLogger } from "@/app/lib/auth/utils/securityLogger";
 
-export async function POST(request: Request) {
+async function verifyHandler(request: Request) {
   try {
-    const { message, signature } = await request.json();
+
+    if (!process.env.JWT_SECRET_KEY) {
+      throw new Error("JWT_SECRET_KEY environment variable is required");
+    }
+    
+    let parsedBody;
+    try {
+      parsedBody = await request.json();
+    } catch (error) {
+      return NextResponse.json({ 
+        error: "Invalid request body. Please provide a valid JSON payload.",
+        details: error instanceof Error ? error.message : String(error)
+      }, { status: 400 });
+    }
+
+    const { message, signature } = parsedBody;
+    if (!message || !signature) {
+      return NextResponse.json({
+        error: "Missing message or signature in request body",
+      }, { status: 400 });
+    }
+    if (typeof message !== 'object' || typeof signature !== 'string') {
+      return NextResponse.json({ error: "Invalid input types" }, { status: 400 });
+    }
+
     console.log("Received verification request with message:", message);
     
     const siweMessage = new SiweMessage(message);
@@ -49,20 +75,36 @@ export async function POST(request: Request) {
       );
       console.log("Nonce JWT verification successful, payload:", payload);
 
-      // Track the nonce usage
-      try {
-        nonceTracker.addNonce(fields.address, fields.nonce);
-      } catch (error) {
-        console.error("Nonce tracking error:", error);
+      // Validate nonce consistency between SIWE message and JWT payload
+      if (fields.nonce !== payload.nonce) {
+        console.error("Nonce mismatch:", { siweNonce: fields.nonce, jwtNonce: payload.nonce });
         return NextResponse.json(
-          { error: "Nonce has already been used. Please try connecting again." },
+          { error: "Nonce mismatch. Please try connecting again." },
           { status: 401 }
         );
       }
 
-      // Create a new session
+      // Atomically check and use the nonce (prevents race conditions)
+      try {
+        await nonceTracker.checkAndUseNonce(fields.address, fields.nonce);
+      } catch (error) {
+        console.error("Nonce validation error:", error);
+        return NextResponse.json(
+          { error: "Nonce has already been used or is invalid. Please try connecting again." },
+          { status: 401 }
+        );
+      }
+
+      // Check for suspicious activity
+      await securityLogger.detectSuspiciousActivity(request, fields.address);
+
+      // Create and store session
       const { jwt: sessionJwt, jti: sessionJti } = await sessionManager.createSession(fields.address, request);
-      
+      const deviceId = sessionManager.generateDeviceId(request);
+
+      // Log successful authentication
+      await securityLogger.logAuthSuccess(request, fields.address, deviceId, sessionJti);
+
       // Verify the session JWT
       const { payload: sessionPayload } = await jwtVerify(
         sessionJwt,
@@ -120,6 +162,7 @@ export async function POST(request: Request) {
       return response;
     } catch (jwtError) {
       console.error("JWT verification error:", jwtError);
+      await securityLogger.logAuthFailure(request, "Invalid nonce token");
       return NextResponse.json(
         { error: "Invalid nonce token. Please try connecting again." },
         { status: 401 }
@@ -127,12 +170,16 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error('Verification error:', error);
+    await securityLogger.logAuthFailure(request, "Failed to verify signature");
     return NextResponse.json(
       { error: "Failed to verify signature. Please try connecting again." },
       { status: 401 }
     );
   }
 }
+
+// Export POST handler with rate limiting
+export const POST = withRateLimit(verifyRateLimiter, verifyHandler);
 
 async function generateJwt(payload: {
   address: string;

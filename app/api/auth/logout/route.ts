@@ -4,8 +4,10 @@ import { jwtVerify } from "jose";
 import { COOKIE_KEYS } from "@/app/lib/auth/constants";
 import { sessionManager } from "@/app/lib/auth/utils/sessionManager";
 import mongodb from "@/app/utils/mongodb";
+import { withRateLimit, logoutRateLimiter } from "@/app/lib/auth/utils/rateLimiter";
+import { securityLogger } from "@/app/lib/auth/utils/securityLogger";
 
-export async function POST(request: Request) {
+async function logoutHandler(request: Request) {
   try {
     const cookieStore = cookies();
     const jwtCookie = cookieStore.get(COOKIE_KEYS.JWT);
@@ -23,11 +25,9 @@ export async function POST(request: Request) {
         // Revoke the specific session
         await sessionManager.revokeSession(address, jti);
         console.log("Revoked session:", { address, jti });
-        const session = await mongodb.db("hexbox_poc").collection("sessions").findOne({ address: address, jti: jti });
-        console.log("Session:", session);
-        if (session) {
-          await mongodb.db("hexbox_poc").collection("sessions").updateOne({ address: address, jti: jti }, { $set: { status: "inactive" } });
-        }
+        
+        // Log session revocation
+        await securityLogger.logSessionRevoked(address, jti, "User logout");
       } catch (error) {
         console.error("Error revoking session:", error);
       }
@@ -46,3 +46,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// Export POST handler with rate limiting
+export const POST = withRateLimit(logoutRateLimiter, logoutHandler);

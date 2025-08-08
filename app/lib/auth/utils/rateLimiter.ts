@@ -7,7 +7,7 @@ interface RateLimitConfig {
 
 class RateLimiter {
   private requests: Map<string, number[]>;
-  private config: RateLimitConfig;
+  public config: RateLimitConfig;
 
   constructor(config: RateLimitConfig) {
     this.requests = new Map();
@@ -45,13 +45,60 @@ class RateLimiter {
   }
 }
 
-// Create rate limiter instance for nonce generation
+// Create rate limiter instances for different auth endpoints
 export const nonceRateLimiter = new RateLimiter({
   maxRequests: 5, // 5 requests
   windowMs: 60 * 1000, // per minute
 });
 
+// More restrictive for verification attempts (prevent brute force)
+export const verifyRateLimiter = new RateLimiter({
+  maxRequests: 10, // 10 verification attempts
+  windowMs: 60 * 1000, // per minute
+});
+
+// Moderate limits for auth checks (frequent but not abusive)
+export const checkRateLimiter = new RateLimiter({
+  maxRequests: 30, // 30 requests
+  windowMs: 60 * 1000, // per minute
+});
+
+// Moderate limits for logout (prevent spam logout)
+export const logoutRateLimiter = new RateLimiter({
+  maxRequests: 10, // 10 requests
+  windowMs: 60 * 1000, // per minute
+});
+
+// Generic rate limit wrapper
 export function withRateLimit(
+  rateLimiter: RateLimiter,
+  handler: (request: Request) => Promise<NextResponse>
+) {
+  return async (request: Request) => {
+    const identifier = request.headers.get("x-forwarded-for") || 
+                      request.headers.get("x-real-ip") ||
+                      "unknown";
+    
+    if (rateLimiter.isRateLimited(identifier)) {
+      return NextResponse.json(
+        { 
+          error: "Too many requests. Please try again later.",
+          retryAfter: Math.ceil(rateLimiter.config.windowMs / 1000)
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil(rateLimiter.config.windowMs / 1000).toString()
+          }
+        }
+      );
+    }
+    return handler(request);
+  };
+}
+
+// Convenience wrapper for nonce endpoint (backward compatibility)
+export function withNonceRateLimit(
   handler: (request: Request) => Promise<NextResponse>,
   identifier: string
 ) {

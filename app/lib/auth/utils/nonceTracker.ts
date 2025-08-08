@@ -1,56 +1,66 @@
-interface NonceEntry {
-  nonce: string;
-  timestamp: number;
-}
+import { mongoNonceStore } from './mongoNonceStore';
 
+/**
+ * NonceTracker now uses MongoDB for persistent, atomic nonce operations
+ * This prevents replay attacks after server restarts and eliminates race conditions
+ */
 class NonceTracker {
-  private nonces: Map<string, NonceEntry[]>;
-  private maxAge: number;
-
-  constructor(maxAgeMs: number = 5 * 60 * 1000) { // 5 minutes default
-    this.nonces = new Map();
-    this.maxAge = maxAgeMs;
-  }
-
-  addNonce(address: string, nonce: string): void {
-    const now = Date.now();
-    const entries = this.nonces.get(address) || [];
-    
-    // Remove expired nonces
-    const validEntries = entries.filter(
-      entry => now - entry.timestamp < this.maxAge
-    );
-    
-    // Check if nonce already exists
-    if (validEntries.some(entry => entry.nonce === nonce)) {
-      throw new Error("Nonce already used");
+  /**
+   * Store a nonce for an address (used during nonce generation)
+   */
+  async storeNonce(address: string, nonce: string): Promise<void> {
+    try {
+      await mongoNonceStore.storeNonce(address, nonce);
+    } catch (error) {
+      console.error('Failed to store nonce:', error);
+      throw new Error('Failed to store nonce');
     }
-    
-    // Add new nonce
-    validEntries.push({ nonce, timestamp: now });
-    this.nonces.set(address, validEntries);
   }
 
-  validateNonce(address: string, nonce: string): boolean {
-    const now = Date.now();
-    const entries = this.nonces.get(address) || [];
-    
-    // Remove expired nonces
-    const validEntries = entries.filter(
-      entry => now - entry.timestamp < this.maxAge
-    );
-    
-    // Check if nonce exists and is valid
-    const entry = validEntries.find(e => e.nonce === nonce);
-    if (!entry) return false;
-    
-    // Remove used nonce
-    this.nonces.set(
-      address,
-      validEntries.filter(e => e.nonce !== nonce)
-    );
-    
-    return true;
+  /**
+   * Atomically check if a nonce is valid and mark it as used
+   * This replaces the old addNonce method with atomic MongoDB operation
+   */
+  async checkAndUseNonce(address: string, nonce: string): Promise<void> {
+    const isValid = await mongoNonceStore.checkAndUseNonce(address, nonce);
+    if (!isValid) {
+      throw new Error('Nonce has already been used or is invalid');
+    }
+  }
+
+  /**
+   * @deprecated Use checkAndUseNonce instead for atomic operations
+   * Kept for backward compatibility but now uses MongoDB
+   */
+  async addNonce(address: string, nonce: string): Promise<void> {
+    await this.checkAndUseNonce(address, nonce);
+  }
+
+  /**
+   * @deprecated Use checkAndUseNonce instead
+   * Kept for backward compatibility
+   */
+  async validateNonce(address: string, nonce: string): Promise<boolean> {
+    try {
+      await this.checkAndUseNonce(address, nonce);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Get nonce count for debugging/monitoring
+   */
+  async getNonceCount(address: string): Promise<number> {
+    return await mongoNonceStore.getNonceCount(address);
+  }
+
+  /**
+   * Clean up expired nonces (optional, MongoDB TTL handles this automatically)
+   */
+  async cleanupExpiredNonces(address?: string): Promise<number> {
+    return await mongoNonceStore.cleanupExpiredNonces(address);
   }
 }
 
