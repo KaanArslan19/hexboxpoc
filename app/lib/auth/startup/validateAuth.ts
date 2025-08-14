@@ -31,7 +31,6 @@ function validateEnvironmentVariables(): void {
   const requiredVars = [
     'JWT_SECRET_KEY',
     'MONGODB_URI',
-    'NEXT_PUBLIC_APP_BASE_URL'
   ];
 
   const missingVars: string[] = [];
