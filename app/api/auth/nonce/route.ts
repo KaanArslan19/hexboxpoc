@@ -4,6 +4,8 @@ import { SignJWT } from "jose";
 import { COOKIE_KEYS } from "@/app/lib/auth/constants";
 import { withNonceRateLimit } from "@/app/lib/auth/utils/rateLimiter";
 import { nonceTracker } from "@/app/lib/auth/utils/nonceTracker";
+// Initialize authentication validation (runs once with singleton pattern)
+import "@/app/lib/auth/init";
 
 async function generateNonceHandler(request: Request) {
   try {
@@ -11,9 +13,10 @@ async function generateNonceHandler(request: Request) {
     // The nonce will be associated with an address during verification
     const address = 'pending'; // Temporary placeholder
 
-    // Generate a random nonce
-    const nonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    
+    // Generate a cryptographically secure random nonce
+    //const nonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const randomBytes = crypto.getRandomValues(new Uint8Array(16));
+    const nonce = Array.from(randomBytes, byte => byte.toString(16).padStart(2, '0')).join('');
     console.log('Nonce generation: Generated nonce for address:', { address, nonce });
     
     // Store the nonce in MongoDB for later validation
