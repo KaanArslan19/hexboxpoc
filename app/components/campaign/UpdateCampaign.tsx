@@ -19,9 +19,33 @@ export default function UpdateCampaign({ campaign }: Props) {
   console.log("campaign", campaign);
   const initialValues = {
     ...campaign,
-    deadline: campaign.deadline
-      ? new Date(Number(campaign.deadline)).toISOString().split("T")[0]
-      : "",
+    deadline: (() => {
+      try {
+        if (!campaign.deadline) return "";
+
+        // Check if it's already a date string (YYYY-MM-DD format)
+        if (
+          typeof campaign.deadline === "string" &&
+          (campaign.deadline as string).includes("-")
+        ) {
+          // It's already a date string, validate it
+          const date = new Date(campaign.deadline);
+          if (isNaN(date.getTime())) return "";
+          return campaign.deadline;
+        }
+
+        // Otherwise, treat it as a Unix timestamp in seconds
+        const deadlineInSeconds = Number(campaign.deadline);
+        if (isNaN(deadlineInSeconds) || deadlineInSeconds <= 0) return "";
+        const deadlineInMilliseconds = deadlineInSeconds * 1000;
+        const date = new Date(deadlineInMilliseconds);
+        if (isNaN(date.getTime())) return "";
+        return date.toISOString().split("T")[0];
+      } catch (error) {
+        console.error("Error converting deadline:", error);
+        return "";
+      }
+    })(),
     social_links: {
       telegram: campaign.social_links?.telegram || "",
       discord: campaign.social_links?.discord || "",

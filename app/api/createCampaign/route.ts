@@ -28,11 +28,11 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       );
     }
     console.log("formData-----", formData);
-    
+
     // Check for required fields
     const requiredFields = [
       "title",
-      "description", 
+      "description",
       "wallet_address",
       "fund_amount",
       "one_liner",
@@ -41,16 +41,18 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "email",
       "phoneNumber",
       "social_links",
-      "location"
+      "location",
     ];
-    
-    const missingFields = requiredFields.filter(field => !formData.has(field) || !formData.get(field));
-    
+
+    const missingFields = requiredFields.filter(
+      (field) => !formData.has(field) || !formData.get(field)
+    );
+
     if (missingFields.length > 0) {
       return NextResponse.json(
-        { 
-          error: "Missing required fields", 
-          missingFields: missingFields 
+        {
+          error: "Missing required fields",
+          missingFields: missingFields,
         },
         { status: 400 }
       );
@@ -63,7 +65,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
     console.log(logoFile, "logoFile");
 
-    const logoFileName: string | { error: string } = await uploadImageToR2(logoFile);
+    const logoFileName: string | { error: string } = await uploadImageToR2(
+      logoFile
+    );
     if (typeof logoFileName === "object" && logoFileName.error) {
       return NextResponse.json(
         { error: "Failed to upload logo: " + logoFileName.error },
@@ -77,7 +81,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const characterLimitErrors: Record<string, string> = {};
 
     // Fundraising amount max limit: 13 characters
-    if (campaignEntries.fund_amount && campaignEntries.fund_amount.toString().length > 13) {
+    if (
+      campaignEntries.fund_amount &&
+      campaignEntries.fund_amount.toString().length > 13
+    ) {
       characterLimitErrors.fund_amount = `Fundraising amount exceeds maximum of 13 characters`;
     }
 
@@ -87,17 +94,26 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
 
     // One-liner max characters: 80 characters
-    if (campaignEntries.one_liner && campaignEntries.one_liner.toString().length > 80) {
+    if (
+      campaignEntries.one_liner &&
+      campaignEntries.one_liner.toString().length > 80
+    ) {
       characterLimitErrors.one_liner = `One-liner exceeds maximum of 80 characters`;
     }
 
     // Description max characters: 10000 characters
-    if (campaignEntries.description && campaignEntries.description.toString().length > 10000) {
+    if (
+      campaignEntries.description &&
+      campaignEntries.description.toString().length > 10000
+    ) {
       characterLimitErrors.description = `Description exceeds maximum of 10000 characters`;
     }
 
     // Campaign location: 60 characters
-    if (campaignEntries.location && campaignEntries.location.toString().length > 60) {
+    if (
+      campaignEntries.location &&
+      campaignEntries.location.toString().length > 60
+    ) {
       characterLimitErrors.location = `Location exceeds maximum of 60 characters`;
     }
 
@@ -107,7 +123,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
 
     // Phone number: 18 characters (max phone number is 15 digits in the world)
-    if (campaignEntries.phoneNumber && campaignEntries.phoneNumber.toString().length > 18) {
+    if (
+      campaignEntries.phoneNumber &&
+      campaignEntries.phoneNumber.toString().length > 18
+    ) {
       characterLimitErrors.phoneNumber = `Phone number exceeds maximum of 18 characters`;
     }
 
@@ -116,7 +135,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       const walletAddress = campaignEntries.wallet_address.toString();
       if (walletAddress.length > 42) {
         characterLimitErrors.wallet_address = `Wallet address exceeds maximum of 42 characters`;
-      } else if (!walletAddress.startsWith('0x') || !/^0x[0-9a-fA-F]{40}$/.test(walletAddress)) {
+      } else if (
+        !walletAddress.startsWith("0x") ||
+        !/^0x[0-9a-fA-F]{40}$/.test(walletAddress)
+      ) {
         characterLimitErrors.wallet_address = `Wallet address must be in EVM format (0x followed by 40 hexadecimal characters)`;
       }
     }
@@ -126,28 +148,49 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       let socialLinks;
       try {
         // Check if social_links is already an object or needs to be parsed
-        socialLinks = typeof campaignEntries.social_links === 'string' 
-          ? JSON.parse(campaignEntries.social_links) 
-          : campaignEntries.social_links;
-        
+        socialLinks =
+          typeof campaignEntries.social_links === "string"
+            ? JSON.parse(campaignEntries.social_links)
+            : campaignEntries.social_links;
+
         // Website URL: 100 characters
-        if (socialLinks.website && socialLinks.website.toString().length > 100) {
-          characterLimitErrors['social_links.website'] = `Website URL exceeds maximum of 100 characters`;
+        if (
+          socialLinks.website &&
+          socialLinks.website.toString().length > 100
+        ) {
+          characterLimitErrors[
+            "social_links.website"
+          ] = `Website URL exceeds maximum of 100 characters`;
         }
-        
+
         // Discord URL: 100 characters
-        if (socialLinks.discord && socialLinks.discord.toString().length > 100) {
-          characterLimitErrors['social_links.discord'] = `Discord URL exceeds maximum of 100 characters`;
+        if (
+          socialLinks.discord &&
+          socialLinks.discord.toString().length > 100
+        ) {
+          characterLimitErrors[
+            "social_links.discord"
+          ] = `Discord URL exceeds maximum of 100 characters`;
         }
-        
+
         // Telegram URL: 100 characters
-        if (socialLinks.telegram && socialLinks.telegram.toString().length > 100) {
-          characterLimitErrors['social_links.telegram'] = `Telegram URL exceeds maximum of 100 characters`;
+        if (
+          socialLinks.telegram &&
+          socialLinks.telegram.toString().length > 100
+        ) {
+          characterLimitErrors[
+            "social_links.telegram"
+          ] = `Telegram URL exceeds maximum of 100 characters`;
         }
-        
+
         // LinkedIn URL: 100 characters
-        if (socialLinks.linkedin && socialLinks.linkedin.toString().length > 100) {
-          characterLimitErrors['social_links.linkedin'] = `LinkedIn URL exceeds maximum of 100 characters`;
+        if (
+          socialLinks.linkedin &&
+          socialLinks.linkedin.toString().length > 100
+        ) {
+          characterLimitErrors[
+            "social_links.linkedin"
+          ] = `LinkedIn URL exceeds maximum of 100 characters`;
         }
       } catch (e) {
         console.error("Error parsing social_links:", e);
@@ -158,9 +201,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     // Return all character limit errors if any field exceeds its limit
     if (Object.keys(characterLimitErrors).length > 0) {
       return NextResponse.json(
-        { 
-          error: "Character limit exceeded for one or more fields", 
-          fields: characterLimitErrors 
+        {
+          error: "Character limit exceeded for one or more fields",
+          fields: characterLimitErrors,
         },
         { status: 400 }
       );
@@ -189,12 +232,11 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       );
     }
 
-    // Check if the deadline is already in seconds (Unix timestamp)
-    // Unix timestamps in seconds are typically 10 digits for current dates
-    // If it's in milliseconds (13 digits), convert to seconds
+    // Convert from milliseconds to seconds if needed
+    // Date.parse() returns milliseconds, but we need seconds for the contract
     console.log("first deadlineInSeconds", deadlineInSeconds);
     if (deadlineInSeconds > 10000000000) {
-      // If deadline is in milliseconds
+      // If deadline is in milliseconds (13+ digits), convert to seconds
       deadlineInSeconds = Math.floor(deadlineInSeconds / 1000);
     }
     console.log("second deadlineInSeconds", deadlineInSeconds);

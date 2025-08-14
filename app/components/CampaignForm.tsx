@@ -6,10 +6,10 @@ import { Steps } from "antd";
 import ImageSelector from "./ui/ImageSelector";
 import { NewCampaignInfo, FundingType } from "@/app/types";
 import { useCampaignDraft } from "../hooks/useCampaignDraft";
-import { 
-  campaignFormValidationSchemas, 
+import {
+  campaignFormValidationSchemas,
   campaignFormInitialValues,
-  fileSizeValidator 
+  fileSizeValidator,
 } from "@/app/lib/validation/campaignDraftValidation";
 import RestoreDraftModal from "./RestoreDraftModal";
 import { toast } from "react-toastify";
@@ -20,6 +20,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { debounce } from "lodash";
 import CampaignFormDescription from "./ui/CampaignFormDescription";
+import TurnstileWidget from "./ui/TurnstileWidget";
+
 const steps = [
   { title: "Project Info" },
   { title: "Description" },
@@ -28,14 +30,17 @@ const steps = [
   { title: "Review" },
 ];
 
-
-
 interface Props {
   onSubmit(values: NewCampaignInfo): Promise<any>;
   onImageRemove?(source: string): void;
 }
 
-
+// Extended validation schema for the final step that includes turnstile verification
+const finalStepValidationSchema = campaignFormValidationSchemas[4].shape({
+  turnstileToken: Yup.string().required(
+    "Please complete the security verification"
+  ),
+});
 
 export default function CampaignForm(props: Props) {
   const { onSubmit, onImageRemove } = props;
@@ -51,8 +56,18 @@ export default function CampaignForm(props: Props) {
   );
   const [expandedSections, setExpandedSections] = useState<number[]>([]);
 
+  // Turnstile related state
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
+
   const formikRef = useRef<FormikProps<any>>(null);
   const { address } = useAccount();
+
+  // Get Turnstile site key from environment variables
+  const TURNSTILE_SITE_KEY =
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Fallback to test key
 
   //Description Section Related State and Functions
   const toggleDescriptionSection = (sectionNumber: number) => {
@@ -74,6 +89,7 @@ export default function CampaignForm(props: Props) {
       )
     );
   };
+
   // Initialize campaign draft functionality
   const {
     formData,
@@ -85,16 +101,11 @@ export default function CampaignForm(props: Props) {
     updateFormData,
     deleteDraft,
     saveError,
-    isSaving: isDraftSaving
+    isSaving: isDraftSaving,
   } = useCampaignDraft(campaignFormInitialValues);
 
-  // We need to manage the lifecycle of form tracking and saving very carefully to prevent empty saves
-
   // Track whether we should start saving drafts
-  // We initialize it to false - no saving until user explicitly makes a decision
   const [enableDraftSaving, setEnableDraftSaving] = useState(false);
-
-  // Track form values at the component level for proper reactivity
   const [currentFormValues, setCurrentFormValues] = useState("");
 
   // Phase 1: Check if we have a draft and need to show the modal
@@ -103,17 +114,14 @@ export default function CampaignForm(props: Props) {
       console.log(
         "Draft exists, showing restore modal. Draft saving is DISABLED."
       );
-      // Draft saving remains disabled until user makes a choice
     } else {
       console.log("No draft exists, enabling draft saving immediately.");
-      // No draft, so we can enable saving right away
       setEnableDraftSaving(true);
     }
   }, [hasDraft]);
 
   // Phase 2: Only set up form value tracking if draft saving is enabled
   useEffect(() => {
-    // Don't do anything if draft saving is not enabled yet
     if (!enableDraftSaving) {
       console.log("Draft saving disabled - not tracking form values");
       return;
@@ -121,7 +129,6 @@ export default function CampaignForm(props: Props) {
 
     console.log("Draft saving ENABLED - starting to track form values");
 
-    // This effect sets up a periodic check of form values
     const checkFormValues = () => {
       if (formikRef.current?.values) {
         const valuesJson = JSON.stringify(formikRef.current.values);
@@ -129,54 +136,33 @@ export default function CampaignForm(props: Props) {
       }
     };
 
-    // Check immediately
     checkFormValues();
-
-    // Also set up an interval to check periodically
     const intervalId = setInterval(checkFormValues, 500);
-
     return () => clearInterval(intervalId);
   }, [enableDraftSaving]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("FormikRef changed:", formikRef.current);
-  }, [formikRef.current]);
-
-  // Initialize reference for comparing values
   const prevValuesRef = useRef<string | null>(null);
 
-  // The main effect that saves drafts based on value changes - ONLY runs when draft saving is enabled
+  // The main effect that saves drafts based on value changes
   useEffect(() => {
-    // CRITICAL CHECK: Don't proceed with any saving if draft saving isn't enabled
     if (!enableDraftSaving) {
       console.log("Draft saving disabled - not saving any changes");
       return;
     }
 
-    console.log("Form values changed effect triggered (saving enabled)");
-
-    // Skip if no form values yet
     if (!currentFormValues) return;
 
-    // On first run after enabling saving, just store the current values as reference
     if (prevValuesRef.current === null) {
       console.log(
         "First run after enabling saving, just storing reference values"
       );
-      // TypeScript fix - explicit assignment of string to the string|null type
       prevValuesRef.current = currentFormValues;
       return;
     }
 
     if (!formikRef.current?.isSubmitting) {
-      console.log("Previous values:", prevValuesRef.current);
-      console.log("Current values:", currentFormValues);
-      console.log("Values match?", prevValuesRef.current === currentFormValues);
-
       if (prevValuesRef.current !== currentFormValues) {
         console.log("Values changed, saving draft");
-        // Debounced save
         const debouncedSave = debounce(() => {
           const formValues = JSON.parse(currentFormValues);
           const dataToSave = {
@@ -185,16 +171,11 @@ export default function CampaignForm(props: Props) {
           };
           console.log("Saving data with debounce:", dataToSave);
           updateFormData(dataToSave);
-
-          // Update previous values reference
           prevValuesRef.current = currentFormValues;
         }, 1500);
 
         debouncedSave();
-
         return () => debouncedSave.cancel();
-      } else {
-        console.log("No change detected, not saving");
       }
     }
   }, [currentFormValues, logoPreview, updateFormData, enableDraftSaving]);
@@ -202,7 +183,6 @@ export default function CampaignForm(props: Props) {
   // Helper function to convert data URL to File object
   const dataURLtoFile = (dataUrl: string, filename: string): File | null => {
     try {
-      // Extract the MIME type and base64 data
       const arr = dataUrl.split(",");
       if (arr.length < 2) return null;
 
@@ -217,7 +197,6 @@ export default function CampaignForm(props: Props) {
         u8arr[n] = bstr.charCodeAt(n);
       }
 
-      // Create a file from the binary data
       return new File([u8arr], filename, { type: mime });
     } catch (error) {
       console.error("Error converting data URL to File:", error);
@@ -225,15 +204,91 @@ export default function CampaignForm(props: Props) {
     }
   };
 
+  // Turnstile verification function
+  const verifyTurnstileToken = async (token: string): Promise<boolean> => {
+    setIsVerifyingTurnstile(true);
+    setTurnstileError(null);
+
+    try {
+      const response = await fetch("/api/verify-turnstile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsTurnstileVerified(true);
+        setTurnstileError(null);
+        return true;
+      } else {
+        setIsTurnstileVerified(false);
+        setTurnstileError(result.error || "Verification failed");
+        return false;
+      }
+    } catch (error) {
+      console.error("Turnstile verification error:", error);
+      setIsTurnstileVerified(false);
+      setTurnstileError("Network error during verification");
+      return false;
+    } finally {
+      setIsVerifyingTurnstile(false);
+    }
+  };
+
+  // Handle Turnstile widget callbacks
+  const handleTurnstileVerify = async (token: string) => {
+    console.log("Turnstile token received:", token);
+    setTurnstileToken(token);
+
+    // Set the token in Formik form
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", token);
+    }
+
+    // Verify the token with your backend
+    const isValid = await verifyTurnstileToken(token);
+    if (!isValid) {
+      // Reset the token if verification failed
+      setTurnstileToken(null);
+      if (formikRef.current) {
+        formikRef.current.setFieldValue("turnstileToken", "");
+      }
+    }
+  };
+
+  const handleTurnstileError = () => {
+    console.log("Turnstile error occurred");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Security verification failed. Please try again.");
+
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", "");
+    }
+  };
+
+  const handleTurnstileExpire = () => {
+    console.log("Turnstile token expired");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Security verification expired. Please verify again.");
+
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", "");
+    }
+  };
+
   // Handle restoring draft
   const handleRestoreDraft = async () => {
     const draftData = await loadDraft();
     if (draftData && formikRef.current) {
-      // If there's a logo preview in the draft, restore it and reconstruct the File object
       if (draftData.logoPreview) {
         setLogoPreview(draftData.logoPreview);
 
-        // Reconstruct File object from the data URL
         const reconstructedFile = dataURLtoFile(
           draftData.logoPreview,
           "restored-logo.png"
@@ -241,26 +296,21 @@ export default function CampaignForm(props: Props) {
         if (reconstructedFile) {
           console.log("Successfully reconstructed File from data URL");
           setLogo(reconstructedFile);
-
-          // Make sure the form values include the reconstructed file
           draftData.logo = reconstructedFile;
         } else {
           console.error("Failed to reconstruct File from data URL");
         }
       }
 
-      // Set form values
       formikRef.current.setValues({
         ...campaignFormInitialValues,
         ...draftData,
+        turnstileToken: "", // Always reset turnstile token
       });
 
       toast.success("Draft restored successfully!");
     }
     setShowRestoreModal(false);
-
-    // Only enable draft saving AFTER user has restored their draft
-    // This prevents any premature saving during initialization
     console.log("User chose to restore draft - NOW enabling draft saving");
     setEnableDraftSaving(true);
   };
@@ -270,34 +320,31 @@ export default function CampaignForm(props: Props) {
     await deleteDraft();
     setShowRestoreModal(false);
     toast.info("Starting with a fresh form.");
-
-    // Only enable draft saving AFTER user has discarded their draft
-    // This prevents any premature saving during initialization
     console.log(
       "User chose to discard draft - NOW enabling draft saving with empty form"
     );
     setEnableDraftSaving(true);
   };
 
-  // Debounced function to save draft when form values change
-  const saveDraftDebounced = useRef(
-    debounce((values: any) => {
-      // Include logo preview in the draft
-      const dataToSave = {
-        ...values,
-        logoPreview: logoPreview,
-      };
-      updateFormData(dataToSave);
-    }, 1000)
-  ).current;
-
   const handleSubmit = async (values: typeof campaignFormInitialValues) => {
     setIsPending(true);
     setSubmitError(null);
 
     try {
+      // Final turnstile verification before submission
+      if (!isTurnstileVerified || !turnstileToken) {
+        throw new Error("Please complete the security verification");
+      }
+
       // Convert form values to expected campaign data format
-      const { discord, telegram, website, linkedIn, ...rest } = values;
+      const {
+        discord,
+        telegram,
+        website,
+        linkedIn,
+        turnstileToken: _,
+        ...rest
+      } = values;
       const campaignData: NewCampaignInfo = {
         ...rest,
         logo: logo!,
@@ -318,7 +365,11 @@ export default function CampaignForm(props: Props) {
 
       return response;
     } catch (error) {
-      setSubmitError("An unknown error occurred while creating the campaign");
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred while creating the campaign"
+      );
       console.error("Campaign submission error:", error);
     } finally {
       setIsPending(false);
@@ -340,15 +391,6 @@ export default function CampaignForm(props: Props) {
     }
   };
 
-  const steps = [
-    { title: "Project Info" },
-    { title: "Description" },
-    { title: "Financial Supply" },
-    { title: "Funding Type" },
-
-    { title: "Review" },
-  ];
-
   const FILE_SIZE_LIMIT = 1024 * 1024 * 5; // 5MB in bytes
   const fileSizeValidator = Yup.mixed().test(
     "fileSize",
@@ -361,58 +403,7 @@ export default function CampaignForm(props: Props) {
     }
   );
 
-
-
-  // const initialValues = {
-  //   title: "",
-  //   description: "",
-  //   email: "",
-  //   phoneNumber: "",
-  //   fundAmount: 0,
-  //   logo: null,
-  //   deadline: "",
-  //   location: "",
-  //   wallet_address: "",
-  //   one_liner: "",
-  //   telegram: "",
-  //   discord: "",
-  // Commented code removed to avoid duplication
-  //     // Restore logo preview if exists in draft
-  //     if (draftData.logoPreview) {
-  //       setLogoPreview(draftData.logoPreview);
-  //     }
-
-  //     // Set form values
-  //     formikRef.current.setValues({
-  //       ...initialValues,
-  //       ...draftData,
-  //     });
-
-  //     toast.success("Draft restored successfully!");
-  //   }
-  //   setShowRestoreModal(false);
-  // };
-
-  // // Handle discarding draft
-  // const handleDiscardDraft = async () => {
-  //   await deleteDraft();
-  // Additional duplicated code removed
-  //         linkedIn: linkedIn || ""
-  //       }
-  //     };
-
-  //     await onSubmit(campaignData);
-
-  //     // Delete draft after successful submission
-  //     await deleteDraft();
-
-  //   } catch (error) {
-  //     setSubmitError("An unknown error occurred");
-  //     setIsPending(false);
-  //   }
-  // };
-
-  // Update markdown preview when description changes - consolidated from duplicate effects
+  // Update markdown preview when description changes
   useEffect(() => {
     if (formikRef.current?.values?.description) {
       setMarkdownPreview(formikRef.current.values.description);
@@ -420,51 +411,6 @@ export default function CampaignForm(props: Props) {
       setMarkdownPreview("");
     }
   }, [formikRef.current?.values?.description]);
-
-  // We're now using enableDraftSaving instead of an isInitialLoadRef
-
-  // Debounced effect for saving form data changes
-  useEffect(() => {
-    // Skip initial load to avoid saving when form first renders/*  */
-    if (enableDraftSaving) {
-      // Save initial values to ref for future comparison
-      if (formikRef.current?.values) {
-        prevValuesRef.current = JSON.stringify(formikRef.current.values);
-      }
-      return;
-    }
-
-    // Only update if form is not submitting and has values
-    if (formikRef.current?.values && !formikRef.current?.isSubmitting) {
-      // Check if values have actually changed by comparing with previous values
-      const currentValues = JSON.stringify(formikRef.current.values);
-
-      if (prevValuesRef.current !== currentValues) {
-        // Use our debounced function to avoid too many API calls
-        const debouncedSave = debounce(() => {
-          const dataToSave = {
-            ...formikRef.current?.values,
-            logoPreview: logoPreview,
-          };
-          updateFormData(dataToSave);
-          // Update the reference after saving
-          prevValuesRef.current = currentValues;
-        }, 1500); // Increased debounce time to reduce API calls
-
-        debouncedSave();
-
-        // Clean up debounced function on unmount
-        return () => {
-          debouncedSave.cancel();
-        };
-      }
-    }
-  }, [
-    formikRef.current?.values,
-    formikRef.current?.isSubmitting,
-    logoPreview,
-    updateFormData,
-  ]);
 
   return (
     <>
@@ -484,22 +430,26 @@ export default function CampaignForm(props: Props) {
       ) : (
         <Formik
           innerRef={formikRef}
-          initialValues={hasDraft && formData ? formData : campaignFormInitialValues}
-          validationSchema={campaignFormValidationSchemas[currentStep]}
+          initialValues={{
+            ...(hasDraft && formData ? formData : campaignFormInitialValues),
+            turnstileToken: "", // Always initialize as empty
+          }}
+          validationSchema={
+            currentStep === 4
+              ? finalStepValidationSchema
+              : campaignFormValidationSchemas[currentStep]
+          }
           enableReinitialize={true}
           validateOnMount={true}
           onSubmit={handleSubmit}
         >
           {({ validateForm, setFieldValue, submitForm, values, errors }) => {
-            // We're not using an effect here anymore since we have a debounced effect at the component level
-            // This prevents duplicate API calls that were causing authentication spam
-
             return (
               <form onSubmit={submitForm} className="p-6 max-w-2xl mx-auto">
                 <h1 className="text-3xl text-center mb-4">
                   Create Your Campaign
                 </h1>
-                
+
                 {/* Draft saving status indicator */}
                 <div className="mb-4 text-center">
                   {isDraftSaving && (
@@ -581,7 +531,6 @@ export default function CampaignForm(props: Props) {
                           const reader = new FileReader();
                           reader.onload = (e) => {
                             const dataUrl = e.target?.result as string;
-
                             setLogoPreview(dataUrl);
                           };
                           reader.readAsDataURL(file);
@@ -774,6 +723,49 @@ export default function CampaignForm(props: Props) {
                       be fixed and cannot be changed. Ensure accuracy before
                       completing your submission.
                     </p>
+
+                    {/* Security Verification Section */}
+                    <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                      <h3 className="text-lg font-semibold mb-3">
+                        Security Verification
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Please complete the security verification below to
+                        proceed with your campaign submission.
+                      </p>
+
+                      <TurnstileWidget
+                        sitekey={TURNSTILE_SITE_KEY}
+                        onVerify={handleTurnstileVerify}
+                        onError={handleTurnstileError}
+                        onExpire={handleTurnstileExpire}
+                        theme="light"
+                        size="normal"
+                        className="mb-2"
+                      />
+
+                      {isVerifyingTurnstile && (
+                        <div className="mt-2 text-sm text-blue-600">
+                          <div className="flex items-center">
+                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                            Verifying security token...
+                          </div>
+                        </div>
+                      )}
+
+                      {turnstileError && (
+                        <div className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+                          {turnstileError}
+                        </div>
+                      )}
+
+                      <ErrorMessage
+                        name="turnstileToken"
+                        component="div"
+                        className="text-redColor/80 mt-2"
+                      />
+                    </div>
+
                     {submitError && (
                       <div className="mb-6 p-4 bg-red-50 border-l-4 border-redColor rounded-r">
                         <div className="flex">
@@ -801,6 +793,7 @@ export default function CampaignForm(props: Props) {
                         </div>
                       </div>
                     )}
+
                     <div className="mb-6">
                       <div className="flex items-start">
                         <Field
@@ -858,15 +851,14 @@ export default function CampaignForm(props: Props) {
                   {currentStep === steps.length - 1 ? (
                     <button
                       type="button"
-                      className="px-4 py-2 bg-blueColor text-white rounded"
-                      disabled={isPending}
+                      className="px-4 py-2 bg-blueColor text-white rounded disabled:bg-gray-400"
+                      disabled={isPending || !isTurnstileVerified}
                       onClick={() => {
-                        // Manual submission with validation
                         validateForm().then((errors) => {
                           console.log("Validating before submit:", errors);
                           if (Object.keys(errors).length === 0) {
                             console.log("Manually submitting form");
-                            submitForm(); // Only submit if valid
+                            submitForm();
                           } else {
                             console.log(
                               "Validation errors prevented submission:",
@@ -933,6 +925,7 @@ export default function CampaignForm(props: Props) {
                     </button>
                   )}
                 </div>
+
                 <div className="flex items-center mt-4">
                   <button
                     className={`px-4 py-2 rounded ${
@@ -943,7 +936,6 @@ export default function CampaignForm(props: Props) {
                     type="button"
                     disabled={isSaving}
                     onClick={() => {
-                      // Set saving state to trigger cooldown
                       setIsSaving(true);
 
                       console.log("Manual save triggered");
@@ -951,14 +943,13 @@ export default function CampaignForm(props: Props) {
                         const data = {
                           ...formikRef.current.values,
                           logoPreview,
+                          turnstileToken: "", // Don't save turnstile token in draft
                         };
                         console.log("Saving data:", data);
                         updateFormData(data);
 
-                        // Show toast message
                         toast.success("Draft saved successfully!");
 
-                        // Set a timeout to re-enable the button after 3 seconds
                         setTimeout(() => {
                           setIsSaving(false);
                         }, 3000);

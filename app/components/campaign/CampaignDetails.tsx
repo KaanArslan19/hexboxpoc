@@ -41,6 +41,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   total_raised,
   comments,
 }) => {
+  console.log(logo, "logooooo");
   const { isAuthenticated, address } = await checkServerAuth();
   const campaignOwner = address === user_id;
   const modifiedProps: any & WalletDetails & { wallet_address: string } = {

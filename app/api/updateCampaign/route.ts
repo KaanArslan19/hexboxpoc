@@ -72,8 +72,10 @@ export async function POST(req: NextRequest) {
 
     const deadlineStr = formData.get("deadline") as string;
     if (deadlineStr) {
-      updatedFields.deadline = Number(deadlineStr);
-      console.log("Deadline stored:", updatedFields.deadline);
+      // Convert from milliseconds to seconds for storage
+      const deadlineInMilliseconds = Number(deadlineStr);
+      updatedFields.deadline = Math.floor(deadlineInMilliseconds / 1000);
+      console.log("Deadline stored (seconds):", updatedFields.deadline);
     } else {
       updatedFields.deadline = existingCampaign.deadline;
     }

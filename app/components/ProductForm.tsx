@@ -1,12 +1,13 @@
 "use client";
-import React, { useState, ChangeEventHandler } from "react";
-import { Formik, Field, ErrorMessage } from "formik";
+import React, { useState, ChangeEventHandler, useRef } from "react";
+import { Formik, Field, ErrorMessage, FormikProps } from "formik";
 import * as Yup from "yup";
 import { Steps } from "antd";
 import ImageSelector from "./ui/ImageSelector";
 import { ProductNew, ProductCategory, ProductOrService } from "../types";
 import { toast } from "react-toastify";
 import { fileValidator } from "../utils/imageValidators";
+import TurnstileWidget from "./ui/TurnstileWidget";
 
 const steps = [
   { title: "Basic Info" },
@@ -119,14 +120,24 @@ const baseValidationSchemas = {
     freeShipping: Yup.boolean().required("Free shipping status is required"),
     productReturnPolicy: Yup.object({
       eligible: Yup.boolean().required("Return eligibility is required"),
-      return_period_days: Yup.number()
-        .integer("Return period must be a whole number")
-        .min(1, "Return period must be greater than 0")
-        .max(9999999999, "Return period must be 10 characters or less")
-        .required("Return period is required"),
-      conditions: Yup.string()
-        .max(1000, "Return conditions must be 1000 characters or less")
-        .required("Return conditions are required"),
+      return_period_days: Yup.number().when("eligible", {
+        is: true,
+        then: (schema) =>
+          schema
+            .integer("Return period must be a whole number")
+            .min(1, "Return period must be greater than 0")
+            .max(9999999999, "Return period must be 10 characters or less")
+            .required("Return period is required"),
+        otherwise: (schema) => schema.nullable(),
+      }),
+      conditions: Yup.string().when("eligible", {
+        is: true,
+        then: (schema) =>
+          schema
+            .max(1000, "Return conditions must be 1000 characters or less")
+            .required("Return conditions are required"),
+        otherwise: (schema) => schema.nullable(),
+      }),
     }),
   }),
 
@@ -156,6 +167,13 @@ const getValidationSchema = (type: string, step: number) => {
       return isService
         ? baseValidationSchemas.serviceTerms
         : baseValidationSchemas.shippingProduct;
+    case 4:
+      // Add turnstile verification to the final step
+      return Yup.object({
+        turnstileToken: Yup.string().required(
+          "Please complete the security verification"
+        ),
+      });
     default:
       return Yup.object({});
   }
@@ -228,6 +246,18 @@ export default function ProductForm({
     ProductOrService.ProductOnly
   );
 
+  // Turnstile related state
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
+
+  // Get Turnstile site key from environment variables
+  const TURNSTILE_SITE_KEY =
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Fallback to test key
+
+  const formikRef = useRef<FormikProps<any>>(null);
+
   // Update form steps based on product/service type
   const getStepTitle = (index: number) => {
     if (index === 3) {
@@ -276,11 +306,103 @@ export default function ProductForm({
     setImagePreviews([...newImagePreviews]);
   };
 
+  // Turnstile verification function
+  const verifyTurnstileToken = async (token: string): Promise<boolean> => {
+    setIsVerifyingTurnstile(true);
+    setTurnstileError(null);
+
+    try {
+      console.log("Sending token to verification API...");
+      const response = await fetch("/api/verify-turnstile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      console.log("Verification response status:", response.status);
+      const result = await response.json();
+      console.log("Verification result:", result);
+
+      if (result.success) {
+        setIsTurnstileVerified(true);
+        setTurnstileError(null);
+        console.log(
+          "Turnstile verification successful, setting isTurnstileVerified to true"
+        );
+        return true;
+      } else {
+        setIsTurnstileVerified(false);
+        setTurnstileError(result.error || "Verification failed");
+        console.log("Turnstile verification failed:", result.error);
+        return false;
+      }
+    } catch (error) {
+      console.error("Turnstile verification error:", error);
+      setIsTurnstileVerified(false);
+      setTurnstileError("Network error during verification");
+      return false;
+    } finally {
+      setIsVerifyingTurnstile(false);
+    }
+  };
+
+  // Handle Turnstile widget callbacks
+  const handleTurnstileVerify = async (token: string) => {
+    console.log("Turnstile token received:", token);
+    setTurnstileToken(token);
+
+    // Set the token in Formik form
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", token);
+    }
+
+    // Verify the token with your backend
+    const isValid = await verifyTurnstileToken(token);
+    if (!isValid) {
+      // Reset the token if verification failed
+      setTurnstileToken(null);
+      if (formikRef.current) {
+        formikRef.current.setFieldValue("turnstileToken", "");
+      }
+    } else {
+      console.log("Turnstile verification successful!");
+    }
+  };
+
+  const handleTurnstileError = () => {
+    console.log("Turnstile error occurred");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Security verification failed. Please try again.");
+
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", "");
+    }
+  };
+
+  const handleTurnstileExpire = () => {
+    console.log("Turnstile token expired");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Security verification expired. Please verify again.");
+
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", "");
+    }
+  };
+
   const handleSubmit = async (values: any) => {
     setIsPending(true);
     setSubmitError(null);
 
     try {
+      // Final turnstile verification before submission
+      if (!isTurnstileVerified || !turnstileToken) {
+        throw new Error("Please complete the security verification");
+      }
+
       const productData = {
         ...values,
         logo: values.logo as string,
@@ -290,7 +412,9 @@ export default function ProductForm({
 
       await onSubmit(productData);
     } catch (error) {
-      setSubmitError("An unknown error occurred");
+      setSubmitError(
+        error instanceof Error ? error.message : "An unknown error occurred"
+      );
     } finally {
       setIsPending(false);
     }
@@ -298,6 +422,7 @@ export default function ProductForm({
 
   return (
     <Formik
+      innerRef={formikRef}
       initialValues={
         formType === ProductOrService.ServiceOnly
           ? serviceInitialValues
@@ -652,24 +777,37 @@ export default function ProductForm({
                     <span className="ml-2">Returns Eligible</span>
                   </label>
 
-                  <Field
-                    name="productReturnPolicy.return_period_days"
-                    type="number"
-                    placeholder="Return Period (days)"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor mb-2"
-                  />
+                  <Field name="productReturnPolicy.eligible">
+                    {({ field: { value } }: { field: { value: boolean } }) =>
+                      value && (
+                        <>
+                          <Field
+                            name="productReturnPolicy.return_period_days"
+                            type="number"
+                            placeholder="Return Period (days)"
+                            className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor mb-2"
+                          />
+                          <ErrorMessage
+                            name="productReturnPolicy.return_period_days"
+                            component="div"
+                            className="text-redColor mb-2"
+                          />
 
-                  <Field
-                    as="textarea"
-                    name="productReturnPolicy.conditions"
-                    placeholder="Return Conditions"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor h-24"
-                  />
-                  <ErrorMessage
-                    name="productReturnPolicy.conditions"
-                    component="div"
-                    className="text-redColor"
-                  />
+                          <Field
+                            as="textarea"
+                            name="productReturnPolicy.conditions"
+                            placeholder="Return Conditions"
+                            className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor h-24"
+                          />
+                          <ErrorMessage
+                            name="productReturnPolicy.conditions"
+                            component="div"
+                            className="text-redColor"
+                          />
+                        </>
+                      )
+                    }
+                  </Field>
                 </div>
               </div>
             </div>
@@ -713,13 +851,56 @@ export default function ProductForm({
           {currentStep === 4 && (
             <div>
               <h2 className="text-2xl mb-4">Review</h2>
-              <p>
+              <p className="text-md mb-8 font-thin">
                 Please review all{" "}
                 {formType === ProductOrService.ServiceOnly
                   ? "service"
                   : "product"}{" "}
-                details before submitting.
+                details before submitting. Once submitted, the details provided
+                here will be fixed and cannot be changed. Ensure accuracy before
+                completing your submission.
               </p>
+
+              {/* Security Verification Section */}
+              <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <h3 className="text-lg font-semibold mb-3">
+                  Security Verification
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Please complete the security verification below to proceed
+                  with your{" "}
+                  {formType === ProductOrService.ServiceOnly
+                    ? "service"
+                    : "product"}{" "}
+                  submission.
+                </p>
+
+                <TurnstileWidget
+                  sitekey={TURNSTILE_SITE_KEY}
+                  onVerify={handleTurnstileVerify}
+                  onError={handleTurnstileError}
+                  onExpire={handleTurnstileExpire}
+                  theme="light"
+                  size="normal"
+                  className="mb-2"
+                />
+
+                {isVerifyingTurnstile && (
+                  <div className="mt-2 text-sm text-blue-600">
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                      Verifying security token...
+                    </div>
+                  </div>
+                )}
+
+                {turnstileError && (
+                  <div className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+                    {turnstileError}
+                  </div>
+                )}
+              </div>
+
               {submitError && (
                 <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
                   <div className="flex">
@@ -803,8 +984,8 @@ export default function ProductForm({
                     submitForm();
                   }
                 }}
-                disabled={isPending || isSubmitting}
-                className="px-4 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 "
+                disabled={isPending || isSubmitting || !isTurnstileVerified}
+                className="px-4 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isPending || isSubmitting ? (
                   <div className="flex items-center text-white">
@@ -830,6 +1011,8 @@ export default function ProductForm({
                     </svg>
                     Submitting...
                   </div>
+                ) : !isTurnstileVerified ? (
+                  "Complete Security Verification to Submit"
                 ) : (
                   "Submit"
                 )}
