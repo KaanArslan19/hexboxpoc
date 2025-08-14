@@ -72,7 +72,7 @@ export const logoutRateLimiter = new RateLimiter({
 // Campaign draft operations (allow frequent saves but prevent abuse)
 export const campaignDraftRateLimiter = new RateLimiter({
   maxRequests: 60, // 60 requests (1 per second average)
-  windowMs: 60 * 1000, // per minute
+  windowMs: 10 * 1000, // per 10 seconds
 });
 
 // Generic rate limit wrapper
