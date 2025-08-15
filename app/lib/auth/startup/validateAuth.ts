@@ -31,6 +31,8 @@ function validateEnvironmentVariables(): void {
   const requiredVars = [
     'JWT_SECRET_KEY',
     'MONGODB_URI',
+    'NEXT_PUBLIC_TURNSTILE_SITE_KEY',
+    'TURNSTILE_SECRET_KEY',
   ];
 
   const missingVars: string[] = [];

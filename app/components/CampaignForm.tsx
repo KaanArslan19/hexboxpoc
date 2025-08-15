@@ -66,8 +66,26 @@ export default function CampaignForm(props: Props) {
   const { address } = useAccount();
 
   // Get Turnstile site key from environment variables
-  const TURNSTILE_SITE_KEY =
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Fallback to test key
+  const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  
+  // Early return if Turnstile site key is not configured
+  if (!TURNSTILE_SITE_KEY) {
+    console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set');
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">
+              Configuration Error
+            </h2>
+            <p className="text-red-700">
+              Turnstile is not properly configured. Please contact the administrator.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   //Description Section Related State and Functions
   const toggleDescriptionSection = (sectionNumber: number) => {
