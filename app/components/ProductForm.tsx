@@ -254,7 +254,25 @@ export default function ProductForm({
 
   // Get Turnstile site key from environment variables
   const TURNSTILE_SITE_KEY =
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"; // Fallback to test key
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+  if (!TURNSTILE_SITE_KEY) {
+    console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set');
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">
+              Configuration Error
+            </h2>
+            <p className="text-red-700">
+              Turnstile is not properly configured. Please contact the administrator.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const formikRef = useRef<FormikProps<any>>(null);
 
