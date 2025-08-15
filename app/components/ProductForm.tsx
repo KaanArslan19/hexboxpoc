@@ -252,6 +252,9 @@ export default function ProductForm({
   const [turnstileError, setTurnstileError] = useState<string | null>(null);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
 
+  // All hooks must be called before any early returns
+  const formikRef = useRef<FormikProps<any>>(null);
+
   // Get Turnstile site key from environment variables
   const TURNSTILE_SITE_KEY =
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
@@ -273,8 +276,6 @@ export default function ProductForm({
       </div>
     );
   }
-
-  const formikRef = useRef<FormikProps<any>>(null);
 
   // Update form steps based on product/service type
   const getStepTitle = (index: number) => {
@@ -324,46 +325,24 @@ export default function ProductForm({
     setImagePreviews([...newImagePreviews]);
   };
 
-  // Turnstile verification function
+  // Simplified function - no frontend validation to prevent double validation
   const verifyTurnstileToken = async (token: string): Promise<boolean> => {
-    setIsVerifyingTurnstile(true);
+    // Just store the token and mark as verified for UI purposes
+    // Actual validation happens server-side during form submission
+    console.log("Turnstile token received:", token.substring(0, 20) + "...");
+    
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
     setTurnstileError(null);
-
-    try {
-      console.log("Sending token to verification API...");
-      const response = await fetch("/api/verify-turnstile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      console.log("Verification response status:", response.status);
-      const result = await response.json();
-      console.log("Verification result:", result);
-
-      if (result.success) {
-        setIsTurnstileVerified(true);
-        setTurnstileError(null);
-        console.log(
-          "Turnstile verification successful, setting isTurnstileVerified to true"
-        );
-        return true;
-      } else {
-        setIsTurnstileVerified(false);
-        setTurnstileError(result.error || "Verification failed");
-        console.log("Turnstile verification failed:", result.error);
-        return false;
-      }
-    } catch (error) {
-      console.error("Turnstile verification error:", error);
-      setIsTurnstileVerified(false);
-      setTurnstileError("Network error during verification");
-      return false;
-    } finally {
-      setIsVerifyingTurnstile(false);
+    setIsVerifyingTurnstile(false);
+    
+    // Set the token in the form
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", token);
     }
+    
+    console.log("Turnstile token stored for server-side validation");
+    return true; // Always return true since server-side will validate
   };
 
   // Handle Turnstile widget callbacks
@@ -425,6 +404,7 @@ export default function ProductForm({
         ...values,
         logo: values.logo as string,
         images: imageFiles,
+        turnstileToken: turnstileToken, // Include Turnstile token for server-side validation
       };
       console.log("productData", productData);
 

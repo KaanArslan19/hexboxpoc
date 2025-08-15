@@ -92,6 +92,11 @@ export default function CreateProject() {
       formData.append("one_liner", values.one_liner);
       formData.append("social_links", JSON.stringify(values.social_links));
       formData.append("funding_type", values.funding_type.toString());
+      
+      // Add Turnstile token for server-side validation
+      if (values.turnstileToken) {
+        formData.append("turnstileToken", values.turnstileToken);
+      }
 
       const firstResponse = await apiFetch("/api/createCampaign", {
         method: "POST",

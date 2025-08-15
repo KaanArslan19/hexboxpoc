@@ -148,6 +148,7 @@ export interface NewCampaignInfo {
   logo: File;
   wallet_address: string;
   funding_type: FundingType;
+  turnstileToken?: string; // Optional Turnstile token for bot protection
 }
 export interface NewCampaignInfoResponse {
   _id: string;

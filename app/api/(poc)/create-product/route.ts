@@ -5,6 +5,7 @@ import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundra
 import { getCampaign } from "@/app/utils/getCampaign";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
+import { verifyTurnstileToken, getClientIp } from "@/app/lib/turnstile/verifyTurnstile";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -52,6 +53,30 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
+
+    // Validate Turnstile token for bot protection
+    const turnstileToken = formData.get("turnstileToken");
+    if (!turnstileToken) {
+      console.log("Missing Turnstile token in product creation request");
+      return NextResponse.json(
+        { error: "Security verification required. Please complete the verification and try again." },
+        { status: 400 }
+      );
+    }
+
+    // Verify Turnstile token with Cloudflare
+    const clientIp = getClientIp(req);
+    const isTurnstileValid = await verifyTurnstileToken(turnstileToken as string, clientIp);
+    
+    if (!isTurnstileValid) {
+      console.log("Invalid Turnstile token in product creation request");
+      return NextResponse.json(
+        { error: "Security verification failed. Please refresh the page and try again." },
+        { status: 403 }
+      );
+    }
+
+    console.log("Turnstile verification successful for product creation");
 
     const campaignId = formData.get("campaignId");
     if (!campaignId) {

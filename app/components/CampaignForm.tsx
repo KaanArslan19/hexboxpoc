@@ -44,17 +44,19 @@ const finalStepValidationSchema = campaignFormValidationSchemas[4].shape({
 
 export default function CampaignForm(props: Props) {
   const { onSubmit, onImageRemove } = props;
-  const [isPending, setIsPending] = useState(false);
+  
+  // All React Hooks must be called at the top level
+  const [expandedSections, setExpandedSections] = useState<number[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [markdownPreview, setMarkdownPreview] = useState<string>("");
+  const [markdownPreview, setMarkdownPreview] = useState("");
   const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
     FundingType.Limitless
   );
-  const [expandedSections, setExpandedSections] = useState<number[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Turnstile related state
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -62,12 +64,112 @@ export default function CampaignForm(props: Props) {
   const [turnstileError, setTurnstileError] = useState<string | null>(null);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
 
-  const formikRef = useRef<FormikProps<any>>(null);
   const { address } = useAccount();
+
+  // All hooks must be called before any early returns
+  const formikRef = useRef<FormikProps<any>>(null);
+  const prevValuesRef = useRef<string | null>(null);
+
+  // Track whether we should start saving drafts
+  const [enableDraftSaving, setEnableDraftSaving] = useState(false);
+  const [currentFormValues, setCurrentFormValues] = useState("");
+
+  // Campaign draft management
+  const {
+    hasDraft,
+    isLoading,
+    showRestoreModal,
+    setShowRestoreModal,
+    loadDraft,
+    updateFormData,
+    deleteDraft,
+    saveError,
+    isSaving: isDraftSaving,
+    formData,
+  } = useCampaignDraft(campaignFormInitialValues);
+
+  // Phase 1: Check if we have a draft and need to show the modal
+  useEffect(() => {
+    if (hasDraft) {
+      console.log(
+        "Draft exists, showing restore modal. Draft saving is DISABLED."
+      );
+    } else {
+      console.log("No draft exists, enabling draft saving immediately.");
+      setEnableDraftSaving(true);
+    }
+  }, [hasDraft]);
+
+  // Phase 2: Only set up form value tracking if draft saving is enabled
+  useEffect(() => {
+    if (!enableDraftSaving) {
+      console.log("Draft saving disabled - not tracking form values");
+      return;
+    }
+
+    console.log("Draft saving ENABLED - starting to track form values");
+
+    const checkFormValues = () => {
+      if (formikRef.current?.values) {
+        const valuesJson = JSON.stringify(formikRef.current.values);
+        setCurrentFormValues(valuesJson);
+      }
+    };
+
+    checkFormValues();
+    const intervalId = setInterval(checkFormValues, 500);
+    return () => clearInterval(intervalId);
+  }, [enableDraftSaving]);
+
+  // The main effect that saves drafts based on value changes
+  useEffect(() => {
+    if (!enableDraftSaving) {
+      console.log("Draft saving disabled - not saving any changes");
+      return;
+    }
+
+    if (!currentFormValues) return;
+
+    if (prevValuesRef.current === null) {
+      console.log(
+        "First run after enabling saving, just storing reference values"
+      );
+      prevValuesRef.current = currentFormValues;
+      return;
+    }
+
+    if (!formikRef.current?.isSubmitting) {
+      if (prevValuesRef.current !== currentFormValues) {
+        console.log("Values changed, saving draft");
+        const debouncedSave = debounce(() => {
+          const formValues = JSON.parse(currentFormValues);
+          const dataToSave = {
+            ...formValues,
+            logoPreview,
+          };
+          console.log("Saving data with debounce:", dataToSave);
+          updateFormData(dataToSave);
+          prevValuesRef.current = currentFormValues;
+        }, 1500);
+
+        debouncedSave();
+        return () => debouncedSave.cancel();
+      }
+    }
+  }, [currentFormValues, logoPreview, updateFormData, enableDraftSaving]);
+
+  // Update markdown preview when description changes
+  useEffect(() => {
+    if (formikRef.current?.values?.description) {
+      setMarkdownPreview(formikRef.current.values.description);
+    } else {
+      setMarkdownPreview("");
+    }
+  }, [formikRef.current?.values?.description]);
 
   // Get Turnstile site key from environment variables
   const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-  
+
   // Early return if Turnstile site key is not configured
   if (!TURNSTILE_SITE_KEY) {
     console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set');
@@ -108,95 +210,7 @@ export default function CampaignForm(props: Props) {
     );
   };
 
-  // Initialize campaign draft functionality
-  const {
-    formData,
-    hasDraft,
-    isLoading,
-    showRestoreModal,
-    setShowRestoreModal,
-    loadDraft,
-    updateFormData,
-    deleteDraft,
-    saveError,
-    isSaving: isDraftSaving,
-  } = useCampaignDraft(campaignFormInitialValues);
-
-  // Track whether we should start saving drafts
-  const [enableDraftSaving, setEnableDraftSaving] = useState(false);
-  const [currentFormValues, setCurrentFormValues] = useState("");
-
-  // Phase 1: Check if we have a draft and need to show the modal
-  useEffect(() => {
-    if (hasDraft) {
-      console.log(
-        "Draft exists, showing restore modal. Draft saving is DISABLED."
-      );
-    } else {
-      console.log("No draft exists, enabling draft saving immediately.");
-      setEnableDraftSaving(true);
-    }
-  }, [hasDraft]);
-
-  // Phase 2: Only set up form value tracking if draft saving is enabled
-  useEffect(() => {
-    if (!enableDraftSaving) {
-      console.log("Draft saving disabled - not tracking form values");
-      return;
-    }
-
-    console.log("Draft saving ENABLED - starting to track form values");
-
-    const checkFormValues = () => {
-      if (formikRef.current?.values) {
-        const valuesJson = JSON.stringify(formikRef.current.values);
-        setCurrentFormValues(valuesJson);
-      }
-    };
-
-    checkFormValues();
-    const intervalId = setInterval(checkFormValues, 500);
-    return () => clearInterval(intervalId);
-  }, [enableDraftSaving]);
-
-  const prevValuesRef = useRef<string | null>(null);
-
-  // The main effect that saves drafts based on value changes
-  useEffect(() => {
-    if (!enableDraftSaving) {
-      console.log("Draft saving disabled - not saving any changes");
-      return;
-    }
-
-    if (!currentFormValues) return;
-
-    if (prevValuesRef.current === null) {
-      console.log(
-        "First run after enabling saving, just storing reference values"
-      );
-      prevValuesRef.current = currentFormValues;
-      return;
-    }
-
-    if (!formikRef.current?.isSubmitting) {
-      if (prevValuesRef.current !== currentFormValues) {
-        console.log("Values changed, saving draft");
-        const debouncedSave = debounce(() => {
-          const formValues = JSON.parse(currentFormValues);
-          const dataToSave = {
-            ...formValues,
-            logoPreview,
-          };
-          console.log("Saving data with debounce:", dataToSave);
-          updateFormData(dataToSave);
-          prevValuesRef.current = currentFormValues;
-        }, 1500);
-
-        debouncedSave();
-        return () => debouncedSave.cancel();
-      }
-    }
-  }, [currentFormValues, logoPreview, updateFormData, enableDraftSaving]);
+  // Initialize campaign draft functionality - all hooks already declared above
 
   // Helper function to convert data URL to File object
   const dataURLtoFile = (dataUrl: string, filename: string): File | null => {
@@ -222,39 +236,35 @@ export default function CampaignForm(props: Props) {
     }
   };
 
-  // Turnstile verification function
-  const verifyTurnstileToken = async (token: string): Promise<boolean> => {
-    setIsVerifyingTurnstile(true);
+  // Turnstile token received - mark as verified for frontend UX
+  // Note: Actual validation happens server-side to prevent double validation
+  const handleTurnstileSuccess = (token: string): void => {
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
     setTurnstileError(null);
-
-    try {
-      const response = await fetch("/api/verify-turnstile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setIsTurnstileVerified(true);
-        setTurnstileError(null);
-        return true;
-      } else {
-        setIsTurnstileVerified(false);
-        setTurnstileError(result.error || "Verification failed");
-        return false;
-      }
-    } catch (error) {
-      console.error("Turnstile verification error:", error);
-      setIsTurnstileVerified(false);
-      setTurnstileError("Network error during verification");
-      return false;
-    } finally {
-      setIsVerifyingTurnstile(false);
+    setIsVerifyingTurnstile(false);
+    
+    // Set the token in the form
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", token);
     }
+  };
+
+  // Simplified function - no frontend validation to prevent double validation
+  const verifyTurnstileToken = async (token: string): Promise<boolean> => {
+    // Just store the token and mark as verified for UI purposes
+    // Actual validation happens server-side during form submission
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
+    setTurnstileError(null);
+    setIsVerifyingTurnstile(false);
+    
+    // Set the token in the form
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("turnstileToken", token);
+    }
+    
+    return true; // Always return true since server-side will validate
   };
 
   // Handle Turnstile widget callbacks
@@ -360,7 +370,7 @@ export default function CampaignForm(props: Props) {
         telegram,
         website,
         linkedIn,
-        turnstileToken: _,
+        turnstileToken: formTurnstileToken,
         ...rest
       } = values;
       const campaignData: NewCampaignInfo = {
@@ -368,6 +378,7 @@ export default function CampaignForm(props: Props) {
         logo: logo!,
         deadline: Date.parse(values.deadline),
         fundAmount: Number(values.fundAmount),
+        turnstileToken: turnstileToken, // Use state variable for server-side validation
         social_links: {
           discord: discord || "",
           telegram: telegram || "",
@@ -421,14 +432,7 @@ export default function CampaignForm(props: Props) {
     }
   );
 
-  // Update markdown preview when description changes
-  useEffect(() => {
-    if (formikRef.current?.values?.description) {
-      setMarkdownPreview(formikRef.current.values.description);
-    } else {
-      setMarkdownPreview("");
-    }
-  }, [formikRef.current?.values?.description]);
+  // Update markdown preview when description changes - already declared above
 
   return (
     <>

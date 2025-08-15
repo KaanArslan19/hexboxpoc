@@ -8,6 +8,7 @@ import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createDonationProduct } from "@/app/utils/poc_utils/createDonationProduct";
 import { FundingType, ProductCategory } from "@/app/types";
+import { verifyTurnstileToken, getClientIp } from "@/app/lib/turnstile/verifyTurnstile";
 import { log } from "console";
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -28,6 +29,30 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       );
     }
     console.log("formData-----", formData);
+
+    // Validate Turnstile token for bot protection
+    const turnstileToken = formData.get("turnstileToken");
+    if (!turnstileToken) {
+      console.log("Missing Turnstile token in campaign creation request");
+      return NextResponse.json(
+        { error: "Security verification required. Please complete the verification and try again." },
+        { status: 400 }
+      );
+    }
+
+    // Verify Turnstile token with Cloudflare
+    const clientIp = getClientIp(req);
+    const isTurnstileValid = await verifyTurnstileToken(turnstileToken as string, clientIp);
+    
+    if (!isTurnstileValid) {
+      console.log("Invalid Turnstile token in campaign creation request");
+      return NextResponse.json(
+        { error: "Security verification failed. Please refresh the page and try again." },
+        { status: 403 }
+      );
+    }
+
+    console.log("Turnstile verification successful for campaign creation");
 
     // Check for required fields
     const requiredFields = [

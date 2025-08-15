@@ -228,6 +228,11 @@ export default function CreateProductPage({ searchParams }: Props) {
         );
       }
 
+      // Add Turnstile token for server-side validation
+      if (values.turnstileToken) {
+        formData.append("turnstileToken", values.turnstileToken);
+      }
+
       setTransactionStatus("Saving product to database...");
       console.log(formData);
       const response = await apiFetch("/api/create-product", {
