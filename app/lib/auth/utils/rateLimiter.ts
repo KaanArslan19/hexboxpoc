@@ -75,6 +75,18 @@ export const campaignDraftRateLimiter = new RateLimiter({
   windowMs: 10 * 1000, // per 10 seconds
 });
 
+// Comment creation rate limiting (prevent spam comments)
+export const commentRateLimiter = new RateLimiter({
+  maxRequests: 10, // 10 comments
+  windowMs: 10 * 1000, // per 10 seconds
+});
+
+// Comment like rate limiting (prevent spam likes)
+export const likeRateLimiter = new RateLimiter({
+  maxRequests: 10, // 10 likes
+  windowMs: 10 * 1000, // per 10 seconds
+});
+
 // Generic rate limit wrapper
 export function withRateLimit(
   rateLimiter: RateLimiter,

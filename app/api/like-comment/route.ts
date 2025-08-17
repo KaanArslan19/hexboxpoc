@@ -3,12 +3,34 @@ import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { CampaignBackendDetails } from "@/app/types";
+import { likeRateLimiter } from "@/app/lib/auth/utils/rateLimiter";
 
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSideUser(req);
     if (!session.isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Apply rate limiting
+    const identifier = req.headers.get("x-forwarded-for") || 
+                      req.headers.get("x-real-ip") ||
+                      session.address ||
+                      "unknown";
+    
+    if (likeRateLimiter.isRateLimited(identifier)) {
+      return NextResponse.json(
+        { 
+          error: "Too many like requests. Please try again later.",
+          retryAfter: Math.ceil(likeRateLimiter.config.windowMs / 1000)
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil(likeRateLimiter.config.windowMs / 1000).toString()
+          }
+        }
+      );
     }
 
     const url = new URL(req.url);
