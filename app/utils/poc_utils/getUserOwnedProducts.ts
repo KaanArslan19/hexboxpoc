@@ -1,5 +1,6 @@
 import client from "@/app/utils/mongodb";
 import { ProductFetch } from "@/app/types";
+import { isValidEthAddress } from "./isValidEthAddress";
 
 interface UserProductTransaction {
   product: ProductFetch;
@@ -18,11 +19,66 @@ interface UserProductTransaction {
 export const getUserOwnedProducts = async (
   userAddress: string
 ): Promise<UserProductTransaction[]> => {
+
+  const isValidAddress = isValidEthAddress(userAddress);
+  if (!isValidAddress) {
+    throw new Error("Invalid Ethereum address format");
+  }
+
   const mdbClient = client;
   const db = mdbClient.db("hexbox_poc");
+  const userAddressLower = userAddress.toLowerCase();
 
-  // Fetch all products and build a map by productId for quick lookup
-  const products = await db.collection("products").find({}).toArray();
+  // Step 1: Find campaigns with transactions from the user
+  const escapedAddress = userAddressLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const campaignsWithUserTx = await db.collection("campaigns").find({
+    "transactions.from": { $regex: new RegExp(`^${escapedAddress}$`, "i") }
+  }).toArray();
+
+  // Step 2: Extract product IDs from user's transactions
+  const productIds = new Set<string>();
+  const userTransactions: Array<{
+    productId: string;
+    transaction: any;
+  }> = [];
+
+  for (const campaign of campaignsWithUserTx) {
+    if (!Array.isArray(campaign.transactions)) continue;
+    
+    for (const tx of campaign.transactions) {
+      if (
+        typeof tx.from === "string" &&
+        tx.from.toLowerCase() === userAddressLower
+      ) {
+        const decoded = tx.decodedFunction;
+        if (decoded && Array.isArray(decoded.args) && decoded.args.length > 0) {
+          const productId = String(decoded.args[0]);
+          productIds.add(productId);
+          userTransactions.push({
+            productId,
+            transaction: {
+              transactionHash: tx.transactionHash,
+              blockNumber: tx.blockNumber,
+              timestamp: tx.timestamp?.$date || tx.timestamp || "",
+              from: tx.from,
+              to: tx.to,
+              functionName: decoded.name || "",
+              args: decoded.args.map(String),
+              status: tx.status || "",
+            }
+          });
+        }
+      }
+    }
+  }
+
+  // Step 3: Fetch only the products that the user owns
+  const productIdsArray = Array.from(productIds).map(id => parseInt(id)).filter(id => !isNaN(id));
+  const products = await db.collection("products").find({
+    productId: { $in: productIdsArray }
+  }).toArray();
+
+  // Step 4: Build product map with formatting
   const productMap: { [id: string]: ProductFetch } = {};
   products.forEach((product) => {
     //same formatting as getProducts/getUserProducts
@@ -98,40 +154,15 @@ export const getUserOwnedProducts = async (
     };
   });
 
-  // Fetch all campaigns
-  const campaigns = await db.collection("campaigns").find({}).toArray();
-  const userAddressLower = userAddress.toLowerCase();
+  // Step 5: Combine transactions with product data
   const owned: UserProductTransaction[] = [];
-
-  for (const campaign of campaigns) {
-    if (!Array.isArray(campaign.transactions)) continue;
-    for (const tx of campaign.transactions) {
-      if (
-        typeof tx.from === "string" &&
-        tx.from.toLowerCase() === userAddressLower
-      ) {
-        // check decodedFunction exists and has args
-        const decoded = tx.decodedFunction;
-        if (decoded && Array.isArray(decoded.args) && decoded.args.length > 0) {
-          const productId = String(decoded.args[0]);
-          const product = productMap[productId];
-          if (product) {
-            owned.push({
-              product,
-              transaction: {
-                transactionHash: tx.transactionHash,
-                blockNumber: tx.blockNumber,
-                timestamp: tx.timestamp?.$date || tx.timestamp || "",
-                from: tx.from,
-                to: tx.to,
-                functionName: decoded.name || "",
-                args: decoded.args.map(String),
-                status: tx.status || "",
-              },
-            });
-          }
-        }
-      }
+  for (const userTx of userTransactions) {
+    const product = productMap[userTx.productId];
+    if (product) {
+      owned.push({
+        product,
+        transaction: userTx.transaction,
+      });
     }
   }
   return owned;

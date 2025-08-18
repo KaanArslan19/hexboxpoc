@@ -87,6 +87,12 @@ export const likeRateLimiter = new RateLimiter({
   windowMs: 10 * 1000, // per 10 seconds
 });
 
+// User owned products rate limiting (prevent data scraping)
+export const userOwnedProductsRateLimiter = new RateLimiter({
+  maxRequests: 5, // 5 requests
+  windowMs: 10 * 1000, // per 10 seconds
+});
+
 // Generic rate limit wrapper
 export function withRateLimit(
   rateLimiter: RateLimiter,
