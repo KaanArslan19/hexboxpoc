@@ -77,7 +77,7 @@ export const campaignDraftRateLimiter = new RateLimiter({
 
 // Comment creation rate limiting (prevent spam comments)
 export const commentRateLimiter = new RateLimiter({
-  maxRequests: 10, // 10 comments
+  maxRequests: 5, // 5 comments
   windowMs: 10 * 1000, // per 10 seconds
 });
 

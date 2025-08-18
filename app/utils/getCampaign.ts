@@ -40,7 +40,8 @@ export async function getCampaign(campaignId: string, censored: boolean) {
           "configured": campaign.configured,
           "transactions": campaign.transactions,
           "fundraiser_address": campaign.fundraiser_address,
-          "last_synced": campaign.last_synced
+          "last_synced": campaign.last_synced,
+          "comments": campaign.comments,
       }
     }
 

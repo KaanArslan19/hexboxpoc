@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Heart, Reply, Flag, MoreHorizontal, Send, User } from "lucide-react";
 import CustomButton from "./CustomButton";
 import { apiFetch } from "@/app/utils/api-client";
+import useIsAuth from "@/app/lib/auth/hooks/useIsAuth";
 
 interface Comment {
   id: string;
@@ -45,6 +46,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
   currentUserId,
   commentsProp,
 }) => {
+  const { isAuth } = useIsAuth();
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
@@ -279,42 +281,48 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
         </div>
       </div>
 
-      {/* New Comment Form */}
-      <div className="mb-8">
-        <div className="flex gap-3">
-          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-            <User size={20} className="text-gray-500" />
-          </div>
-          <div className="flex-1">
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder={
-                currentUserId
-                  ? "Leave a comment for the creator..."
-                  : "Please log in to comment"
-              }
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blueColor/30 focus:border-transparent"
-              rows={3}
-              disabled={!currentUserId || isSubmitting}
-              maxLength={500}
-            />
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-sm text-gray-500">
-                {newComment.length > 0 && `${newComment.length}/500 characters`}
-              </span>
-              <button
-                onClick={handleNewComment}
-                disabled={!newComment.trim() || !currentUserId || isSubmitting}
-                className="flex items-center gap-2 px-4 py-2 bg-blueColor text-white rounded-lg hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Send size={16} />
-                {isSubmitting ? "Posting..." : "Post Comment"}
-              </button>
+      {/* New Comment Form - Only show to authenticated users */}
+      {isAuth && (
+        <div className="mb-8">
+          <div className="flex gap-3">
+            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <User size={20} className="text-gray-500" />
+            </div>
+            <div className="flex-1">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Leave a comment for the creator..."
+                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blueColor/30 focus:border-transparent"
+                rows={3}
+                disabled={!currentUserId || isSubmitting}
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-gray-500">
+                  {newComment.length > 0 && `${newComment.length}/500 characters`}
+                </span>
+                <button
+                  onClick={handleNewComment}
+                  disabled={!newComment.trim() || !currentUserId || isSubmitting}
+                  className="flex items-center gap-2 px-4 py-2 bg-blueColor text-white rounded-lg hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Send size={16} />
+                  {isSubmitting ? "Posting..." : "Post Comment"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Login prompt for unauthenticated users */}
+      {!isAuth && (
+        <div className="mb-8 p-4 bg-gray-50 rounded-lg text-center">
+          <p className="text-gray-600 mb-2">Want to join the conversation?</p>
+          <p className="text-sm text-gray-500">Please connect your wallet to comment, like, and reply.</p>
+        </div>
+      )}
 
       {/* Comments List */}
       <div className="space-y-6">
@@ -358,50 +366,62 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                   </p>
 
                   <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => handleLike(comment.id)}
-                      disabled={!currentUserId}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
-                        isLikedByUser
-                          ? "text-redColor bg-red-50 hover:bg-red-100"
-                          : "text-gray-600 hover:bg-gray-100"
-                      } ${
-                        !currentUserId ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      <Heart
-                        size={16}
-                        fill={isLikedByUser ? "currentColor" : "none"}
-                      />
-                      <span className="text-sm">{comment.likes}</span>
-                    </button>
+                    {/* Like button - show to all users but only functional for authenticated */}
+                    {isAuth ? (
+                      <button
+                        onClick={() => handleLike(comment.id)}
+                        disabled={!currentUserId}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
+                          isLikedByUser
+                            ? "text-redColor bg-red-50 hover:bg-red-100"
+                            : "text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Heart
+                          size={16}
+                          fill={isLikedByUser ? "currentColor" : "none"}
+                        />
+                        <span className="text-sm">{comment.likes}</span>
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1 px-2 py-1 text-gray-400">
+                        <Heart size={16} fill="none" />
+                        <span className="text-sm">{comment.likes}</span>
+                      </div>
+                    )}
 
-                    <button
-                      onClick={() =>
-                        setReplyingTo(
-                          replyingTo === comment.id ? null : comment.id
-                        )
-                      }
-                      disabled={!currentUserId}
-                      className={`flex items-center gap-1 px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-md transition-colors ${
-                        !currentUserId ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      <Reply size={16} />
-                      <span className="text-sm">Reply</span>
-                    </button>
+                    {/* Reply button - only show to authenticated users */}
+                    {isAuth && (
+                      <button
+                        onClick={() =>
+                          setReplyingTo(
+                            replyingTo === comment.id ? null : comment.id
+                          )
+                        }
+                        disabled={!currentUserId}
+                        className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        <Reply size={16} />
+                        <span className="text-sm">Reply</span>
+                      </button>
+                    )}
 
-                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                      <Flag size={16} />
-                    </button>
+                    {/* Report and More options - only show to authenticated users */}
+                    {isAuth && (
+                      <>
+                        <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                          <Flag size={16} />
+                        </button>
 
-                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                      <MoreHorizontal size={16} />
-                    </button>
+                        <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                          <MoreHorizontal size={16} />
+                        </button>
+                      </>
+                    )}
                   </div>
 
-                  {/* Reply Form */}
-                  {replyingTo === comment.id && (
+                  {/* Reply Form - only show to authenticated users */}
+                  {isAuth && replyingTo === comment.id && (
                     <div className="mt-4 ml-6">
                       <div className="flex gap-3">
                         <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
@@ -498,35 +518,42 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                                   </p>
 
                                   <div className="flex items-center gap-3">
-                                    <button
-                                      onClick={() =>
-                                        handleLike(comment.id, reply.id)
-                                      }
-                                      disabled={!currentUserId}
-                                      className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors text-xs ${
-                                        isReplyLikedByUser
-                                          ? "text-red-600 bg-red-50 hover:bg-red-100"
-                                          : "text-gray-600 hover:bg-gray-100"
-                                      } ${
-                                        !currentUserId
-                                          ? "opacity-50 cursor-not-allowed"
-                                          : ""
-                                      }`}
-                                    >
-                                      <Heart
-                                        size={14}
-                                        fill={
-                                          isReplyLikedByUser
-                                            ? "currentColor"
-                                            : "none"
+                                    {/* Reply like button - show to all users but only functional for authenticated */}
+                                    {isAuth ? (
+                                      <button
+                                        onClick={() =>
+                                          handleLike(comment.id, reply.id)
                                         }
-                                      />
-                                      <span>{reply.likes}</span>
-                                    </button>
+                                        disabled={!currentUserId}
+                                        className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors text-xs ${
+                                          isReplyLikedByUser
+                                            ? "text-red-600 bg-red-50 hover:bg-red-100"
+                                            : "text-gray-600 hover:bg-gray-100"
+                                        }`}
+                                      >
+                                        <Heart
+                                          size={14}
+                                          fill={
+                                            isReplyLikedByUser
+                                              ? "currentColor"
+                                              : "none"
+                                          }
+                                        />
+                                        <span>{reply.likes}</span>
+                                      </button>
+                                    ) : (
+                                      <div className="flex items-center gap-1 px-2 py-1 text-gray-400 text-xs">
+                                        <Heart size={14} fill="none" />
+                                        <span>{reply.likes}</span>
+                                      </div>
+                                    )}
 
-                                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                                      <Flag size={14} />
-                                    </button>
+                                    {/* Report button - only show to authenticated users */}
+                                    {isAuth && (
+                                      <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                                        <Flag size={14} />
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               </div>
