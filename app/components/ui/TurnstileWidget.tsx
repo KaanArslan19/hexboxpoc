@@ -61,25 +61,6 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
         </div>
       )}
 
-      {isVerified && (
-        <div className="mt-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md p-2">
-          <div className="flex items-center">
-            <svg
-              className="h-4 w-4 mr-2 text-green-500"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Verification successful
-          </div>
-        </div>
-      )}
-
       {!isLoaded && !error && (
         <div className="mt-2 text-sm text-gray-500">
           Loading verification...

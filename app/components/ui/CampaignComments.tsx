@@ -4,6 +4,7 @@ import { Heart, Reply, Flag, MoreHorizontal, Send, User } from "lucide-react";
 import CustomButton from "./CustomButton";
 import { apiFetch } from "@/app/utils/api-client";
 import useIsAuth from "@/app/lib/auth/hooks/useIsAuth";
+import TurnstileWidget from "./TurnstileWidget";
 
 interface Comment {
   id: string;
@@ -50,12 +51,42 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [turnstileKey, setTurnstileKey] = useState(0); // Key to force widget reset
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "most-liked">(
     "newest"
   );
   const [comments, setComments] = useState<Comment[]>(commentsProp || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+
+  // Turnstile configuration
+  const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+  if (!TURNSTILE_SITE_KEY) {
+    console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set');
+  }
+
+  // Turnstile event handlers
+  const handleTurnstileVerify = (token: string) => {
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
+    setTurnstileError(null);
+  };
+
+  const handleTurnstileError = () => {
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Turnstile verification failed. Please try again.");
+  };
+
+  const handleTurnstileExpire = () => {
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Turnstile verification expired. Please verify again.");
+  };
 
   // Format timestamp to relative time
   const formatTimestamp = (timestamp: string | Date) => {
@@ -215,6 +246,12 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
       return;
     }
 
+    // Validate Turnstile verification
+    if (!isTurnstileVerified || !turnstileToken) {
+      alert("Please complete the security verification before posting");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const response = await apiFetch(
@@ -226,6 +263,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
           },
           body: JSON.stringify({
             content: newComment,
+            turnstileToken: turnstileToken,
           }),
         }
       );
@@ -236,6 +274,11 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
         // Add new comment to the beginning of the list
         setComments((prev) => [data.comment, ...prev]);
         setNewComment("");
+        // Reset Turnstile after successful submission (tokens are single-use)
+        setTurnstileToken(null);
+        setIsTurnstileVerified(false);
+        setTurnstileError(null);
+        setTurnstileKey(prev => prev + 1); // Force widget reset
       } else {
         const error = await response.json();
         console.log(error, "error");
@@ -304,13 +347,42 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                 </span>
                 <button
                   onClick={handleNewComment}
-                  disabled={!newComment.trim() || !currentUserId || isSubmitting}
+                  disabled={!newComment.trim() || !currentUserId || isSubmitting || !isTurnstileVerified}
                   className="flex items-center gap-2 px-4 py-2 bg-blueColor text-white rounded-lg hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Send size={16} />
                   {isSubmitting ? "Posting..." : "Post Comment"}
                 </button>
               </div>
+
+              {/* Turnstile Security Verification */}
+              {TURNSTILE_SITE_KEY && (
+                <div className="mt-4 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                  <h4 className="text-sm font-medium mb-2 text-gray-700">
+                    Security Verification
+                  </h4>
+                  <p className="text-xs text-gray-600 mb-3">
+                    Please complete the verification below to post your comment.
+                  </p>
+                  
+                  <TurnstileWidget
+                    key={turnstileKey}
+                    sitekey={TURNSTILE_SITE_KEY}
+                    onVerify={handleTurnstileVerify}
+                    onError={handleTurnstileError}
+                    onExpire={handleTurnstileExpire}
+                    theme="light"
+                    size="compact"
+                    className="mb-2"
+                  />
+
+                  {turnstileError && (
+                    <div className="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+                      {turnstileError}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -4,8 +4,17 @@ import { ObjectId } from "mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { CampaignBackendDetails } from "@/app/types";
 import { commentRateLimiter } from "@/app/lib/auth/utils/rateLimiter";
+import { verifyTurnstileToken, getClientIp } from "@/app/lib/turnstile/verifyTurnstile";
+import { validateRequestSize } from "@/app/lib/middleware/requestSizeLimit";
 export async function POST(req: NextRequest) {
   try {
+    // Validate request size (DoS protection)
+    const COMMENT_SIZE_LIMIT = 50 * 1024; // 50KB - sufficient for comment text + metadata
+    const sizeValidation = validateRequestSize(req, COMMENT_SIZE_LIMIT);
+    if (sizeValidation) {
+      return sizeValidation;
+    }
+
     const session = await getServerSideUser(req);
     if (!session.isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -43,11 +52,29 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { content, parentCommentId } = body;
+    const { content, parentCommentId, turnstileToken } = body;
 
-    if (!content || content.trim().length === 0) {
+    // Verify Turnstile token
+    if (!turnstileToken) {
       return NextResponse.json(
-        { error: "Comment content is required" },
+        { error: "Turnstile verification is required" },
+        { status: 400 }
+      );
+    }
+
+    const clientIp = getClientIp(req);
+    const isTurnstileValid = await verifyTurnstileToken(turnstileToken as string, clientIp);
+    
+    if (!isTurnstileValid) {
+      return NextResponse.json(
+        { error: "Turnstile verification failed" },
+        { status: 403 }
+      );
+    }
+
+    if (!content || content.trim().length === 0 || content.length > 500) {
+      return NextResponse.json(
+        { error: "Comment content is required and must be less than 500 characters" },
         { status: 400 }
       );
     }
@@ -84,6 +111,10 @@ export async function POST(req: NextRequest) {
     const isCreator = existingCampaign.user_id === userId;
 
     const timestamp = new Date();
+
+    if (parentCommentId && !ObjectId.isValid(parentCommentId)) {
+      return NextResponse.json({ error: "Invalid parent comment ID" }, { status: 400 });
+    }
 
     if (parentCommentId) {
       // Adding a reply to an existing comment
