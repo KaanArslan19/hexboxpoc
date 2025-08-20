@@ -35,7 +35,7 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
     setLoading(true);
     setError(null);
     apiFetch(
-      `/api/user-owned-products?userAddress=${encodeURIComponent(userAddress)}`
+      `/api/userOwnedProducts?userAddress=${encodeURIComponent(userAddress)}`
     )
       .then((res) => res.json())
       .then((data) => {

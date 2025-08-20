@@ -25,7 +25,7 @@ export default function CreateProductOrService({
       <div className="flex gap-4 justify-end">
         {(pors === ProductOrService.ProductOnly ||
           pors === ProductOrService.ProductAndService) && (
-          <Link href={`/create-product?campaignId=${campaignId}`}>
+          <Link href={`/createProduct?campaignId=${campaignId}`}>
             <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
               Create new Product
             </CustomButton>

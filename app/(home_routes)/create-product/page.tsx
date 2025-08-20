@@ -235,7 +235,7 @@ export default function CreateProductPage({ searchParams }: Props) {
 
       setTransactionStatus("Saving product to database...");
       console.log(formData);
-      const response = await apiFetch("/api/create-product", {
+      const response = await apiFetch("/api/createProduct", {
         method: "POST",
         body: formData,
       });

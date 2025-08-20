@@ -190,7 +190,7 @@ export async function createProduct(
       timestamp: Date.now(),
     };
 
-    console.log("CREATE-PRODUCT ROUTE", product);
+    console.log("CREATEPRODUCT ROUTE", product);
 
     const metadata = await uploadProductMetadataToR2(product);
     console.log("METADATA", metadata);

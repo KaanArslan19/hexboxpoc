@@ -128,7 +128,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
 
     try {
       const response = await apiFetch(
-        `/api/like-comment?campaignId=${campaignId}`,
+        `/api/likeComment?campaignId=${campaignId}`,
         {
           method: "POST",
           headers: {
@@ -196,7 +196,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
     setIsSubmittingReply(true);
     try {
       const response = await apiFetch(
-        `/api/add-comment?campaignId=${campaignId}`,
+        `/api/addComment?campaignId=${campaignId}`,
         {
           method: "POST",
           headers: {
@@ -255,7 +255,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
     setIsSubmitting(true);
     try {
       const response = await apiFetch(
-        `/api/add-comment?campaignId=${campaignId}`,
+        `/api/addComment?campaignId=${campaignId}`,
         {
           method: "POST",
           headers: {
