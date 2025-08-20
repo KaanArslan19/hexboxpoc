@@ -55,6 +55,8 @@ export default function UpdateCampaign({ campaign }: Props) {
     fund_amount: campaign.fund_amount || 0,
     funding_type: campaign.funding_type || FundingType,
     wallet_address: campaign.wallet_address || "",
+    email: campaign.email || "",
+    phoneNumber: campaign.phoneNumber || "",
   };
   console.log("initialValues", initialValues);
   const handleImageRemove = (source: string) => {

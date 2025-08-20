@@ -17,21 +17,21 @@ class RateLimiter {
   isRateLimited(identifier: string): boolean {
     const now = Date.now();
     const timestamps = this.requests.get(identifier) || [];
-    
+
     // Remove old timestamps
     const recentTimestamps = timestamps.filter(
-      timestamp => now - timestamp < this.config.windowMs
+      (timestamp) => now - timestamp < this.config.windowMs
     );
-    
+
     // Check if rate limit is exceeded
     if (recentTimestamps.length >= this.config.maxRequests) {
       return true;
     }
-    
+
     // Add new timestamp
     recentTimestamps.push(now);
     this.requests.set(identifier, recentTimestamps);
-    
+
     return false;
   }
 
@@ -39,7 +39,7 @@ class RateLimiter {
     const now = Date.now();
     const timestamps = this.requests.get(identifier) || [];
     const recentTimestamps = timestamps.filter(
-      timestamp => now - timestamp < this.config.windowMs
+      (timestamp) => now - timestamp < this.config.windowMs
     );
     return Math.max(0, this.config.maxRequests - recentTimestamps.length);
   }
@@ -99,27 +99,36 @@ export const userCampaignsRateLimiter = new RateLimiter({
   windowMs: 10 * 1000, // per 10 seconds
 });
 
+// Campaign update rate limiting (prevent spam updates)
+export const campaignUpdateRateLimiter = new RateLimiter({
+  maxRequests: 10, // 10 updates
+  windowMs: 60 * 1000, // per minute
+});
+
 // Generic rate limit wrapper
 export function withRateLimit(
   rateLimiter: RateLimiter,
   handler: (request: Request) => Promise<NextResponse>
 ) {
   return async (request: Request) => {
-    const identifier = request.headers.get("x-forwarded-for") || 
-                      request.headers.get("x-real-ip") ||
-                      "unknown";
-    
+    const identifier =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
     if (rateLimiter.isRateLimited(identifier)) {
       return NextResponse.json(
-        { 
+        {
           error: "Too many requests. Please try again later.",
-          retryAfter: Math.ceil(rateLimiter.config.windowMs / 1000)
+          retryAfter: Math.ceil(rateLimiter.config.windowMs / 1000),
         },
-        { 
+        {
           status: 429,
           headers: {
-            'Retry-After': Math.ceil(rateLimiter.config.windowMs / 1000).toString()
-          }
+            "Retry-After": Math.ceil(
+              rateLimiter.config.windowMs / 1000
+            ).toString(),
+          },
         }
       );
     }
@@ -141,4 +150,4 @@ export function withNonceRateLimit(
     }
     return handler(request);
   };
-} 
+}

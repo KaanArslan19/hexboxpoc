@@ -99,7 +99,6 @@ export default function UpdateCampaignForm(props: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
   const [logoSource, setLogoSource] = useState<string[]>();
-  const [campaignInfo, setCampaignInfo] = useState({ ...defaultValues });
   const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
     FundingType.Limitless
   );
@@ -112,49 +111,81 @@ export default function UpdateCampaignForm(props: Props) {
     setLogoSource([URL.createObjectURL(file)]);
   };
 
-  useEffect(() => {
-    if (initialValuesProp) {
-      const campaignData = {
-        title: initialValuesProp.title,
-        email: initialValuesProp.email || "",
-        phoneNumber: initialValuesProp.phoneNumber || "",
-        description: initialValuesProp.description,
-        logo: initialValuesProp.logo
-          ? initialValuesProp.logo instanceof File
-            ? URL.createObjectURL(initialValuesProp.logo)
-            : initialValuesProp.logo.startsWith("http") ||
-              initialValuesProp.logo.startsWith("/")
-            ? initialValuesProp.logo
-            : `${BASE_URL}${initialValuesProp.logo}`
-          : "",
-        deadline: initialValuesProp.deadline
-          ? new Date(initialValuesProp.deadline).toISOString().split("T")[0]
-          : "",
-        location: initialValuesProp.location,
-        one_liner: initialValuesProp.one_liner,
-        telegram: initialValuesProp.social_links?.telegram || "",
-        discord: initialValuesProp.social_links?.discord || "",
-        website: initialValuesProp.social_links?.website || "",
-        linkedIn: initialValuesProp.social_links?.linkedIn || "",
-        funding_type: initialValuesProp.funding_type,
-        fund_amount: initialValuesProp.fund_amount,
-        wallet_address: initialValuesProp.wallet_address,
-      };
+  console.log("initialValuesProp received:", initialValuesProp);
 
-      setCampaignInfo(campaignData);
-      setLogoSource([campaignData.logo]);
+  // Process initial values immediately
+  const processedInitialValues = React.useMemo(() => {
+    if (!initialValuesProp) return defaultValues;
+
+    return {
+      title: initialValuesProp.title || "",
+      email: initialValuesProp.email || "",
+      phoneNumber: initialValuesProp.phoneNumber || "",
+      description: initialValuesProp.description || "",
+      logo: initialValuesProp.logo
+        ? initialValuesProp.logo instanceof File
+          ? URL.createObjectURL(initialValuesProp.logo)
+          : initialValuesProp.logo.startsWith("http") ||
+            initialValuesProp.logo.startsWith("/")
+          ? initialValuesProp.logo
+          : `${BASE_URL}${initialValuesProp.logo}`
+        : "",
+      deadline: (() => {
+        try {
+          if (!initialValuesProp.deadline) return "";
+
+          // Check if it's already a date string (YYYY-MM-DD format)
+          if (
+            typeof initialValuesProp.deadline === "string" &&
+            (initialValuesProp.deadline as string).includes("-")
+          ) {
+            // It's already a date string, validate it
+            const date = new Date(initialValuesProp.deadline);
+            if (isNaN(date.getTime())) return "";
+            return initialValuesProp.deadline;
+          }
+
+          // Otherwise, treat it as a Unix timestamp in seconds
+          const deadlineInSeconds = Number(initialValuesProp.deadline);
+          if (isNaN(deadlineInSeconds) || deadlineInSeconds <= 0) return "";
+          const deadlineInMilliseconds = deadlineInSeconds * 1000;
+          const date = new Date(deadlineInMilliseconds);
+          if (isNaN(date.getTime())) return "";
+          return date.toISOString().split("T")[0];
+        } catch (error) {
+          console.error("Error converting deadline:", error);
+          return "";
+        }
+      })(),
+      location: initialValuesProp.location || "",
+      one_liner: initialValuesProp.one_liner || "",
+      telegram: initialValuesProp.social_links?.telegram || "",
+      discord: initialValuesProp.social_links?.discord || "",
+      website: initialValuesProp.social_links?.website || "",
+      linkedIn: initialValuesProp.social_links?.linkedIn || "",
+      funding_type: initialValuesProp.funding_type || FundingType.Limitless,
+      fund_amount: initialValuesProp.fund_amount || 0,
+      wallet_address: initialValuesProp.wallet_address || "",
+    };
+  }, [initialValuesProp]);
+
+  console.log("Processed initial values:", processedInitialValues);
+
+  useEffect(() => {
+    if (processedInitialValues.logo) {
+      setLogoSource([processedInitialValues.logo]);
     }
     setTimeout(() => {
       setIsFormReady(true);
     }, 100);
-  }, [initialValuesProp]);
+  }, [processedInitialValues]);
 
   useEffect(() => {
     if (logoSource && logoSource.length > 0 && !logoPreview) {
       setLogoPreview(logoSource[0]);
     }
   }, [logoSource, logoPreview]);
-  console.log("initialValuesProp", initialValuesProp);
+
   const handleSubmit = async (values: typeof defaultValues) => {
     console.log("valuesClient", values);
     setIsPending(true);
@@ -192,306 +223,315 @@ export default function UpdateCampaignForm(props: Props) {
       setIsPending(false);
     }
   };
-  console.log(initialValuesProp);
+
   return (
     <Formik
-      initialValues={campaignInfo}
+      key={JSON.stringify(processedInitialValues)} // Force reinitialization when processedInitialValues changes
+      initialValues={processedInitialValues}
       validationSchema={validationCombinedSchema}
       enableReinitialize={true}
       validateOnMount={true}
       onSubmit={handleSubmit}
     >
-      {({ validateForm, setFieldValue, submitForm, values }) => (
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="p-6 max-w-2xl mx-auto"
-        >
-          <h1 className="text-3xl text-center mb-4">Update Your Campaign</h1>
+      {({ validateForm, setFieldValue, submitForm, values }) => {
+        console.log("Formik values:", values);
+        return (
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="p-6 max-w-2xl mx-auto"
+          >
+            <h1 className="text-3xl text-center mb-4">Update Your Campaign</h1>
 
-          <div>
-            <h2 className="text-2xl mb-2">Campaign Info</h2>
-            <p className="text-md mb-8 font-thin">
-              Enter your campaign`s details. Only the sections marked as
-              optional can be changed after deployment; all other information
-              will be fixed once submitted.
-            </p>
-            <h3 className="text-xl mb-2">Campaign Title</h3>
-            <Field
-              name="title"
-              type="text"
-              placeholder="Title"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.title}
-            />
-            <ErrorMessage
-              name="title"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-
-            <h3 className="text-xl mb-2">Campaign One Liner</h3>
-            <Field
-              name="one_liner"
-              placeholder="One Liner"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.one_liner}
-            />
-            <ErrorMessage
-              name="one_liner"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-
-            <h3 className="text-xl mb-2">Logo</h3>
-            <ImageSelector
-              id="thumb"
-              images={
-                logoPreview
-                  ? [logoPreview]
-                  : logoSource && logoSource.length > 0
-                  ? logoSource
-                  : []
-              }
-              onChange={({ target }) => {
-                const file = target.files ? target.files[0] : null;
-                setFieldValue("logo", file);
-                setLogo(file);
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    const dataUrl = e.target?.result as string;
-                    setLogoPreview(dataUrl);
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
-            />
-            <ErrorMessage
-              name="logo"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-          </div>
-          <div className="mt-4">
-            <h2 className="text-2xl mb-2">Financial</h2>
-            <h3 className="text-xl mb-2">Wallet Address for Funds</h3>
-
-            <div className="flex gap-2 relative">
+            <div>
+              <h2 className="text-2xl mb-2">Campaign Info</h2>
+              <p className="text-md mb-8 font-thin">
+                Enter your campaign`s details. Only the sections marked as
+                optional can be changed after deployment; all other information
+                will be fixed once submitted.
+              </p>
+              <h3 className="text-xl mb-2">Campaign Title</h3>
               <Field
-                name="wallet_address"
+                name="title"
                 type="text"
-                placeholder="Wallet Address to receive funds"
-                className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
+                placeholder="Title"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.title}
               />
-              <button
-                type="button"
-                onClick={() => setFieldValue("wallet_address", address)}
-                className="group relative px-2 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 h-[42px] flex items-center justify-center"
-              >
-                <TiAttachment className="w-8 h-8 " style={{ fill: "white" }} />
-                <span className="invisible group-hover:visible absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded whitespace-nowrap">
-                  Use Connected Wallet
-                </span>
-              </button>
-            </div>
-            <ErrorMessage
-              name="wallet_address"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-            <h3 className="text-xl mb-2">Fund Amount</h3>
-            <Field
-              name="fund_amount"
-              placeholder="Fund Amount"
-              className="block w-full p-2 border border-gray-300 rounded  mb-4 focus:outline-none focus:border-blueColor"
-              value={values.fund_amount}
-            />
-            <ErrorMessage
-              name="fund_amount"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-            <h3 className="text-xl mb-2">Funding Type</h3>
-            <Field
-              as="select"
-              name="funding_type"
-              className="block w-full p-2 border border-gray-300  rounded mb-4 focus:outline-none"
-              value={values.funding_type}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                setFieldValue("funding_type", e.target.value);
-                setSelectedFundingType(e.target.value as FundingType);
-              }}
-            >
-              {Object.values(fundingTypesDisplayNames).map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </Field>
+              <ErrorMessage
+                name="title"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
 
-            <ErrorMessage
-              name="funding_type"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-          </div>
-          <div>
-            <h2 className="text-2xl mb-2">Details</h2>
-            <p className="text-md mb-8 font-thin">
-              Provide the essential details about your campaign including
-              campaign description, location, deadline, and contact information.
-              These details help potential supporters understand your campaign
-              and how to reach you.
-            </p>
-            <div className="mb-2">
-              <h3 className="text-xl mb-2">Campaigns Description</h3>
-
+              <h3 className="text-xl mb-2">Campaign One Liner</h3>
               <Field
-                as="textarea"
-                name="description"
-                placeholder="Write your description using Markdown..."
-                className="block w-full p-2 border border-gray-300 rounded h-32 mb-4 focus:outline-none focus:border-blue-500"
+                name="one_liner"
+                placeholder="One Liner"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.one_liner}
               />
+              <ErrorMessage
+                name="one_liner"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+
+              <h3 className="text-xl mb-2">Logo</h3>
+              <ImageSelector
+                id="thumb"
+                images={
+                  logoPreview
+                    ? [logoPreview]
+                    : logoSource && logoSource.length > 0
+                    ? logoSource
+                    : []
+                }
+                onChange={({ target }) => {
+                  const file = target.files ? target.files[0] : null;
+                  setFieldValue("logo", file);
+                  setLogo(file);
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      const dataUrl = e.target?.result as string;
+                      setLogoPreview(dataUrl);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+              <ErrorMessage
+                name="logo"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+            </div>
+            <div className="mt-4">
+              <h2 className="text-2xl mb-2">Financial</h2>
+              <h3 className="text-xl mb-2">Wallet Address for Funds</h3>
+
+              <div className="flex gap-2 relative">
+                <Field
+                  name="wallet_address"
+                  type="text"
+                  placeholder="Wallet Address to receive funds"
+                  className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setFieldValue("wallet_address", address)}
+                  className="group relative px-2 py-2 bg-blueColor text-white rounded hover:bg-blueColor/80 h-[42px] flex items-center justify-center"
+                >
+                  <TiAttachment
+                    className="w-8 h-8 "
+                    style={{ fill: "white" }}
+                  />
+                  <span className="invisible group-hover:visible absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded whitespace-nowrap">
+                    Use Connected Wallet
+                  </span>
+                </button>
+              </div>
+              <ErrorMessage
+                name="wallet_address"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+              <h3 className="text-xl mb-2">Fund Amount</h3>
+              <Field
+                name="fund_amount"
+                placeholder="Fund Amount"
+                className="block w-full p-2 border border-gray-300 rounded  mb-4 focus:outline-none focus:border-blueColor"
+                value={values.fund_amount}
+              />
+              <ErrorMessage
+                name="fund_amount"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+              <h3 className="text-xl mb-2">Funding Type</h3>
+              <Field
+                as="select"
+                name="funding_type"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none"
+                value={values.funding_type}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  setFieldValue("funding_type", e.target.value);
+                  setSelectedFundingType(e.target.value as FundingType);
+                }}
+              >
+                {Object.entries(fundingTypesDisplayNames).map(
+                  ([enumValue, displayName]) => (
+                    <option key={enumValue} value={enumValue}>
+                      {displayName}
+                    </option>
+                  )
+                )}
+              </Field>
 
               <ErrorMessage
-                name="description"
+                name="funding_type"
                 component="div"
-                className="text-red-500 mb-2"
+                className="text-redColor/80 mb-2"
               />
+            </div>
+            <div>
+              <h2 className="text-2xl mb-2">Details</h2>
+              <p className="text-md mb-8 font-thin">
+                Provide the essential details about your campaign including
+                campaign description, location, deadline, and contact
+                information. These details help potential supporters understand
+                your campaign and how to reach you.
+              </p>
+              <div className="mb-2">
+                <h3 className="text-xl mb-2">Campaigns Description</h3>
 
-              <div className="border border-gray-300 p-4 rounded bg-gray-50">
-                <h4 className="font-semibold mb-2">Preview:</h4>
-                <div className="prose max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {values.description}
-                  </ReactMarkdown>
+                <Field
+                  as="textarea"
+                  name="description"
+                  placeholder="Write your description using Markdown..."
+                  className="block w-full p-2 border border-gray-300 rounded h-32 mb-4 focus:outline-none focus:border-blue-500"
+                />
+
+                <ErrorMessage
+                  name="description"
+                  component="div"
+                  className="text-red-500 mb-2"
+                />
+
+                <div className="border border-gray-300 p-4 rounded bg-gray-50">
+                  <h4 className="font-semibold mb-2">Preview:</h4>
+                  <div className="prose max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {values.description}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
+
+              <h3 className="text-xl mb-2">Campaign Location</h3>
+              <Field
+                name="location"
+                placeholder="Location"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.location}
+              />
+              <ErrorMessage
+                name="location"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+
+              <h3 className="text-xl mb-2">Email</h3>
+              <Field
+                name="email"
+                type="email"
+                placeholder="Email"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.email}
+              />
+              <ErrorMessage
+                name="email"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+
+              <h3 className="text-xl mb-2">Phone Number</h3>
+              <Field
+                name="phoneNumber"
+                type="text"
+                placeholder="Phone Number"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.phoneNumber}
+              />
+              <ErrorMessage
+                name="phoneNumber"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+
+              <h3 className="text-xl mb-2">Deadline</h3>
+              <Field
+                name="deadline"
+                type="date"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.deadline}
+              />
+              <ErrorMessage
+                name="deadline"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
             </div>
 
-            <h3 className="text-xl mb-2">Campaign Location</h3>
-            <Field
-              name="location"
-              placeholder="Location"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.location}
-            />
-            <ErrorMessage
-              name="location"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
+            <div>
+              <h2 className="text-2xl mb-2">Social Links</h2>
+              <h3 className="text-xl mb-2">Telegram</h3>
+              <Field
+                name="telegram"
+                placeholder="Telegram"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.telegram}
+              />
+              <ErrorMessage
+                name="telegram"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
 
-            <h3 className="text-xl mb-2">Email</h3>
-            <Field
-              name="email"
-              type="email"
-              placeholder="Email"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.email}
-            />
-            <ErrorMessage
-              name="email"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
+              <h3 className="text-xl mb-2">Discord</h3>
+              <Field
+                name="discord"
+                placeholder="Discord"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.discord}
+              />
+              <ErrorMessage
+                name="discord"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
 
-            <h3 className="text-xl mb-2">Phone Number</h3>
-            <Field
-              name="phoneNumber"
-              type="text"
-              placeholder="Phone Number"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.phoneNumber}
-            />
-            <ErrorMessage
-              name="phoneNumber"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
+              <h3 className="text-xl mb-2">Website</h3>
+              <Field
+                name="website"
+                placeholder="Website"
+                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                value={values.website}
+              />
+              <ErrorMessage
+                name="website"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
 
-            <h3 className="text-xl mb-2">Deadline</h3>
-            <Field
-              name="deadline"
-              type="date"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.deadline}
-            />
-            <ErrorMessage
-              name="deadline"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-          </div>
+              <h3 className="text-xl mb-2">LinkedIn</h3>
+              <Field
+                name="linkedIn"
+                placeholder="LinkedIn"
+                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                value={values.linkedIn}
+              />
+              <ErrorMessage
+                name="linkedIn"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+            </div>
 
-          <div>
-            <h2 className="text-2xl mb-2">Social Links</h2>
-            <h3 className="text-xl mb-2">Telegram</h3>
-            <Field
-              name="telegram"
-              placeholder="Telegram"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.telegram}
-            />
-            <ErrorMessage
-              name="telegram"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-
-            <h3 className="text-xl mb-2">Discord</h3>
-            <Field
-              name="discord"
-              placeholder="Discord"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.discord}
-            />
-            <ErrorMessage
-              name="discord"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-
-            <h3 className="text-xl mb-2">Website</h3>
-            <Field
-              name="website"
-              placeholder="Website"
-              className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
-              value={values.website}
-            />
-            <ErrorMessage
-              name="website"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-
-            <h3 className="text-xl mb-2">LinkedIn</h3>
-            <Field
-              name="linkedIn"
-              placeholder="LinkedIn"
-              className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
-              value={values.linkedIn}
-            />
-            <ErrorMessage
-              name="linkedIn"
-              component="div"
-              className="text-redColor/80 mb-2"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="block w-full bg-blueColor text-white p-2 rounded mt-4"
-            onClick={submitForm}
-            disabled={isPending}
-          >
-            {isPending ? "Submitting..." : "Submit"}
-          </button>
-          {submitError && (
-            <div className="text-redColor/80 mt-4">{submitError}</div>
-          )}
-        </form>
-      )}
+            <button
+              type="submit"
+              className="block w-full bg-blueColor text-white p-2 rounded mt-4"
+              onClick={submitForm}
+              disabled={isPending}
+            >
+              {isPending ? "Submitting..." : "Submit"}
+            </button>
+            {submitError && (
+              <div className="text-redColor/80 mt-4">{submitError}</div>
+            )}
+          </form>
+        );
+      }}
     </Formik>
   );
 }
