@@ -93,6 +93,12 @@ export const userOwnedProductsRateLimiter = new RateLimiter({
   windowMs: 10 * 1000, // per 10 seconds
 });
 
+// User campaigns rate limiting (prevent spam requests)
+export const userCampaignsRateLimiter = new RateLimiter({
+  maxRequests: 5, // 5 requests
+  windowMs: 10 * 1000, // per 10 seconds
+});
+
 // Generic rate limit wrapper
 export function withRateLimit(
   rateLimiter: RateLimiter,
