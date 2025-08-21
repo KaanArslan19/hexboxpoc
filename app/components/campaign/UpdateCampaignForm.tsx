@@ -12,6 +12,8 @@ import Image from "next/image";
 import { fundingTypesDisplayNames } from "../../lib/auth/utils/productServiceDisplayNames";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import TurnstileWidget from "../ui/TurnstileWidget";
+
 export interface InitialCampaignValue {
   title: string;
   email: string;
@@ -31,6 +33,7 @@ export interface InitialCampaignValue {
     linkedIn: string;
   };
 }
+
 const FILE_SIZE_LIMIT = 1024 * 1024 * 5; // 5MB in bytes
 const fileSizeValidator = Yup.mixed().test(
   "fileSize",
@@ -45,7 +48,10 @@ const fileSizeValidator = Yup.mixed().test(
     return false;
   }
 );
+
 const BASE_URL = `${process.env.R2_BUCKET_URL}/campaign_logos/`;
+
+// Extended validation schema that includes turnstile verification
 const validationCombinedSchema = Yup.object({
   title: Yup.string().required("Title is required"),
   one_liner: Yup.string().required("One Liner is required"),
@@ -63,11 +69,13 @@ const validationCombinedSchema = Yup.object({
     .typeError("Fund amount must be a number")
     .required("Fund amount is required")
     .min(0.0000001, "Fund amount must be greater than 0"),
-
   wallet_address: Yup.string().required("Wallet address is required"),
   funding_type: Yup.string()
     .oneOf(Object.values(FundingType))
     .required("Please select a funding type"),
+  turnstileToken: Yup.string().required(
+    "Please complete the security verification"
+  ),
 });
 
 const defaultValues = {
@@ -86,7 +94,9 @@ const defaultValues = {
   wallet_address: "",
   fund_amount: 0,
   funding_type: FundingType.Limitless,
+  turnstileToken: "",
 };
+
 interface Props {
   onSubmit(values: CampaignInfoUpdate): void;
   onImageRemove?(source: string): void;
@@ -95,6 +105,11 @@ interface Props {
 
 export default function UpdateCampaignForm(props: Props) {
   const { onSubmit, onImageRemove, initialValuesProp } = props;
+
+  // Get Turnstile site key from environment variables
+  const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+  // ALL HOOKS MUST BE AT THE TOP - BEFORE ANY EARLY RETURNS
   const [isPending, setIsPending] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
@@ -105,13 +120,13 @@ export default function UpdateCampaignForm(props: Props) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isFormReady, setIsFormReady] = useState(false);
 
-  const { address } = useAccount();
-  const onLogoChange = (file: File) => {
-    setLogo(file);
-    setLogoSource([URL.createObjectURL(file)]);
-  };
+  // Turnstile related state
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
 
-  console.log("initialValuesProp received:", initialValuesProp);
+  const { address } = useAccount();
 
   // Process initial values immediately
   const processedInitialValues = React.useMemo(() => {
@@ -166,10 +181,9 @@ export default function UpdateCampaignForm(props: Props) {
       funding_type: initialValuesProp.funding_type || FundingType.Limitless,
       fund_amount: initialValuesProp.fund_amount || 0,
       wallet_address: initialValuesProp.wallet_address || "",
+      turnstileToken: "", // Always initialize as empty
     };
   }, [initialValuesProp]);
-
-  console.log("Processed initial values:", processedInitialValues);
 
   useEffect(() => {
     if (processedInitialValues.logo) {
@@ -186,32 +200,128 @@ export default function UpdateCampaignForm(props: Props) {
     }
   }, [logoSource, logoPreview]);
 
+  // NOW AFTER ALL HOOKS, CHECK FOR EARLY RETURN CONDITIONS
+  if (!TURNSTILE_SITE_KEY) {
+    console.error(
+      "NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set"
+    );
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">
+              Configuration Error
+            </h2>
+            <p className="text-red-700">
+              Turnstile is not properly configured. Please contact the
+              administrator.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  console.log("initialValuesProp received:", initialValuesProp);
+  console.log("Processed initial values:", processedInitialValues);
+
+  const onLogoChange = (file: File) => {
+    setLogo(file);
+    setLogoSource([URL.createObjectURL(file)]);
+  };
+
+  // Turnstile token received - mark as verified for frontend UX
+  // Note: Actual validation happens server-side to prevent double validation
+  const handleTurnstileSuccess = (token: string): void => {
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
+    setTurnstileError(null);
+    setIsVerifyingTurnstile(false);
+  };
+
+  // Simplified function - no frontend validation to prevent double validation
+  const verifyTurnstileToken = async (token: string): Promise<boolean> => {
+    // Just store the token and mark as verified for UI purposes
+    // Actual validation happens server-side during form submission
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
+    setTurnstileError(null);
+    setIsVerifyingTurnstile(false);
+
+    return true; // Always return true since server-side will validate
+  };
+
+  // Handle Turnstile widget callbacks
+  const handleTurnstileVerify = async (
+    token: string,
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    console.log("Turnstile token received:", token);
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
+    setTurnstileError(null);
+    setIsVerifyingTurnstile(false);
+
+    // Set the token in the Formik form field
+    setFieldValue("turnstileToken", token);
+  };
+
+  const handleTurnstileError = (
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    console.log("Turnstile error occurred");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Security verification failed. Please try again.");
+
+    // Clear the token from the Formik form field
+    setFieldValue("turnstileToken", "");
+  };
+
+  const handleTurnstileExpire = (
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    console.log("Turnstile token expired");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+    setTurnstileError("Security verification expired. Please verify again.");
+
+    // Clear the token from the Formik form field
+    setFieldValue("turnstileToken", "");
+  };
+
   const handleSubmit = async (values: typeof defaultValues) => {
     console.log("valuesClient", values);
     setIsPending(true);
     setSubmitError(null);
 
-    const projectData: CampaignInfoUpdate = {
-      title: values.title,
-      email: values.email,
-      phoneNumber: values.phoneNumber,
-      description: values.description,
-      logo: logo || values.logo,
-      deadline: new Date(values.deadline).getTime(),
-      location: values.location,
-      one_liner: values.one_liner,
-      social_links: {
-        discord: values.discord || "",
-        telegram: values.telegram || "",
-        website: values.website || "",
-        linkedIn: values.linkedIn || "",
-      },
-      fund_amount: Number(values.fund_amount),
-      wallet_address: values.wallet_address,
-      funding_type: values.funding_type as FundingType,
-    };
-
     try {
+      // Check if turnstile token is present in form values
+      if (!values.turnstileToken) {
+        throw new Error("Please complete the security verification");
+      }
+
+      const projectData: CampaignInfoUpdate = {
+        title: values.title,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        description: values.description,
+        logo: logo || values.logo,
+        deadline: new Date(values.deadline).getTime(),
+        location: values.location,
+        one_liner: values.one_liner,
+        social_links: {
+          discord: values.discord || "",
+          telegram: values.telegram || "",
+          website: values.website || "",
+          linkedIn: values.linkedIn || "",
+        },
+        fund_amount: Number(values.fund_amount),
+        wallet_address: values.wallet_address,
+        funding_type: values.funding_type as FundingType,
+        turnstileToken: values.turnstileToken, // Use form field value
+      };
+
       await onSubmit(projectData);
       toast.success("Campaign updated successfully!");
     } catch (error) {
@@ -518,11 +628,55 @@ export default function UpdateCampaignForm(props: Props) {
               />
             </div>
 
+            {/* Security Verification Section */}
+            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <h3 className="text-lg font-semibold mb-3">
+                Security Verification
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Please complete the security verification below to proceed with
+                your campaign update.
+              </p>
+
+              <TurnstileWidget
+                sitekey={TURNSTILE_SITE_KEY}
+                onVerify={(token) =>
+                  handleTurnstileVerify(token, setFieldValue)
+                }
+                onError={() => handleTurnstileError(setFieldValue)}
+                onExpire={() => handleTurnstileExpire(setFieldValue)}
+                theme="light"
+                size="normal"
+                className="mb-2"
+              />
+
+              {isVerifyingTurnstile && (
+                <div className="mt-2 text-sm text-blue-600">
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                    Verifying security token...
+                  </div>
+                </div>
+              )}
+
+              {turnstileError && (
+                <div className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+                  {turnstileError}
+                </div>
+              )}
+
+              <ErrorMessage
+                name="turnstileToken"
+                component="div"
+                className="text-redColor/80 mt-2"
+              />
+            </div>
+
             <button
               type="submit"
               className="block w-full bg-blueColor text-white p-2 rounded mt-4"
               onClick={submitForm}
-              disabled={isPending}
+              disabled={isPending || !isTurnstileVerified}
             >
               {isPending ? "Submitting..." : "Submit"}
             </button>

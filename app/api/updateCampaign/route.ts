@@ -4,6 +4,10 @@ import { ObjectId } from "mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { campaignUpdateRateLimiter } from "@/app/lib/auth/utils/rateLimiter";
+import {
+  verifyTurnstileToken,
+  getClientIp,
+} from "@/app/lib/turnstile/verifyTurnstile";
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,6 +59,39 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Validate Turnstile token for bot protection
+    const turnstileToken = formData.get("turnstileToken");
+    if (!turnstileToken) {
+      console.log("Missing Turnstile token in campaign update request");
+      return NextResponse.json(
+        {
+          error:
+            "Security verification required. Please complete the verification and try again.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Verify Turnstile token with Cloudflare
+    const clientIp = getClientIp(req);
+    const isTurnstileValid = await verifyTurnstileToken(
+      turnstileToken as string,
+      clientIp
+    );
+
+    if (!isTurnstileValid) {
+      console.log("Invalid Turnstile token in campaign update request");
+      return NextResponse.json(
+        {
+          error:
+            "Security verification failed. Please refresh the page and try again.",
+        },
+        { status: 403 }
+      );
+    }
+
+    console.log("Turnstile verification successful for campaign update");
 
     const db = client.db("hexbox_poc");
 

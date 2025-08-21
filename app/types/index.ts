@@ -178,6 +178,7 @@ export interface CampaignInfoUpdate {
   fund_amount: number;
   funding_type: FundingType;
   wallet_address: string;
+  turnstileToken?: string; // Optional for backward compatibility
 }
 
 export interface AboutData {

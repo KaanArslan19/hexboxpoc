@@ -114,6 +114,11 @@ export default function UpdateCampaign({ campaign }: Props) {
         formData.append("logo", values.logo);
       }
 
+      // Add Turnstile token for security verification
+      if (values.turnstileToken) {
+        formData.append("turnstileToken", values.turnstileToken);
+      }
+
       console.log(
         "formData prepared, sending request with campaignId:",
         campaignId
