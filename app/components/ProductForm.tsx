@@ -24,13 +24,15 @@ const baseValidationSchemas = {
       .required("Name is required"),
     logo: fileValidator.required("Logo is required"),
     images: Yup.array().of(fileValidator),
-    manufacturerId: Yup.string()
-      .max(60, "Manufacturer ID must be 60 characters or less")
-      .required("Manufacturer ID is required"),
+    manufacturerId: Yup.string().max(
+      60,
+      "Manufacturer ID must be 60 characters or less"
+    ),
     type: Yup.string().required("Type is required"),
-    countryOfOrigin: Yup.string()
-      .max(60, "Country of origin must be 60 characters or less")
-      .required("Country of origin is required"),
+    countryOfOrigin: Yup.string().max(
+      60,
+      "Country of origin must be 60 characters or less"
+    ),
   }),
 
   details: Yup.object({
@@ -41,8 +43,8 @@ const baseValidationSchemas = {
       name: Yup.string().required("Category is required"),
     }),
     fulfillmentDetails: Yup.string().max(
-      1000,
-      "Fulfillment details must be 1000 characters or less"
+      1500,
+      "Fulfillment details must be 1500 characters or less"
     ),
     deliveryDate: Yup.string(),
   }),
@@ -78,7 +80,6 @@ const baseValidationSchemas = {
     inventory: Yup.object({
       stock_level: Yup.number()
         .typeError("Stock level must be a number")
-        .required("Stock level is required")
         .integer("Stock level must be an integer")
         .min(1, "Stock level must be at least 1")
         .max(1000000000000, "Stock level must be less than 1 trillion"),
@@ -256,11 +257,12 @@ export default function ProductForm({
   const formikRef = useRef<FormikProps<any>>(null);
 
   // Get Turnstile site key from environment variables
-  const TURNSTILE_SITE_KEY =
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+  const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   if (!TURNSTILE_SITE_KEY) {
-    console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set');
+    console.error(
+      "NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set"
+    );
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
@@ -269,7 +271,8 @@ export default function ProductForm({
               Configuration Error
             </h2>
             <p className="text-red-700">
-              Turnstile is not properly configured. Please contact the administrator.
+              Turnstile is not properly configured. Please contact the
+              administrator.
             </p>
           </div>
         </div>
@@ -330,17 +333,17 @@ export default function ProductForm({
     // Just store the token and mark as verified for UI purposes
     // Actual validation happens server-side during form submission
     console.log("Turnstile token received:", token.substring(0, 20) + "...");
-    
+
     setTurnstileToken(token);
     setIsTurnstileVerified(true);
     setTurnstileError(null);
     setIsVerifyingTurnstile(false);
-    
+
     // Set the token in the form
     if (formikRef.current) {
       formikRef.current.setFieldValue("turnstileToken", token);
     }
-    
+
     console.log("Turnstile token stored for server-side validation");
     return true; // Always return true since server-side will validate
   };
@@ -553,7 +556,7 @@ export default function ProductForm({
                   />
                 </div>
                 <div>
-                  <h3 className="text-xl mb-2">Manufacturer ID</h3>
+                  <h3 className="text-xl mb-2">Manufacturer ID (Optional)</h3>
                   <Field
                     name="manufacturerId"
                     placeholder="Manufacturer ID"
@@ -567,7 +570,7 @@ export default function ProductForm({
                 </div>
 
                 <div>
-                  <h3 className="text-xl mb-2">Country of Origin</h3>
+                  <h3 className="text-xl mb-2">Country of Origin (Optional)</h3>
                   <Field
                     name="countryOfOrigin"
                     placeholder="Country of Origin"
@@ -736,7 +739,7 @@ export default function ProductForm({
 
                 {formType === ProductOrService.ProductOnly && (
                   <div>
-                    <h3 className="text-xl mb-2">Stock Level</h3>
+                    <h3 className="text-xl mb-2">Stock Level (Optional)</h3>
                     <Field
                       name="inventory.stock_level"
                       type="number"

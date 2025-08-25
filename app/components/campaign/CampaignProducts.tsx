@@ -32,7 +32,7 @@ const CampaignProducts: React.FC<CampaignProductsProps> = ({
 
       {campaignOwner && (
         <div className="flex justify-end my-6 ">
-          <Link href={`/createProduct?campaignId=${campaignId}`}>
+          <Link href={`/create-product?campaignId=${campaignId}`}>
             <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
               Create a new Reward
             </CustomButton>
