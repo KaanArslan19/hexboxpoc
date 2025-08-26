@@ -20,7 +20,7 @@ export default function CampaignsProfile({ campaigns, userId }: Props) {
     : campaigns.campaigns;
 
   return (
-    <div>
+    <div className="flex flex-col items-center my-4 mx-2 sm:my-8 sm:mx-auto">
       <ul className="grid grid-cols-1 w-full sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
         {campaignsArray.map((item) => (
           <CampaignItem

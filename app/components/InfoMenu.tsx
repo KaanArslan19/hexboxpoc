@@ -21,12 +21,13 @@ export default function InfoMenu({ menuItems }: Props) {
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
       <MenuHandler>
-        <button className="flex hover:text-blueColor items-center gap-1 py-0.5 pr-2 pl-0.5 lg:ml-auto">
-          <span className="mr-2 text-xl text-black">Info</span>
-
+        <button className="flex items-center gap-1 py-0.5 pr-2 pl-0.5 lg:ml-auto hover:text-blueColor group">
+          <span className="mr-2 text-xl text-black group-hover:text-blueColor">
+            Info
+          </span>
           <ChevronDownIcon
             strokeWidth={2.5}
-            className={`h-3 w-3 transition-transform ${
+            className={`h-3 w-3 transition-transform group-hover:text-blueColor ${
               isMenuOpen ? "rotate-180" : ""
             }`}
           />

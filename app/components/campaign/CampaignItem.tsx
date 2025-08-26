@@ -44,7 +44,9 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
             isFinalized ? "bg-gray-50" : "shadow-lightBlueColor"
           }`}
         >
-          <h4 className="m-0 text-2xl font-bold truncate">{title}</h4>
+          <h4 className="m-0 text-2xl font-bold truncate text-gray-900">
+            {title}
+          </h4>
           <div
             className={`my-4 p-2 rounded-lg border-l-4 ${
               isFinalized
@@ -63,13 +65,15 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-4 text-lg font-semibold">
+          <div className="flex items-center justify-between mt-4 text-lg font-semibold text-gray-900">
             <span>Target</span>
             <span>Status</span>
           </div>
           <div className="flex items-center justify-between mt-3 gap-4">
             <div className="flex items-center space-x-2 truncate max-w-full">
-              <span className="text-xl">{formatPrice(fundAmount)}</span>
+              <span className="text-xl text-gray-900">
+                {formatPrice(fundAmount)}
+              </span>
             </div>
             <span
               className={`text-lg capitalize flex items-center ${
