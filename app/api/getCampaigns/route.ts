@@ -15,8 +15,12 @@ export const GET = async (req: NextRequest) => {
 
     const filterConditions: any = {};
 
+    // Always exclude draft campaigns from public results
+    filterConditions.status = { $ne: "draft" };
+
     if (status && status !== "All") {
-      filterConditions.status = status;
+      // If a specific status is requested, combine with draft exclusion
+      filterConditions.status = { $ne: "draft", $eq: status };
     }
 
     if (query) {
