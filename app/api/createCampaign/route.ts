@@ -8,7 +8,10 @@ import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createDonationProduct } from "@/app/utils/poc_utils/createDonationProduct";
 import { FundingType, ProductCategory } from "@/app/types";
-import { verifyTurnstileToken, getClientIp } from "@/app/lib/turnstile/verifyTurnstile";
+import {
+  verifyTurnstileToken,
+  getClientIp,
+} from "@/app/lib/turnstile/verifyTurnstile";
 import { log } from "console";
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
@@ -35,19 +38,28 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     if (!turnstileToken) {
       console.log("Missing Turnstile token in campaign creation request");
       return NextResponse.json(
-        { error: "Security verification required. Please complete the verification and try again." },
+        {
+          error:
+            "Security verification required. Please complete the verification and try again.",
+        },
         { status: 400 }
       );
     }
 
     // Verify Turnstile token with Cloudflare
     const clientIp = getClientIp(req);
-    const isTurnstileValid = await verifyTurnstileToken(turnstileToken as string, clientIp);
-    
+    const isTurnstileValid = await verifyTurnstileToken(
+      turnstileToken as string,
+      clientIp
+    );
+
     if (!isTurnstileValid) {
       console.log("Invalid Turnstile token in campaign creation request");
       return NextResponse.json(
-        { error: "Security verification failed. Please refresh the page and try again." },
+        {
+          error:
+            "Security verification failed. Please refresh the page and try again.",
+        },
         { status: 403 }
       );
     }
@@ -101,6 +113,102 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     }
     const campaignEntries = Object.fromEntries(formData.entries());
     console.log("campaignEntries----", campaignEntries);
+
+    // Sanitize and validate incoming values strictly
+    const trimString = (v: unknown): string =>
+      typeof v === "string" ? v.trim() : "";
+
+    // Required string fields must be non-empty after trimming
+    const requiredStringFields: Array<keyof typeof campaignEntries> = [
+      "title",
+      "description",
+      "wallet_address",
+      "one_liner",
+      "location",
+      "email",
+      "phoneNumber",
+    ];
+
+    for (const field of requiredStringFields) {
+      const value = trimString(campaignEntries[field]);
+      if (!value) {
+        return NextResponse.json(
+          { error: `${String(field)} is required` },
+          { status: 400 }
+        );
+      }
+      // put back trimmed value
+      (campaignEntries as any)[field] = value;
+    }
+
+    // Validate wallet address format (EVM)
+    const walletAddress = String(campaignEntries.wallet_address);
+    if (!/^0x[0-9a-fA-F]{40}$/.test(walletAddress)) {
+      return NextResponse.json(
+        { error: "Wallet address must be a valid EVM address" },
+        { status: 400 }
+      );
+    }
+
+    // Validate and coerce fund_amount
+    const rawFundAmount = campaignEntries.fund_amount;
+    const fundAmountNumber = Number(
+      typeof rawFundAmount === "string" ? rawFundAmount.trim() : rawFundAmount
+    );
+    if (!Number.isFinite(fundAmountNumber) || fundAmountNumber <= 0) {
+      return NextResponse.json(
+        { error: "Fund amount must be a positive number" },
+        { status: 400 }
+      );
+    }
+    // limit to safe bounds (<= 1 trillion)
+    if (fundAmountNumber > 1_000_000_000_000) {
+      return NextResponse.json(
+        { error: "Fund amount exceeds maximum allowed" },
+        { status: 400 }
+      );
+    }
+
+    // Validate funding type
+    const fundingType = String(campaignEntries.funding_type);
+    const allowedFundingTypes = [
+      "AllOrNothing",
+      "Limitless",
+      "Flexible",
+    ] as const;
+    if (!allowedFundingTypes.includes(fundingType as any)) {
+      return NextResponse.json(
+        { error: "Invalid funding type" },
+        { status: 400 }
+      );
+    }
+
+    // Parse and validate social links JSON into object with string or empty values
+    let socialLinksObj: any = {};
+    try {
+      const raw = campaignEntries.social_links;
+      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (parsed && typeof parsed === "object") {
+        socialLinksObj = {
+          website: trimString(parsed.website) || "",
+          discord: trimString(parsed.discord) || "",
+          telegram: trimString(parsed.telegram) || "",
+          linkedIn: trimString(parsed.linkedIn) || "",
+        };
+      } else {
+        socialLinksObj = {
+          website: "",
+          discord: "",
+          telegram: "",
+          linkedIn: "",
+        };
+      }
+    } catch (_e) {
+      return NextResponse.json(
+        { error: "Invalid social links format" },
+        { status: 400 }
+      );
+    }
 
     // Validate character limits for all campaign fields
     const characterLimitErrors: Record<string, string> = {};
@@ -277,26 +385,26 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     let campaign = {
       user_id: creatorWalletAddress,
-      title: campaignEntries.title,
-      description: campaignEntries.description,
-      wallet_address: campaignEntries.wallet_address,
+      title: trimString(campaignEntries.title),
+      description: trimString(campaignEntries.description),
+      wallet_address: walletAddress,
       token_address: "",
       logo: logoFileName,
       timestamp: Date.now(),
       status: "draft",
-      fund_amount: campaignEntries.fund_amount,
+      fund_amount: fundAmountNumber,
       total_raised: 0,
-      one_liner: campaignEntries.one_liner,
-      social_links: campaignEntries.social_links,
-      location: campaignEntries.location,
+      one_liner: trimString(campaignEntries.one_liner),
+      social_links: socialLinksObj,
+      location: trimString(campaignEntries.location),
       deadline: deadlineInSeconds,
       is_verified: false,
       factCheck: false,
-      funding_type: campaignEntries.funding_type,
+      funding_type: fundingType,
       configured: false,
       transactions: [],
-      email: campaignEntries.email,
-      phoneNumber: campaignEntries.phoneNumber,
+      email: trimString(campaignEntries.email),
+      phoneNumber: trimString(campaignEntries.phoneNumber),
     };
     console.log(campaign, "campaign");
 
