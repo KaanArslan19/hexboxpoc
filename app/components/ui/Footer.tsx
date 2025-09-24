@@ -22,14 +22,14 @@ export const Footer = () => {
   const supportLinks = MobileMenuItems.slice(3, 5); // Contact, Discord
   const resourceLinks = MobileMenuItems.slice(5); // Docs, FAQ, X
   return (
-    <footer className="bg-gray-100 border-t border-gray-200">
+    <footer className="bg-gray-100 dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border">
       <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blueColorDull  mb-4">
+            <h3 className="text-lg font-semibold text-blueColorDull dark:text-white mb-4">
               Hexbox
             </h3>
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-gray-600 dark:text-dark-textMuted text-sm mb-4">
               Building the future of decentralized collaboration and innovation.
             </p>
             {/*            <div className="flex space-x-4">
@@ -43,7 +43,7 @@ export const Footer = () => {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blueColorDull mb-4">
+            <h3 className="text-lg font-semibold text-blueColorDull dark:text-white mb-4">
               Explore
             </h3>
             <ul className="space-y-2">
@@ -51,7 +51,7 @@ export const Footer = () => {
                 <li key={item.label}>
                   <Link
                     href={item.href}
-                    className="text-gray-600 hover:text-blueColorDull text-sm"
+                    className="text-gray-600 dark:text-dark-textMuted hover:text-blueColorDull dark:hover:text-white text-sm"
                   >
                     {item.label}
                   </Link>
@@ -68,7 +68,7 @@ export const Footer = () => {
               <Link
                 href="mailto:hexbox.money@gmail.com"
                 target="_blank"
-                className="text-gray-600 hover:text-indigo-600 text-sm flex items-center"
+                className="text-gray-600 dark:text-dark-textMuted hover:dark:text-dark-text hover:text-blueColor text-sm flex items-center"
               >
                 <FaEnvelope className="w-4 h-4 mr-2 text-gray-500" />
                 E-Mail
@@ -84,7 +84,7 @@ export const Footer = () => {
                   <Link
                     href={item.href}
                     target="_blank"
-                    className="text-gray-600 hover:text-blueColor text-sm"
+                    className="text-gray-600 hover:text-blueColor dark:text-dark-textMuted hover:dark:text-dark-text  text-sm"
                   >
                     {item.label}
                   </Link>
@@ -111,7 +111,7 @@ export const Footer = () => {
                   )}
                   <Link
                     href={item.href}
-                    className="text-gray-600 hover:text-blueColor/80 text-sm"
+                    className="text-gray-600 hover:text-blueColor/80 dark:text-dark-textMuted hover:dark:text-dark-text text-sm"
                   >
                     {item.label}
                   </Link>
@@ -131,14 +131,14 @@ export const Footer = () => {
             <Link
               href="/terms-and-conditions"
               target="_blank"
-              className="text-gray-500 hover:text-blueColor/80 text-sm"
+              className="text-gray-500 hover:text-blueColor/80 dark:text-dark-textMuted hover:dark:text-dark-text text-sm"
             >
               Terms of Use
             </Link>
             <Link
               href="/privacy-policy"
               target="_blank"
-              className="text-gray-500 hover:text-blueColor/80 text-sm"
+              className="text-gray-500 hover:text-blueColor/80 dark:text-dark-textMuted hover:dark:text-dark-text text-sm"
             >
               Privacy Policy
             </Link>
@@ -149,7 +149,7 @@ export const Footer = () => {
                   window.showCookieBanner();
                 }
               }}
-              className="text-gray-500 hover:text-blueColor/80 text-sm"
+              className="text-gray-500 hover:text-blueColor/80 dark:text-dark-textMuted hover:dark:text-dark-text text-sm"
             >
               Cookie Settings
             </button>

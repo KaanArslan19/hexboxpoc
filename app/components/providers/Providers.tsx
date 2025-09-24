@@ -19,7 +19,7 @@ export default async function Providers({ children }: ProvidersProps) {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="white"
+      defaultTheme="light"
       enableSystem
       disableTransitionOnChange
     >

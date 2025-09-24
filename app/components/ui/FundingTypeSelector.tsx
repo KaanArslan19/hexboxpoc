@@ -54,13 +54,13 @@ export default function FundingTypeSelector({
             <div
               key={key}
               className={` rounded-2xl p-6 shadow-lg cursor-pointer transition-all duration-300 
-              hover:shadow-xl hover:border-blueColor/60 border-2 mb-2 
+              hover:shadow-xl hover:border-blueColor/60 border-4 mb-2 
               ${
                 selectedType === fundingKey
-                  ? "border-blueColor/60 bg-lightBlueColor"
-                  : "border-gray-200"
+                  ? "border-blueColor/60 bg-lightBlueColor  dark:border-dark-text   "
+                  : "border-gray-200 dark:border-dark-border"
               } 
-              bg-gradient-to-br from-yellowColor/60 via-orangeColor/40 to-blueColor/20 min-h-[250px] flex flex-col justify-between`}
+              bg-gradient-to-br from-yellowColor/80 via-orangeColor/80 to-blueColor/40 dark:bg-gradient-to-br dark:from-redColor/60 dark:via-lightBlueColor dark:to-dark-textMuted/80 min-h-[250px] flex flex-col justify-between`}
               onClick={() => handleSelection(fundingKey)}
             >
               <div>

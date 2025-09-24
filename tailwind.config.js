@@ -5,6 +5,7 @@ module.exports = withMT({
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   plugins: [require("@tailwindcss/typography")],
 
   theme: {
@@ -30,6 +31,14 @@ module.exports = withMT({
         textMuted: "#6A6A6A",
         blueText: "#1F567D",
         orangeText: "#D65C33",
+        dark: {
+          bg: "#0D1B2A", // deep navy background
+          surface: "#182534", // balanced navy slate, separates nicely from bg
+          surfaceHover: "#213346", // hover with depth, modern & subtle
+          text: "#E6F1FA", // soft white-blue
+          textMuted: "#94A8BC", // muted blue-gray
+          border: "#1E3A56", // blue-gray border
+        },
       },
       fontFamily: {
         customFont_outline_light: ['"customFont_outline_light"', "sans-serif"],

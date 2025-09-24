@@ -21,7 +21,7 @@ import remarkGfm from "remark-gfm";
 import { debounce } from "lodash";
 import CampaignFormDescription from "./ui/CampaignFormDescription";
 import TurnstileWidget from "./ui/TurnstileWidget";
-
+import { inputClass, textareaClass, checkClass } from "../utils/formClasses";
 const steps = [
   { title: "Project Info" },
   { title: "Description" },
@@ -44,7 +44,7 @@ const finalStepValidationSchema = campaignFormValidationSchemas[4].shape({
 
 export default function CampaignForm(props: Props) {
   const { onSubmit, onImageRemove } = props;
-  
+
   // All React Hooks must be called at the top level
   const [expandedSections, setExpandedSections] = useState<number[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
@@ -172,7 +172,9 @@ export default function CampaignForm(props: Props) {
 
   // Early return if Turnstile site key is not configured
   if (!TURNSTILE_SITE_KEY) {
-    console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set');
+    console.error(
+      "NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set"
+    );
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
@@ -181,7 +183,8 @@ export default function CampaignForm(props: Props) {
               Configuration Error
             </h2>
             <p className="text-red-700">
-              Turnstile is not properly configured. Please contact the administrator.
+              Turnstile is not properly configured. Please contact the
+              administrator.
             </p>
           </div>
         </div>
@@ -243,7 +246,7 @@ export default function CampaignForm(props: Props) {
     setIsTurnstileVerified(true);
     setTurnstileError(null);
     setIsVerifyingTurnstile(false);
-    
+
     // Set the token in the form
     if (formikRef.current) {
       formikRef.current.setFieldValue("turnstileToken", token);
@@ -258,12 +261,12 @@ export default function CampaignForm(props: Props) {
     setIsTurnstileVerified(true);
     setTurnstileError(null);
     setIsVerifyingTurnstile(false);
-    
+
     // Set the token in the form
     if (formikRef.current) {
       formikRef.current.setFieldValue("turnstileToken", token);
     }
-    
+
     return true; // Always return true since server-side will validate
   };
 
@@ -475,13 +478,13 @@ export default function CampaignForm(props: Props) {
                 {/* Draft saving status indicator */}
                 <div className="mb-4 text-center">
                   {isDraftSaving && (
-                    <div className="inline-flex items-center text-blue-600 text-sm">
-                      <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                    <div className="inline-flex items-center text-blueColor dark:text-dark-text text-sm">
+                      <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-blueColor dark:border-dark-textMuted mr-2"></div>
                       Saving draft...
                     </div>
                   )}
                   {saveError && (
-                    <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-2 mt-2">
+                    <div className="text-redColor text-sm bg-red-50 border border-red-200 rounded-md p-2 mt-2">
                       <strong>Draft Save Error:</strong> {saveError}
                     </div>
                   )}
@@ -495,6 +498,7 @@ export default function CampaignForm(props: Props) {
                   <Steps
                     progressDot
                     current={currentStep}
+                    className="dark:text-dark-text"
                     responsive
                     items={steps.map((step, index) => ({
                       title: step.title,
@@ -511,7 +515,7 @@ export default function CampaignForm(props: Props) {
                 {currentStep === 0 && (
                   <div>
                     <h2 className="text-2xl mb-2">Campaign Info</h2>
-                    <p className="text-md mb-8 font-thin">
+                    <p className="text-md mb-8 font-thin dark:text-dark-text">
                       Enter your campaign`s details. Only the sections marked as
                       optional can be changed after deployment; all other
                       information will be fixed once submitted.
@@ -521,7 +525,7 @@ export default function CampaignForm(props: Props) {
                       name="title"
                       type="text"
                       placeholder="Title"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <ErrorMessage
                       name="title"
@@ -532,7 +536,7 @@ export default function CampaignForm(props: Props) {
                     <Field
                       name="one_liner"
                       placeholder="One Liner"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <ErrorMessage
                       name="one_liner"
@@ -578,7 +582,7 @@ export default function CampaignForm(props: Props) {
                         as="textarea"
                         name="description"
                         placeholder="Write your description using Markdown..."
-                        className="block w-full p-2 border border-gray-300 rounded h-32 mb-4 focus:outline-none focus:border-blue-500"
+                        className={textareaClass + " h-32 mb-4"}
                       />
 
                       <ErrorMessage
@@ -587,7 +591,7 @@ export default function CampaignForm(props: Props) {
                         className="text-redColor/80 mb-2"
                       />
 
-                      <div className="border border-gray-300 p-4 rounded bg-gray-50">
+                      <div className="border border-gray-300 p-4 rounded bg-gray-50 dark:bg-dark-surfaceHover dark:text-dark-text">
                         <h4 className="font-semibold mb-2">Preview:</h4>
                         <div className="prose max-w-none">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -601,7 +605,7 @@ export default function CampaignForm(props: Props) {
                     <Field
                       name="location"
                       placeholder="Location"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4  focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <ErrorMessage
                       name="location"
@@ -613,7 +617,7 @@ export default function CampaignForm(props: Props) {
                       name="deadline"
                       type="date"
                       placeholder="Deadline"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <ErrorMessage
                       name="deadline"
@@ -625,7 +629,7 @@ export default function CampaignForm(props: Props) {
                       name="email"
                       type="email"
                       placeholder="Email Address"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <ErrorMessage
                       name="email"
@@ -635,7 +639,7 @@ export default function CampaignForm(props: Props) {
                     <Field
                       name="phoneNumber"
                       placeholder="Phone Number"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <ErrorMessage
                       name="phoneNumber"
@@ -649,22 +653,22 @@ export default function CampaignForm(props: Props) {
                     <Field
                       name="website"
                       placeholder="Website URL"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <Field
                       name="discord"
                       placeholder="Discord URL"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <Field
                       name="telegram"
                       placeholder="Telegram URL"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                     <Field
                       name="linkedIn"
                       placeholder="LinkedIn URL"
-                      className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                      className={inputClass + " mb-4"}
                     />
                   </div>
                 )}
@@ -676,7 +680,7 @@ export default function CampaignForm(props: Props) {
                       name="fundAmount"
                       type="text"
                       placeholder="Fund Amount"
-                      className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
+                      className={inputClass + " mb-4"}
                       min="0"
                     />
                     <ErrorMessage
@@ -691,7 +695,7 @@ export default function CampaignForm(props: Props) {
                         name="wallet_address"
                         type="text"
                         placeholder="Wallet Address to receive funds"
-                        className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
+                        className={inputClass + " mb-4"}
                       />
                       <button
                         type="button"
@@ -718,7 +722,7 @@ export default function CampaignForm(props: Props) {
                 {currentStep === 3 && (
                   <div>
                     <h2 className="text-2xl mb-2">Choose Your Funding Type</h2>
-                    <p className="text-md mb-8 font-thin">
+                    <p className="text-md mb-8 font-thin dark:text-dark-text">
                       Select the funding model that best fits your campaign`s
                       needs.
                     </p>
@@ -739,7 +743,7 @@ export default function CampaignForm(props: Props) {
                 {currentStep === 4 && (
                   <div>
                     <h2 className="text-2xl mb-2">Review</h2>
-                    <p className="text-md mb-8 font-thin">
+                    <p className="text-md mb-8 font-thin dark:text-dark-text">
                       For this final step, please review all information
                       carefully. Once submitted, the details provided here will
                       be fixed and cannot be changed. Ensure accuracy before
@@ -747,11 +751,11 @@ export default function CampaignForm(props: Props) {
                     </p>
 
                     {/* Security Verification Section */}
-                    <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-dark-surface">
                       <h3 className="text-lg font-semibold mb-3">
                         Security Verification
                       </h3>
-                      <p className="text-sm text-gray-600 mb-4">
+                      <p className="text-sm text-gray-600 mb-4 dark:text-dark-text">
                         Please complete the security verification below to
                         proceed with your campaign submission.
                       </p>
@@ -804,11 +808,11 @@ export default function CampaignForm(props: Props) {
                               />
                             </svg>
                           </div>
-                          <div className="ml-3">
+                          <div className="ml-3 max-w-[500px]">
                             <h3 className="text-sm font-medium text-redColor/80">
                               Error Creating Campaign
                             </h3>
-                            <div className="mt-2 text-sm text-redColor/80">
+                            <div className="mt-2 text-sm text-redColor/80 break-words max-w-full">
                               {submitError}
                             </div>
                           </div>
@@ -821,18 +825,18 @@ export default function CampaignForm(props: Props) {
                         <Field
                           name="acceptTerms"
                           type="checkbox"
-                          className="mt-1 mr-3 h-4 w-4 text-blueColor focus:ring-blueColor border-gray-300 rounded"
+                          className={checkClass + " mt-1 mr-3"}
                         />
                         <label
                           htmlFor="acceptTerms"
-                          className="text-sm text-gray-700"
+                          className="text-sm text-gray-700 dark:text-dark-text"
                         >
                           I have read and agree to the{" "}
                           <a
                             href="/terms-and-conditions"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blueColor hover:underline"
+                            className="text-blueColor dark:text-dark-textMuted hover:underline"
                           >
                             Terms and Conditions
                           </a>{" "}
@@ -841,7 +845,7 @@ export default function CampaignForm(props: Props) {
                             href="/privacy-policy"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blueColor hover:underline"
+                            className="text-blueColor dark:text-dark-textMuted hover:underline"
                           >
                             Privacy Policy.
                           </a>
@@ -863,8 +867,8 @@ export default function CampaignForm(props: Props) {
                     disabled={currentStep === 0}
                     className={`px-4 py-2 rounded ${
                       currentStep === 0
-                        ? "bg-gray-300"
-                        : "bg-blueColor text-white"
+                        ? "bg-gray-300 dark:bg-dark-surfaceHover "
+                        : "bg-blueColor text-white "
                     }`}
                   >
                     Previous
@@ -887,8 +891,21 @@ export default function CampaignForm(props: Props) {
                               errors
                             );
                             Object.entries(errors).forEach(([field, error]) => {
-                              toast.error(`${field}: ${error}`, {
-                                autoClose: 3000,
+                              const errorMessage =
+                                typeof error === "string"
+                                  ? error
+                                  : String(error);
+                              const truncatedMessage =
+                                errorMessage.length > 100
+                                  ? errorMessage.substring(0, 100) + "..."
+                                  : errorMessage;
+                              toast.error(`${field}: ${truncatedMessage}`, {
+                                autoClose: 5000,
+                                style: {
+                                  maxWidth: "400px",
+                                  wordWrap: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                },
                               });
                             });
                           }
@@ -934,14 +951,27 @@ export default function CampaignForm(props: Props) {
                             setCurrentStep((prev) => prev + 1);
                           } else {
                             Object.entries(errors).forEach(([field, error]) => {
-                              toast.error(`${field}: ${error}`, {
-                                autoClose: 3000,
+                              const errorMessage =
+                                typeof error === "string"
+                                  ? error
+                                  : String(error);
+                              const truncatedMessage =
+                                errorMessage.length > 100
+                                  ? errorMessage.substring(0, 100) + "..."
+                                  : errorMessage;
+                              toast.error(`${field}: ${truncatedMessage}`, {
+                                autoClose: 5000,
+                                style: {
+                                  maxWidth: "400px",
+                                  wordWrap: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                },
                               });
                             });
                           }
                         });
                       }}
-                      className="px-4 py-2 bg-blueColor text-white rounded"
+                      className="px-4 py-2 bg-blueColor text-white  rounded"
                     >
                       Next
                     </button>
@@ -954,7 +984,7 @@ export default function CampaignForm(props: Props) {
                       isSaving
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blueColor hover:bg-blueColor/80"
-                    } text-white transition duration-200`}
+                    } text-white  transition duration-200`}
                     type="button"
                     disabled={isSaving}
                     onClick={() => {

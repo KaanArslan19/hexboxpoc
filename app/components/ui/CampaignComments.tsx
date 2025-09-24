@@ -66,7 +66,9 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
   const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   if (!TURNSTILE_SITE_KEY) {
-    console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set');
+    console.error(
+      "NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable is not set"
+    );
   }
 
   // Turnstile event handlers
@@ -278,7 +280,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
         setTurnstileToken(null);
         setIsTurnstileVerified(false);
         setTurnstileError(null);
-        setTurnstileKey(prev => prev + 1); // Force widget reset
+        setTurnstileKey((prev) => prev + 1); // Force widget reset
       } else {
         const error = await response.json();
         console.log(error, "error");
@@ -303,19 +305,25 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white">
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-dark-surface my-2 text-black dark:text-dark-text rounded-lg border border-transparent dark:border-dark-border ">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Comments</h2>
-          <p className="text-gray-600 mt-1">{comments.length} comments</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-text">
+            Comments
+          </h2>
+          <p className="text-gray-600 dark:text-dark-textMuted mt-1">
+            {comments.length} comments
+          </p>
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">Sort by:</span>
+          <span className="text-sm text-gray-600 dark:text-dark-textMuted">
+            Sort by:
+          </span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-1 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:ring-none focus:ring-dark-textMuted focus:border-transparent bg-white dark:bg-dark-surface text-black dark:text-dark-text"
           >
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
@@ -328,26 +336,35 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
       {isAuth && (
         <div className="mb-8">
           <div className="flex gap-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              <User size={20} className="text-gray-500" />
+            <div className="w-10 h-10 bg-gray-200 dark:bg-dark-surfaceHover rounded-full flex items-center justify-center border border-transparent dark:border-dark-border">
+              <User
+                size={20}
+                className="text-gray-500 dark:text-dark-textMuted"
+              />
             </div>
             <div className="flex-1">
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Leave a comment for the creator..."
-                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blueColor/30 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 dark:border-dark-border rounded-lg resize-none focus:ring-2 focus:ring-blueColor/30  dark:focus:ring-dark-textMuted focus:border-transparent bg-white dark:bg-dark-surface text-black dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-textMuted"
                 rows={3}
                 disabled={!currentUserId || isSubmitting}
                 maxLength={500}
               />
               <div className="flex justify-between items-center mt-2">
-                <span className="text-sm text-gray-500">
-                  {newComment.length > 0 && `${newComment.length}/500 characters`}
+                <span className="text-sm text-gray-500 dark:text-dark-textMuted">
+                  {newComment.length > 0 &&
+                    `${newComment.length}/500 characters`}
                 </span>
                 <button
                   onClick={handleNewComment}
-                  disabled={!newComment.trim() || !currentUserId || isSubmitting || !isTurnstileVerified}
+                  disabled={
+                    !newComment.trim() ||
+                    !currentUserId ||
+                    isSubmitting ||
+                    !isTurnstileVerified
+                  }
                   className="flex items-center gap-2 px-4 py-2 bg-blueColor text-white rounded-lg hover:bg-blueColor/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Send size={16} />
@@ -357,27 +374,27 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
 
               {/* Turnstile Security Verification */}
               {TURNSTILE_SITE_KEY && (
-                <div className="mt-4 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                  <h4 className="text-sm font-medium mb-2 text-gray-700">
+                <div className="mt-4 p-3 border border-gray-200 dark:border-dark-border rounded-lg bg-gray-50 dark:bg-dark-surface">
+                  <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-dark-text">
                     Security Verification
                   </h4>
-                  <p className="text-xs text-gray-600 mb-3">
+                  <p className="text-xs text-gray-600 dark:text-dark-textMuted mb-3">
                     Please complete the verification below to post your comment.
                   </p>
-                  
+
                   <TurnstileWidget
                     key={turnstileKey}
                     sitekey={TURNSTILE_SITE_KEY}
                     onVerify={handleTurnstileVerify}
                     onError={handleTurnstileError}
                     onExpire={handleTurnstileExpire}
-                    theme="light"
+                    theme="auto"
                     size="compact"
                     className="mb-2"
                   />
 
                   {turnstileError && (
-                    <div className="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+                    <div className="mt-2 text-xs text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-2">
                       {turnstileError}
                     </div>
                   )}
@@ -390,9 +407,13 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
 
       {/* Login prompt for unauthenticated users */}
       {!isAuth && (
-        <div className="mb-8 p-4 bg-gray-50 rounded-lg text-center">
-          <p className="text-gray-600 mb-2">Want to join the conversation?</p>
-          <p className="text-sm text-gray-500">Please connect your wallet to comment, like, and reply.</p>
+        <div className="mb-8 p-4 bg-gray-50 dark:bg-dark-surface rounded-lg text-center border border-transparent dark:border-dark-border">
+          <p className="text-gray-600 dark:text-dark-text mb-2">
+            Want to join the conversation?
+          </p>
+          <p className="text-sm text-gray-500 dark:text-dark-textMuted">
+            Please connect your wallet to comment, like, and reply.
+          </p>
         </div>
       )}
 
@@ -405,35 +426,40 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
           return (
             <div
               key={comment.id}
-              className="border-b border-gray-200 pb-6 last:border-b-0"
+              className="border-b border-gray-200 dark:border-dark-border pb-6 last:border-b-0"
             >
               <div className="flex gap-3">
-                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                  <User size={20} className="text-gray-500" />
+                <div className="w-10 h-10 bg-gray-200 dark:bg-dark-surfaceHover rounded-full flex items-center justify-center border border-transparent dark:border-dark-border">
+                  <User
+                    size={20}
+                    className="text-gray-500 dark:text-dark-textMuted"
+                  />
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-semibold text-gray-900">
+                    <span className="font-semibold text-gray-900 dark:text-dark-text">
                       {comment.author.name}
                     </span>
                     {comment.author.isCreator && (
-                      <span className="px-2 py-1 bg-blue-100 text-blueColorDull text-xs rounded-full">
+                      <span className="px-2 py-1 bg-blue-100 dark:bg-dark-surfaceHover text-blueColorDull dark:text-dark-text text-xs rounded-full border border-transparent dark:border-dark-border">
                         Creator
                       </span>
                     )}
                     {comment.author.isBacker && (
-                      <span className="px-2 py-1 bg-green-100 text-orangeColorDull text-xs rounded-full">
+                      <span className="px-2 py-1 bg-green-100 dark:bg-dark-surfaceHover text-orangeColorDull dark:text-dark-text text-xs rounded-full border border-transparent dark:border-dark-border">
                         Backer
                       </span>
                     )}
-                    <span className="text-gray-500 text-sm">•</span>
-                    <span className="text-gray-500 text-sm">
+                    <span className="text-gray-500 dark:text-dark-textMuted text-sm">
+                      •
+                    </span>
+                    <span className="text-gray-500 dark:text-dark-textMuted text-sm">
                       {formatTimestamp(comment.timestamp)}
                     </span>
                   </div>
 
-                  <p className="text-gray-800 mb-3 leading-relaxed">
+                  <p className="text-gray-800 dark:text-dark-text mb-3 leading-relaxed whitespace-pre-wrap break-words hyphens-auto max-w-full">
                     {comment.content}
                   </p>
 
@@ -445,8 +471,8 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                         disabled={!currentUserId}
                         className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
                           isLikedByUser
-                            ? "text-redColor bg-red-50 hover:bg-red-100"
-                            : "text-gray-600 hover:bg-gray-100"
+                            ? "text-redColor bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30"
+                            : "text-gray-600 dark:text-dark-text hover:bg-gray-100 dark:hover:bg-dark-surfaceHover"
                         }`}
                       >
                         <Heart
@@ -456,7 +482,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                         <span className="text-sm">{comment.likes}</span>
                       </button>
                     ) : (
-                      <div className="flex items-center gap-1 px-2 py-1 text-gray-400">
+                      <div className="flex items-center gap-1 px-2 py-1 text-gray-400 dark:text-dark-textMuted">
                         <Heart size={16} fill="none" />
                         <span className="text-sm">{comment.likes}</span>
                       </div>
@@ -471,7 +497,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                           )
                         }
                         disabled={!currentUserId}
-                        className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                        className="flex items-center gap-1 px-2 py-1 text-gray-600 dark:text-dark-text hover:bg-gray-100 dark:hover:bg-dark-surfaceHover rounded-md transition-colors"
                       >
                         <Reply size={16} />
                         <span className="text-sm">Reply</span>
@@ -479,38 +505,41 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                     )}
 
                     {/* Report and More options - only show to authenticated users */}
-                    {isAuth && (
+                    {/*       {isAuth && (
                       <>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                        <button className="p-1 text-gray-400 dark:text-dark-textMuted hover:text-gray-600 dark:hover:text-dark-text transition-colors">
                           <Flag size={16} />
                         </button>
 
-                        <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                        <button className="p-1 text-gray-400 dark:text-dark-textMuted hover:text-gray-600 dark:hover:text-dark-text transition-colors">
                           <MoreHorizontal size={16} />
                         </button>
                       </>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Reply Form - only show to authenticated users */}
                   {isAuth && replyingTo === comment.id && (
                     <div className="mt-4 ml-6">
                       <div className="flex gap-3">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                          <User size={16} className="text-gray-500" />
+                        <div className="w-8 h-8 bg-gray-200 dark:bg-dark-surfaceHover rounded-full flex items-center justify-center border border-transparent dark:border-dark-border">
+                          <User
+                            size={16}
+                            className="text-gray-500 dark:text-dark-textMuted"
+                          />
                         </div>
                         <div className="flex-1">
                           <textarea
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
                             placeholder={`Reply to ${comment.author.name}...`}
-                            className="w-full p-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="w-full p-2 border border-gray-300 dark:border-dark-border rounded-md resize-none focus:ring-2 dark:focus:ring-dark-textMuted  focus:ring-blueColor/40 focus:border-transparent text-sm bg-white dark:bg-dark-surface text-black dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-textMuted"
                             rows={2}
                             disabled={isSubmittingReply}
                             maxLength={500}
                           />
                           <div className="flex justify-between items-center mt-2">
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-500 dark:text-dark-textMuted">
                               {replyText.length > 0 &&
                                 `${replyText.length}/500 characters`}
                             </span>
@@ -518,7 +547,7 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                               <button
                                 onClick={() => setReplyingTo(null)}
                                 disabled={isSubmittingReply}
-                                className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-md text-sm transition-colors disabled:opacity-50"
+                                className="px-3 py-1 text-gray-600 dark:text-dark-text hover:bg-gray-100 dark:hover:bg-dark-surfaceHover rounded-md text-sm transition-colors disabled:opacity-50"
                               >
                                 Cancel
                               </button>
@@ -621,11 +650,11 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
                                     )}
 
                                     {/* Report button - only show to authenticated users */}
-                                    {isAuth && (
+                                    {/*                                     {isAuth && (
                                       <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
                                         <Flag size={14} />
                                       </button>
-                                    )}
+                                    )} */}
                                   </div>
                                 </div>
                               </div>
@@ -643,14 +672,14 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
       </div>
 
       {comments.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-dark-textMuted">
           <p>No comments yet. Be the first to comment!</p>
         </div>
       )}
 
       {comments.length > 0 && (
         <div className="text-center mt-8">
-          <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="px-6 py-2 border border-gray-300 dark:border-dark-border text-gray-700 dark:text-dark-text rounded-lg hover:bg-gray-50 dark:hover:bg-dark-surfaceHover transition-colors">
             Load more comments
           </button>
         </div>

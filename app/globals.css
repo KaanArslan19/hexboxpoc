@@ -73,6 +73,8 @@
 }
 
 * {
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 ul,
@@ -100,10 +102,28 @@ span,
 a,
 button {
   font-family: customFont_regular;
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  color: #4a4a4a;
+}
+
+.dark h1,
+.dark h2,
+.dark h3 {
+  color: #ffffff;
 }
 
 p {
   font-family: customFont_light;
+  color: #4a4a4a;
+}
+
+.dark p {
+  color: #b0b0b0;
 }
 h1,
 h2 {
@@ -177,8 +197,168 @@ h2 {
   background-color: #e94e1b !important;
 }
 
+/* Ant Design Tabs Dark Mode */
+.dark .ant-tabs .ant-tabs-tab {
+  color: #94a8bc !important;
+}
+
+.dark .ant-tabs .ant-tabs-tab:hover {
+  color: #e94e1b !important;
+}
+
+.dark .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #e94e1b !important;
+  font-weight: bold !important;
+}
+
+.dark .ant-tabs .ant-tabs-ink-bar {
+  background-color: #e94e1b !important;
+}
+
+.dark .ant-tabs .ant-tabs-content-holder {
+  background-color: #182534 !important;
+}
+
+.dark .ant-tabs .ant-tabs-tabpane {
+  color: #e6f1fa !important;
+}
+
+/* Ant Design Select Dark Mode */
+.dark .ant-select {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-select .ant-select-selector {
+  background-color: #182534 !important;
+  border-color: #1e3a56 !important;
+  color: #e6f1fa !important;
+}
+
+.dark .ant-select .ant-select-selection-item {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-select .ant-select-selection-placeholder {
+  color: #94a8bc !important;
+}
+
+.dark .ant-select .ant-select-arrow {
+  color: #94a8bc !important;
+}
+
+.dark .ant-select:hover .ant-select-selector {
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-select-focused .ant-select-selector {
+  border-color: #e94e1b !important;
+  box-shadow: 0 0 0 2px rgba(233, 78, 27, 0.2) !important;
+}
+
+.dark .ant-select-dropdown {
+  background-color: #182534 !important;
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-select-item {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-select-item:hover {
+  background-color: #213346 !important;
+}
+
+.dark .ant-select-item-option-selected {
+  background-color: #213346 !important;
+  color: #e6f1fa !important;
+}
+
+.dark .ant-select-item-option-active {
+  background-color: #213346 !important;
+}
+
+/* Ant Design Statistic Dark Mode */
+.dark .ant-statistic .ant-statistic-title {
+  color: #94a8bc !important;
+}
+
+.dark .ant-statistic .ant-statistic-content {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-statistic .ant-statistic-content-value {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-statistic .ant-statistic-content-suffix {
+  color: #94a8bc !important;
+}
+
+.dark .ant-statistic .ant-statistic-content-prefix {
+  color: #94a8bc !important;
+}
+
 [data-rk] .ju367v9i {
   background-color: #002d5d !important;
+}
+
+/* ConnectButton Dark Mode Styles */
+.dark [data-rk] .ju367v9i {
+  background-color: #ffffff !important;
+  color: #002d5d !important;
+}
+
+.dark [data-rk] .ju367v9i:hover {
+  background-color: #f0f0f0 !important;
+  color: #002d5d !important;
+}
+
+/* Specific text styling for ConnectButton only */
+.dark [data-rk] button.ju367v9i span,
+.dark [data-rk] button.ju367v9i div {
+  color: #002d5d !important;
+}
+
+/* Custom Button CSS Variables for Dynamic Theming - Text and Border Only */
+:root {
+  --button-text: inherit;
+  --button-border: inherit;
+}
+
+.dark {
+  --button-text: #ffffff;
+  --button-border: #ffffff;
+}
+
+.custom-button-dynamic {
+  color: var(--button-text) !important;
+  border-color: var(--button-border) !important;
+  transition: all 0.2s ease;
+}
+
+.dark [data-rk] button.ju367v9i {
+  border: 1px solid #e5e5e5 !important;
+}
+
+.dark [data-rk] [data-radix-popper-content-wrapper] {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e5e5 !important;
+}
+
+.dark [data-rk] [data-radix-popper-content-wrapper] button,
+.dark [data-rk] [data-radix-popper-content-wrapper] span,
+.dark [data-rk] [data-radix-popper-content-wrapper] div {
+  color: #002d5d !important;
+}
+
+.dark [data-rk] [data-testid="rk-account-button"] {
+  background-color: #ffffff !important;
+  color: #002d5d !important;
+  border: 1px solid #e5e5e5 !important;
+}
+
+.dark [data-rk] [data-testid="rk-account-button"]:hover {
+  background-color: #f0f0f0 !important;
 }
 
 .animate-spin-slow {
@@ -254,6 +434,137 @@ h2 {
 
 .ant-statistic-content {
   color: #002d5d !important;
+}
+
+/* Ant Design Table Dark Mode */
+.dark .ant-table {
+  background: #182534 !important;
+  color: #e6f1fa !important;
+}
+
+.dark .ant-table-container {
+  background: #182534 !important;
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-table-thead > tr > th {
+  background: #213346 !important;
+  color: #e6f1fa !important;
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-table-tbody > tr > td {
+  background: #182534 !important;
+  color: #e6f1fa !important;
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-table-tbody > tr.ant-table-row:hover > td {
+  background: #213346 !important;
+}
+
+.dark .ant-table-pagination .ant-pagination-item,
+.dark .ant-pagination-prev .ant-pagination-item-link,
+.dark .ant-pagination-next .ant-pagination-item-link {
+  background: #182534 !important;
+  border-color: #1e3a56 !important;
+  color: #e6f1fa !important;
+}
+
+.dark .ant-pagination-item-active {
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-table-column-sorter-up.active,
+.dark .ant-table-column-sorter-down.active {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-table-empty .ant-table-cell {
+  background: #182534 !important;
+  color: #94a8bc !important;
+}
+
+/* Ant Design Steps Dark Mode */
+.dark .ant-steps .ant-steps-item-title {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-steps .ant-steps-item-description {
+  color: #94a8bc !important;
+}
+
+.dark .ant-steps .ant-steps-item-icon {
+  background-color: #182534 !important;
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-steps .ant-steps-item-icon .ant-steps-icon {
+  color: #94a8bc !important;
+}
+
+.dark .ant-steps .ant-steps-item-process .ant-steps-item-icon {
+  background-color: #002d5d !important;
+  border-color: #002d5d !important;
+}
+
+.dark .ant-steps .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon {
+  color: #ffffff !important;
+}
+
+.dark .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
+  background-color: #002d5d !important;
+  border-color: #002d5d !important;
+}
+
+.dark .ant-steps .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon {
+  color: #ffffff !important;
+}
+
+.dark .ant-steps .ant-steps-item-finish .ant-steps-item-title {
+  color: #e6f1fa !important;
+}
+
+.dark .ant-steps .ant-steps-item-finish .ant-steps-item-description {
+  color: #94a8bc !important;
+}
+
+.dark .ant-steps .ant-steps-item-wait .ant-steps-item-icon {
+  background-color: #182534 !important;
+  border-color: #1e3a56 !important;
+}
+
+.dark .ant-steps .ant-steps-item-wait .ant-steps-item-icon .ant-steps-icon {
+  color: #94a8bc !important;
+}
+
+.dark .ant-steps .ant-steps-item-wait .ant-steps-item-title {
+  color: #94a8bc !important;
+}
+
+.dark .ant-steps .ant-steps-item-wait .ant-steps-item-description {
+  color: #6a6a6a !important;
+}
+
+/* Progress dots for steps */
+.dark .ant-steps .ant-steps-item-icon .ant-steps-icon-dot {
+  background-color: #94a8bc !important;
+}
+
+.dark
+  .ant-steps
+  .ant-steps-item-process
+  .ant-steps-item-icon
+  .ant-steps-icon-dot {
+  background-color: #ffffff !important;
+}
+
+.dark
+  .ant-steps
+  .ant-steps-item-finish
+  .ant-steps-item-icon
+  .ant-steps-icon-dot {
+  background-color: #ffffff !important;
 }
 
 /* announcement banner related */

@@ -6,16 +6,19 @@ export default function Loading() {
 
   return (
     <div>
-      <div className="mt-2 h-[80px] bg-gray-300"></div>
+      <div className="mt-2 h-[80px] bg-gray-300 dark:bg-dark-surfaceHover"></div>
 
       <div className="max-w-screen-xl mx-auto xl:p-0 p-4">
         <div className=" space-y-6 animate-pulse">
-          <div className="mt-16 mb-8 h-[200px] bg-gray-300"></div>
+          <div className="mt-16 mb-8 h-[200px] bg-gray-300 dark:bg-dark-surfaceHover"></div>
 
           <GridView>
             {dummyData.map((_, index) => {
               return (
-                <div key={index} className="w-full aspect-square bg-gray-300" />
+                <div
+                  key={index}
+                  className="w-full aspect-square bg-gray-300 dark:bg-dark-surfaceHover"
+                />
               );
             })}
           </GridView>

@@ -17,19 +17,19 @@ export default function ProductOverview({
   campaign: CampaignDetailsProps;
 }) {
   return (
-    <div className="p-6 bg-white  border-gray-100">
+    <div className="p-6 bg-white dark:bg-dark-surface  border-gray-100">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         <div className="bg-blueColor/10 p-4 rounded-lg border-l-4 border-blueColor/80 shadow-sm hover:shadow-md transition-shadow">
-          <span className="font-customFont_extrabold text-gray-800 block mb-2">
+          <span className="font-customFont_extrabold text-gray-800 dark:text-dark-text block mb-2">
             Funding Type
           </span>
-          <p className="text-blueColorDull font-customFont_regular ">
+          <p className="text-blueColorDull dark:text-dark-text font-customFont_regular ">
             {fundingTypeLabels[campaign.funding_type as FundingType]}
           </p>
         </div>
 
-        <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-gray-400 shadow-sm hover:shadow-md transition-shadow">
-          <span className="font-customFont_extrabold text-gray-800 block mb-2">
+        <div className="bg-gray-50 dark:bg-dark-surfaceHover p-4 rounded-lg border-l-4 border-gray-400 shadow-sm hover:shadow-md transition-shadow">
+          <span className="font-customFont_extrabold text-gray-800 dark:text-dark-text block mb-2">
             Status
           </span>
           <p className="flex items-center">
@@ -57,16 +57,16 @@ export default function ProductOverview({
         </div>
 
         <div className="bg-orangeColor/20 p-4 rounded-lg border-l-4 border-orangeColor/80 shadow-sm hover:shadow-md transition-shadow">
-          <span className="font-customFont_extrabold text-gray-800 block mb-2">
+          <span className="font-customFont_extrabold text-gray-800 dark:text-dark-text block mb-2">
             Item Type
           </span>
-          <p className="text-orangeColorDull font-customFont_regular">
+          <p className="text-orangeColorDull dark:text-dark-text font-customFont_regular">
             {productOrServiceLabels[product.type as ProductOrService] || "Item"}
           </p>
         </div>
 
         <div className="bg-blueColor/10 p-4 rounded-lg border-l-4 border-blueColor/80 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center">
-          <span className="font-customFont_extrabold text-gray-800 block mb-2">
+          <span className="font-customFont_extrabold text-gray-800 dark:text-dark-text block mb-2">
             Smart Contract
           </span>
           <Link
@@ -94,7 +94,7 @@ export default function ProductOverview({
 
         {product.fulfillmentDetails && (
           <div className="bg-blueColor/10 p-4 rounded-lg border-l-4 border-blueColor/80 shadow-sm hover:shadow-md transition-shadow">
-            <span className="font-customFont_extrabold text-gray-800 block mb-2">
+            <span className="font-customFont_extrabold text-gray-800 dark:text-dark-text block mb-2">
               Fulfillment Details
             </span>
             <DescriptionAccordion
@@ -106,7 +106,7 @@ export default function ProductOverview({
 
         {product.deliveryDate && (
           <div className="bg-orangeColor/20 p-4 rounded-lg border-l-4 border-orangeColor/80  shadow-sm hover:shadow-md transition-shadow max-h-[100px]">
-            <span className="font-customFont_extrabold text-gray-800 block mb-2">
+            <span className="font-customFont_extrabold text-gray-800 block mb-2 dark:text-dark-text">
               Expected Delivery Date
             </span>
             <p className="text-purpleColorDull font-customFont_regular">
@@ -115,8 +115,8 @@ export default function ProductOverview({
           </div>
         )}
       </div>
-      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
-        <p className="text-sm text-gray-600">
+      <div className="bg-gray-50 dark:bg-dark-surface p-4 rounded-lg border border-gray-200 dark:border-dark-border mt-2">
+        <p className="text-sm text-gray-600 dark:text-dark-textMuted">
           This contract is deployed on the Avalanche Testnet. Inspect the NFT
           details to learn more about this project`s tokenomics.
         </p>

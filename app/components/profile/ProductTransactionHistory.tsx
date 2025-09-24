@@ -48,20 +48,30 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
 
   if (!userAddress)
     return (
-      <div className="p-4">
+      <div className="p-4 dark:text-dark-textMuted">
         Connect your wallet to see your owned product transactions.
       </div>
     );
-  if (loading) return <div className="p-4">Loading transaction history...</div>;
-  if (error) return <div className="p-4 text-redColor">{error}</div>;
+  if (loading)
+    return (
+      <div className="p-4 dark:text-dark-textMuted">
+        Loading transaction history...
+      </div>
+    );
+  if (error)
+    return <div className="p-4 text-red-600 dark:text-red-400">{error}</div>;
 
   if (!transactions.length) {
-    return <div className="p-4">No owned product transactions found.</div>;
+    return (
+      <div className="p-4 dark:text-dark-textMuted">
+        No owned product transactions found.
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold mb-8 text-gray-800">
+    <div className="p-6 bg-gray-50 dark:bg-dark-bg min-h-screen">
+      <h2 className="text-3xl font-bold mb-8 text-gray-800 dark:text-dark-text">
         Products You Own
       </h2>
 
@@ -69,7 +79,7 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
         {transactions.map(({ product, transaction }, idx) => (
           <div
             key={transaction.transactionHash + idx}
-            className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            className="bg-white dark:bg-dark-surface rounded-xl shadow-lg border border-gray-100 dark:border-dark-border overflow-hidden hover:shadow-xl transition-shadow duration-300"
           >
             {/* Product Header */}
             <div className=" bg-blueColor/80 px-6 py-4">
@@ -88,15 +98,15 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Date */}
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-dark-textMuted uppercase tracking-wide mb-1">
                     Date
                   </span>
-                  <span className="text-sm text-gray-800 font-medium">
+                  <span className="text-sm text-gray-800 dark:text-dark-text font-medium">
                     {transaction.timestamp
                       ? new Date(transaction.timestamp).toLocaleDateString()
                       : "-"}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-dark-textMuted">
                     {transaction.timestamp
                       ? new Date(transaction.timestamp).toLocaleTimeString()
                       : ""}
@@ -105,21 +115,21 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
 
                 {/* Function */}
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-dark-textMuted uppercase tracking-wide mb-1">
                     Function
                   </span>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blueColor/20 text-blue-800 dark:text-dark-text w-fit">
                     {transaction.functionName}
                   </span>
                 </div>
 
                 {/* Product ID */}
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-dark-textMuted uppercase tracking-wide mb-1">
                     Product ID
                   </span>
                   <Link href={`/product?productId=${product.id}`}>
-                    <span className="text-sm font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded w-fit">
+                    <span className="text-sm font-mono text-gray-800 dark:text-dark-text bg-gray-100 dark:bg-dark-surfaceHover px-2 py-1 rounded w-fit">
                       #{product.productId}
                     </span>
                   </Link>
@@ -127,16 +137,16 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
 
                 {/* Status */}
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-dark-textMuted uppercase tracking-wide mb-1">
                     Status
                   </span>
                   <span
                     className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium w-fit ${
                       transaction.status?.toLowerCase() === "success"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                         : transaction.status?.toLowerCase() === "pending"
-                        ? "bg-yellow-100 text-yellowColor"
-                        : "bg-gray-100 text-gray-800"
+                        ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellowColor dark:text-yellowColor"
+                        : "bg-gray-100 dark:bg-dark-surfaceHover text-gray-800 dark:text-dark-text"
                     }`}
                   >
                     {transaction.status}
@@ -145,16 +155,16 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
               </div>
 
               {/* Transaction Hash */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-dark-textMuted uppercase tracking-wide">
                     Transaction Hash
                   </span>
                   <a
                     href={`https://testnet.snowtrace.io/tx/${transaction.transactionHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-2 text-blueColor/80  hover:text-blueColor transition-colors group"
+                    className="inline-flex items-center space-x-2 text-blueColor/80 dark:text-dark-text hover:text-blueColor dark:hover:text-blueColor transition-colors group"
                   >
                     <span className="font-mono text-sm">
                       {transaction.transactionHash.slice(0, 10)}...
@@ -182,11 +192,11 @@ const ProductTransactionHistory: React.FC<ProductTransactionHistoryProps> = ({
       </div>
 
       {transactions.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg mb-2">
+        <div className="text-center py-12 ">
+          <div className="text-gray-400 dark:text-dark-textMuted text-lg mb-2 p-4">
             No transactions found
           </div>
-          <div className="text-gray-500 text-sm">
+          <div className="text-gray-500 dark:text-dark-textMuted text-sm">
             Your owned products will appear here once you make a purchase.
           </div>
         </div>

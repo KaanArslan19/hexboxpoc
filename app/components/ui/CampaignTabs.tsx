@@ -15,12 +15,19 @@ const CampaignTabs: React.FC<CampaignTabProps> = ({
   defaultActiveKey = "1",
 }) => {
   return (
-    <Tabs
-      defaultActiveKey={defaultActiveKey}
-      items={items}
-      onChange={onChange}
-      style={{ font: "#E94E1B", color: "#E94E1B" }}
-    />
+    <div className="dark:bg-[#0D1B2A] dark:text-[#E6F1FA] rounded-xl p-2">
+      <Tabs
+        defaultActiveKey={defaultActiveKey}
+        items={items}
+        onChange={onChange}
+        className="
+          [&_.ant-tabs-tab]:text-gray-700 
+          dark:[&_.ant-tabs-tab]:text-[#94A8BC] 
+          dark:[&_.ant-tabs-tab-active]:text-[#E6F1FA] 
+          dark:[&_.ant-tabs-ink-bar]:bg-[#E94E1B]
+        "
+      />
+    </div>
   );
 };
 

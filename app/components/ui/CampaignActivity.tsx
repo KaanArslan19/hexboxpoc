@@ -23,9 +23,16 @@ export default function CampaignActivity({
       key: "transactionHash",
       render: (transactionHash: string) => (
         <Tooltip title={transactionHash}>
-          <a href={`https://testnet.snowtrace.io/tx/${transactionHash}`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`https://testnet.snowtrace.io/tx/${transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <span className="truncateAddress">
-              {`${transactionHash.substring(0, 6)}...${transactionHash.substring(transactionHash.length - 4)}`}
+              {`${transactionHash.substring(
+                0,
+                6
+              )}...${transactionHash.substring(transactionHash.length - 4)}`}
             </span>
           </a>
         </Tooltip>
@@ -39,17 +46,23 @@ export default function CampaignActivity({
         if (from === fundraiser_address) {
           return (
             <Tooltip title={from}>
-              <a href={`https://testnet.snowtrace.io/address/${from}`} target="_blank" rel="noopener noreferrer">
-              <span className="truncateAddress">
-                {`Campaign`}
-              </span>
-            </a>
+              <a
+                href={`https://testnet.snowtrace.io/address/${from}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="truncateAddress">{`Campaign`}</span>
+              </a>
             </Tooltip>
           );
         }
         return (
           <Tooltip title={from}>
-            <a href={`https://testnet.snowtrace.io/address/${from}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://testnet.snowtrace.io/address/${from}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <span className="truncateAddress">
                 {`${from.substring(0, 6)}...${from.substring(from.length - 4)}`}
               </span>
@@ -66,20 +79,28 @@ export default function CampaignActivity({
         if (to === fundraiser_address) {
           return (
             <Tooltip title={to}>
-              <a href={`https://testnet.snowtrace.io/address/${to}`} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`https://testnet.snowtrace.io/address/${to}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span>Campaign</span>
               </a>
             </Tooltip>
           );
         }
         return (
-        <Tooltip title={to}>
-          <a href={`https://testnet.snowtrace.io/address/${to}`} target="_blank" rel="noopener noreferrer">
-            <span className="truncateAddress">
-              {`${to.substring(0, 6)}...${to.substring(to.length - 4)}`}
-            </span>
-          </a>
-        </Tooltip>
+          <Tooltip title={to}>
+            <a
+              href={`https://testnet.snowtrace.io/address/${to}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="truncateAddress">
+                {`${to.substring(0, 6)}...${to.substring(to.length - 4)}`}
+              </span>
+            </a>
+          </Tooltip>
         );
       },
     },
@@ -93,7 +114,7 @@ export default function CampaignActivity({
           const productId = decodedFunction.args[0];
           // If the amount is very large, you might want to format it
           // This assumes the amount is in wei or a similar small denomination
-          return Number(productId)
+          return Number(productId);
         }
         return "N/A";
       },
@@ -146,10 +167,13 @@ export default function CampaignActivity({
       <Table
         dataSource={dataSource}
         columns={columns}
+        className="bg-white text-black dark:bg-dark-surface dark:text-dark-text dark:border-dark-border rounded-md overflow-hidden"
         rowClassName={(record, index) =>
-          index % 2 === 0 ? "bg-white" : "bg-lightBlueColor"
+          index % 2 === 0
+            ? "bg-white text-black dark:bg-dark-surface dark:text-dark-text"
+            : "bg-lightBlueColor text-black dark:bg-dark-surfaceHover dark:text-dark-text"
         }
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 5, className: "dark:text-dark-text" }}
       />
     </div>
   );

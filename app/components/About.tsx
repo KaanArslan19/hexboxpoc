@@ -59,7 +59,7 @@ export default function About() {
   ];
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont_bold text-blueColorDull">
+      <h1 className="text-3xl md:text-5xl capitalize text-center mb-4 font-customFont_bold text-blueColorDull dark:text-dark-text">
         Invest in Real-World Innovation, <br className="hidden sm:inline " />
         On-Chain
       </h1>
@@ -71,7 +71,7 @@ export default function About() {
         {ABOUT_DATA.map((item, index) => (
           <li
             key={index}
-            className="w-full max-w-sm h-[28rem] flex flex-col bg-gradient-to-bl from-yellowColor/40 via-orangeColor/50 to-blueColor/20 rounded-2xl overflow-hidden shadow-lg"
+            className="w-full max-w-sm h-[28rem] flex flex-col bg-gradient-to-bl from-blueColor/90 to-orangeColor/70  via-lightBlueColor/70  dark:from-redColor/60 dark:via-lightBlueColor dark:to-dark-textMuted/80   rounded-2xl overflow-hidden shadow-lg"
           >
             <div className="h-32 flex items-center justify-center p-4">
               <Image
@@ -83,11 +83,11 @@ export default function About() {
               />
             </div>
             <div className="flex-1 p-6 flex flex-col">
-              <h4 className="text-2xl font-customFont_regular text-center mb-4 text-orangeColor h-[60px]">
+              <h4 className="text-2xl font-customFont_regular text-center dark:text-dark-text mb-4 text-white  h-[60px]">
                 {item.header}
               </h4>
               <div className="flex-1 overflow-y-auto">
-                <p className="text-base lg:text-lg text-textPrimary ">
+                <p className="text-base lg:text-lg text-white dark:text-dark-textMuted ">
                   {item.description}
                 </p>
               </div>

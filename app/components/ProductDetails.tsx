@@ -140,7 +140,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 </div>
               ))
             ) : (
-              <div className="col-span-2 p-6 bg-gray-100 rounded-lg text-center text-gray-500">
+              <div className="col-span-2 p-6 bg-gray-100 dark:bg-dark-surfaceHover rounded-lg text-center text-gray-500 dark:text-dark-textMuted">
                 No images available for this product
               </div>
             )}
@@ -162,13 +162,15 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
           <div className="flex flex-col items-center">
             <div
               className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-                campaign.is_verified ? "bg-green-100" : "bg-gray-100"
+                campaign.is_verified
+                  ? "bg-green-100 dark:bg-green-900/30"
+                  : "bg-gray-100 dark:bg-dark-surfaceHover"
               }`}
             >
               {campaign.is_verified ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-green-600"
+                  className="h-8 w-8 text-green-600 dark:text-green-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -183,7 +185,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-gray-400"
+                  className="h-8 w-8 text-gray-400 dark:text-dark-textMuted"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -197,10 +199,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 </svg>
               )}
             </div>
-            <span className="text-lg font-medium">
+            <span className="text-lg font-medium dark:text-dark-text">
               {campaign.is_verified ? "Verified Campaign" : "Not Verified"}
             </span>
-            <p className="text-gray-600 text-center mt-2">
+            <p className="text-gray-600 dark:text-dark-textMuted text-center mt-2">
               {campaign.is_verified
                 ? "This campaign has been verified by our team and meets all our standards."
                 : "This campaign has not yet been verified by our team. Proceed with caution."}
@@ -209,7 +211,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               <div className="mt-4 flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-500 mr-2"
+                  className="h-5 w-5 text-gray-500 dark:text-dark-textMuted mr-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -227,7 +229,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span>{campaign.location}</span>
+                <span className="dark:text-dark-textMuted">
+                  {campaign.location}
+                </span>
               </div>
             )}
           </div>
@@ -707,7 +711,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   };
 
   return (
-    <main className="overflow-hidden p-8 bg-white">
+    <main className="overflow-hidden p-8 bg-white dark:bg-dark-bg">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 flex flex-col min-h-0">
@@ -722,7 +726,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="mb-4">
-                <h1 className="text-3xl font-bold text-gray-900 break-words leading-tight">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text break-words leading-tight">
                   {product.name}
                 </h1>
               </div>
@@ -735,32 +739,34 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm border border-gray-200 h-fit max-h-[900px] overflow-auto sticky top-0">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-surface dark:to-dark-bg p-6 rounded-xl shadow-sm border border-gray-200 dark:border-dark-border h-fit max-h-[900px] overflow-auto sticky top-0">
             <div className="space-y-6">
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-gray-600 text-sm font-medium">
+              <div className="bg-white dark:bg-dark-surface p-4 rounded-lg shadow-sm">
+                <p className="text-gray-600 dark:text-dark-textMuted text-sm font-medium">
                   Funds Pledged
                 </p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                   ${localCampaign.total_raised}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-textMuted">
                   Pledged of ${localCampaign.fund_amount} campaign goal
                 </p>
               </div>
 
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-gray-600 text-sm font-medium">Sold</p>
-                <p className="text-3xl font-bold text-blueColorDull">
+              <div className="bg-white dark:bg-dark-surface p-4 rounded-lg shadow-sm">
+                <p className="text-gray-600 dark:text-dark-textMuted text-sm font-medium">
+                  Sold
+                </p>
+                <p className="text-3xl font-bold text-blueColorDull dark:text-dark-textMuted">
                   {localProduct.sold_count}
                 </p>
               </div>
 
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-lightBlueColor/80 text-sm font-medium">
+              <div className="bg-white dark:bg-dark-surface p-4 rounded-lg shadow-sm">
+                <p className="text-lightBlueColor/80 dark:text-dark-textMuted text-sm font-medium">
                   Days to Go
                 </p>
-                <p className="text-3xl font-bold text-orangeColorDull">
+                <p className="text-3xl font-bold text-orangeColorDull dark:text-orangeColor">
                   {daysToGo}
                 </p>
               </div>
@@ -768,7 +774,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               <div>
                 <Input
                   placeholder="Enter quantity of items to purchase"
-                  className="!border-2 !border-gray-300 bg-white text-gray-900 shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200"
+                  className="!border-2 !border-gray-300 dark:!border-dark-border bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 dark:placeholder:text-dark-textMuted placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200"
                   labelProps={{
                     className: "hidden",
                   }}
@@ -782,30 +788,32 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
               <div>
                 {showCommissionInfo && productQuantity > 0 && (
-                  <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 text-sm">
-                    <p className="text-gray-700 mb-3">
-                      <strong className="text-blueColorDull">Important:</strong>{" "}
+                  <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-dark-surfaceHover dark:to-dark-surface rounded-lg border border-blue-200 dark:border-dark-border text-sm">
+                    <p className="text-gray-700 dark:text-dark-text mb-3">
+                      <strong className="text-blueColorDull dark:text-dark-textMuted">
+                        Important:
+                      </strong>{" "}
                       A 2.5% commission fee will be applied to your
                       contribution.
                     </p>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-dark-textMuted">
                           Total contribution:
                         </span>
-                        <span className="font-semibold">
+                        <span className="font-semibold dark:text-dark-text">
                           ${calculatedAmount.totalAmount.toFixed(2)} USDC
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-dark-textMuted">
                           Commission (2.5%):
                         </span>
-                        <span className="font-semibold text-red-600">
+                        <span className="font-semibold text-red-600 dark:text-redColor">
                           ${calculatedAmount.commissionAmount.toFixed(2)} USDC
                         </span>
                       </div>
-                      <div className="flex justify-between font-bold text-green-700 pt-2 border-t border-blue-200">
+                      <div className="flex justify-between font-bold text-green-700 dark:text-green-400 pt-2 border-t border-blue-200 dark:border-dark-border">
                         <span>Campaign receives:</span>
                         <span>
                           ${calculatedAmount.finalAmount.toFixed(2)} USDC
@@ -816,24 +824,24 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 )}
 
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-start bg-white p-3 rounded-lg">
+                  <div className="flex items-start bg-white dark:bg-dark-surface p-3 rounded-lg">
                     <input
                       type="checkbox"
                       id="acceptTerms"
                       checked={acceptTerms}
                       onChange={(e) => setAcceptTerms(e.target.checked)}
-                      className="mt-1 mr-3 h-4 w-4 text-blueColor focus:ring-blueColor border-gray-300 rounded"
+                      className="mt-1 mr-3 h-4 w-4 text-blueColor focus:ring-blueColor border-gray-300 dark:border-dark-border dark:bg-dark-surfaceHover rounded"
                     />
                     <label
                       htmlFor="acceptTerms"
-                      className="text-sm text-gray-700 leading-relaxed"
+                      className="text-sm text-gray-700 dark:text-dark-text leading-relaxed"
                     >
                       I have read and agree to the{" "}
                       <a
                         href="/terms-and-conditions"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blueColor hover:underline font-medium"
+                        className="text-blueColor hover:underline font-medium dark:text-dark-textMuted"
                       >
                         Terms and Conditions
                       </a>{" "}
@@ -842,7 +850,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         href="/privacy-policy"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blueColor hover:underline font-medium"
+                        className="text-blueColor hover:underline font-medium dark:text-dark-textMuted"
                       >
                         Privacy Policy.
                       </a>
@@ -905,9 +913,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             </div>
           </div>
         </div>
-        <div className="mt-8 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold">
+        <div className="mt-8 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-lg shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-gray-200 dark:border-dark-border">
+            <h2 className="text-xl font-bold dark:text-dark-text">
               About this
               {productOrServiceLabels[product.type as ProductOrService] ||
                 "Item"}
@@ -940,9 +948,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             tweenDuration={10000}
           />
         )}
-        <div className="relative bg-white w-11/12 max-w-md mx-auto rounded-lg shadow-lg p-6">
+        <div className="relative bg-white dark:bg-dark-surface w-11/12 max-w-md mx-auto rounded-lg shadow-lg p-6">
           <div className="text-center">
-            <div className="mb-4 text-green-600">
+            <div className="mb-4 text-green-600 dark:text-green-400">
               <svg
                 className="mx-auto h-16 w-16"
                 fill="currentColor"
@@ -956,10 +964,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-dark-text mb-2">
               Purchase Successful!
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-dark-textMuted mb-6">
               Congratulations! You`ve successfully backed this project. Thank
               you for your support!
             </p>

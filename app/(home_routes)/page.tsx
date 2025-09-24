@@ -16,10 +16,10 @@ export default async function Home() {
         <div className="max-w-2xl lg:max-w-6xl mx-auto ">
           <FeaturedCampaigns listings={campaigns} />
           <div className="text-center mt-16  px-4 ">
-            <h1 className="text-4xl md:text-6xl font-customFont_bold mb-4  text-blueColorDull ">
+            <h1 className="text-4xl md:text-6xl font-customFont_bold mb-4 text-blueColorDull dark:text-dark-text">
               Make an Impact
             </h1>
-            <p className="mx-auto text-lg lg:text-xl text-textPrimary">
+            <p className="mx-auto text-lg lg:text-xl text-textPrimary dark:text-dark-textMuted">
               Fuel the spark, ignite the action.
             </p>
             <Funnel

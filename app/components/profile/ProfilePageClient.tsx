@@ -157,7 +157,7 @@ export default function ProfilePageClient({
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Card className="mb-8 overflow-hidden rounded-xl ">
+      <Card className="mb-8 overflow-hidden rounded-xl dark:bg-dark-surface dark:border-dark-border">
         <div className="relative">
           <div className="h-40 relative overflow-hidden rounded-xl">
             <div className="absolute inset-0 bg-gradient-to-r from-blueColor via-blueColorDull to-blueColor" />
@@ -211,7 +211,7 @@ export default function ProfilePageClient({
 
           <div className="flex flex-col xl:flex-row items-center xl:items-end p-4 -mt-16 md:-mt-12 relative z-10">
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blueColor to-orangeColor rounded-full opacity-75 group-hover:opacity-100 blur group-hover:blur-sm transition-all duration-300"></div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blueColor to-orangeColor  dark:from-redColor/60 dark:via-lightBlueColor dark:to-dark-textMuted/80 rounded-full opacity-75 group-hover:opacity-100 blur group-hover:blur-sm transition-all duration-300"></div>
               <Avatar
                 size={96}
                 icon={<UserOutlined />}
@@ -224,14 +224,14 @@ export default function ProfilePageClient({
                 <div>
                   <Title
                     level={3}
-                    className="m-0 flex items-center justify-center lg:justify-start"
+                    className="m-0 flex items-center justify-center lg:justify-start dark:text-dark-text"
                   >
                     {userId}
                     <span className="ml-2 inline-block bg-gradient-to-r from-blueColor to-orangeColor rounded-full h-2 w-2 animate-ping"></span>
                   </Title>
                   <Text
                     type="secondary"
-                    className="flex items-center justify-center lg:justify-start gap-1"
+                    className="flex items-center justify-center lg:justify-start gap-1 dark:text-dark-textMuted"
                   >
                     <ClockCircleOutlined className="animate-pulse-slow" />
                     Member since {new Date().getFullYear()}
@@ -272,7 +272,7 @@ export default function ProfilePageClient({
               }}
               className="mb-4 reveal-stat"
             >
-              <div className="relative overflow-hidden p-3 rounded-lg hover:bg-gray-50/50 transition-colors duration-300">
+              <div className="relative overflow-hidden p-3 rounded-lg hover:bg-gray-50/50 dark:hover:bg-dark-surfaceHover transition-colors duration-300">
                 <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full "></div>
                 <Statistic
                   title={stat.title}
@@ -294,7 +294,7 @@ export default function ProfilePageClient({
         defaultActiveKey="campaigns"
         type="card"
         size="large"
-        className="bg-white rounded-lg shadow-sm p-4"
+        className="bg-white dark:bg-dark-surface rounded-lg shadow-sm p-4"
         onChange={(key) => {
           // Reset stats when switching tabs
           if (key === "campaigns") setCampaignFilter(campaignFilter);
@@ -312,7 +312,7 @@ export default function ProfilePageClient({
             children: (
               <div>
                 <div className="mb-4 flex items-center gap-2">
-                  <span>Show:</span>
+                  <span className="dark:text-dark-textMuted">Show:</span>
                   <Select
                     value={campaignFilter}
                     onChange={(v) => setCampaignFilter(v)}
@@ -359,7 +359,7 @@ export default function ProfilePageClient({
             children: (
               <div>
                 <div className="mb-4 flex items-center gap-2">
-                  <span>Show:</span>
+                  <span className="dark:text-dark-textMuted">Show:</span>
                   <Select
                     value={productFilter}
                     onChange={(v) => setProductFilter(v)}

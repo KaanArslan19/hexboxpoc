@@ -14,6 +14,20 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [isVisible, setIsVisible] = useState(true);
 
+  // Helpers to safely handle possibly null/undefined numeric values
+  const coerceToNumber = (value: unknown): number => {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    const coerced = Number(value);
+    return Number.isFinite(coerced) ? coerced : 0;
+  };
+
+  const formatCurrency = (value: unknown): string => {
+    const amount = coerceToNumber(value);
+    return new Intl.NumberFormat("en-US", {
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "center",
@@ -94,8 +108,11 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
     startAutoplay();
   }, [startAutoplay]);
 
-  const calculateProgress = (raised: number, target: number) => {
-    return Math.min(Math.round((raised / target) * 100), 100);
+  const calculateProgress = (raised: unknown, target: unknown) => {
+    const safeRaised = coerceToNumber(raised);
+    const safeTarget = coerceToNumber(target);
+    if (safeTarget <= 0) return 0;
+    return Math.min(Math.round((safeRaised / safeTarget) * 100), 100);
   };
 
   const getBadge = (index: number) => {
@@ -153,7 +170,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
       onMouseLeave={handleMouseLeave}
     >
       <div className="flex flex-col items-center">
-        <h2 className="text-3xl md:text-5xl font-customFont_bold  text-blueColorDull">
+        <h2 className="text-3xl md:text-5xl font-customFont_bold text-blueColorDull dark:text-dark-text">
           Top Campaigns
         </h2>
       </div>
@@ -161,17 +178,17 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
       <div className="hidden md:block">
         <button
           onClick={scrollPrev}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-all"
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 bg-white dark:bg-dark-surface p-2 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-dark-surfaceHover transition-all"
           aria-label="Previous slide"
         >
-          <ChevronLeft size={24} className="text-blueColor" />
+          <ChevronLeft size={24} className="text-blueColor dark:text-white" />
         </button>
         <button
           onClick={scrollNext}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-all"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 bg-white dark:bg-dark-surface p-2 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-dark-surfaceHover transition-all"
           aria-label="Next slide"
         >
-          <ChevronRight size={24} className="text-blueColor" />
+          <ChevronRight size={24} className="text-blueColor dark:text-white" />
         </button>
       </div>
 
@@ -184,7 +201,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
                   key={campaign._id}
                   className="flex-[0_0_100%] min-w-0 relative p-6 md:p-10"
                 >
-                  <div className="bg-white rounded-2xl shadow-md overflow-hidden relative transform transition-all hover:-translate-y-1 hover:shadow-lg h-[600px] md:h-[400px] border-[1px] border-lightBlueColor">
+                  <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-md overflow-hidden relative transform transition-all hover:-translate-y-1 hover:shadow-lg h-[600px] md:h-[400px] border-[1px] border-lightBlueColor dark:border-dark-border">
                     {getBadge(index)}
 
                     <div className="relative flex flex-col md:flex-row h-full">
@@ -201,8 +218,8 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
                           width={300}
                           height={400}
                         />
-                        <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full z-20">
-                          <span className="text-blueColor font-bold tracking-wider">
+                        <div className="absolute bottom-4 right-4 bg-white/80 dark:bg-dark-surface/80 backdrop-blur-sm px-3 py-1 rounded-full z-20">
+                          <span className="text-blueColor dark:text-white font-bold tracking-wider">
                             #{index + 1} Top Campaign
                           </span>
                         </div>
@@ -210,48 +227,49 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
 
                       <div className="p-6 md:p-8 flex-1 flex flex-col justify-between overflow-hidden">
                         <div className="overflow-hidden">
-                          <h3 className="text-2xl font-bold mb-2 text-gray-800 truncate">
+                          <h3 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white truncate">
                             {campaign.title}
                           </h3>
-                          <p className="text-gray-600 mb-6 line-clamp-2">
+                          <p className="text-gray-600 dark:text-dark-textMuted mb-6 line-clamp-2">
                             {campaign.one_liner}
                           </p>
                         </div>
 
                         <div className="mb-6">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-2xl font-bold text-blueColor">
-                              ${campaign.total_raised.toLocaleString()}
+                            <span className="text-2xl font-bold text-blueColor dark:text-white">
+                              ${formatCurrency(campaign.total_raised)}
                             </span>
-                            <span className="text-gray-500 font-medium">
-                              of ${campaign.fund_amount.toLocaleString()}
+                            <span className="text-gray-500 dark:text-dark-textMuted font-medium">
+                              of ${formatCurrency(campaign.fund_amount)}
                             </span>
                           </div>
 
-                          <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="relative w-full h-3 bg-gray-100 dark:bg-dark-border rounded-full overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-blueColor to-orangeColor"
+                              className="relative h-full rounded-full overflow-hidden bg-gradient-to-r from-blueColor to-orangeColor/70 via-lightBlueColor/70 dark:from-dark-textMuted/80  dark:to-redColor/60"
                               style={{
                                 width: `${calculateProgress(
                                   campaign.total_raised,
                                   campaign.fund_amount
                                 )}%`,
                               }}
-                            ></div>
-                            <div
-                              className="absolute top-0 left-0 h-full w-full bg-repeat-x"
-                              style={{
-                                backgroundImage:
-                                  "linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent)",
-                                backgroundSize: "10px 10px",
-                                animation:
-                                  "progressAnimation 1s linear infinite",
-                              }}
-                            ></div>
+                            >
+                              <div
+                                className="absolute top-0 left-0 h-full w-full bg-repeat-x"
+                                style={{
+                                  backgroundImage:
+                                    "linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent)",
+                                  backgroundSize: "10px 10px",
+                                  animation:
+                                    "progressAnimation 1s linear infinite",
+                                }}
+                              ></div>
+                            </div>
                           </div>
 
                           <div className="mt-2 text-right">
-                            <span className="text-sm font-medium">
+                            <span className="text-sm font-medium text-gray-600 dark:text-dark-textMuted">
                               {calculateProgress(
                                 campaign.total_raised,
                                 campaign.fund_amount
@@ -262,7 +280,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
                         </div>
 
                         <Link href={`/campaign?campaignId=${campaign._id}`}>
-                          <CustomButton className="w-full hover:bg-blueColor/80 bg-blueColor   text-white py-3 px-6 rounded-xl text-center font-medium transition-all shadow-md hover:shadow-lg">
+                          <CustomButton className="w-full custom-button-dynamic py-3 px-6 rounded-xl text-center font-medium transition-all shadow-md hover:shadow-lg">
                             View Campaign
                           </CustomButton>
                         </Link>
@@ -283,7 +301,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               selectedIndex === index
                 ? "bg-gradient-to-r from-blueColorDull/80 to-orangeColorDull w-6"
-                : "bg-gray-300 hover:bg-gray-400"
+                : "bg-gray-300 dark:bg-dark-border hover:bg-gray-400 dark:hover:bg-dark-surfaceHover"
             }`}
             onClick={() => emblaApi?.scrollTo(index)}
             aria-label={`Go to slide ${index + 1}`}

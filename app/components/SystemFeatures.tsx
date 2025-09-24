@@ -7,7 +7,7 @@ export default function SystemFeatures() {
   return (
     <div className="pt-16 px-4">
       <div className="text-center">
-        <h2 className="text-3xl md:text-5xl font-customFont_bold mb-4 text-blueColorDull">
+        <h2 className="text-3xl md:text-5xl font-customFont_bold mb-4 text-blueColorDull dark:text-dark-text">
           Here for Innovators like you
         </h2>
         <p className="text-lg lg:text-xl text-textPrimary">
@@ -49,7 +49,7 @@ export default function SystemFeatures() {
             </div>
 
             <h4
-              className={`text-xl font-semibold mb-4 text-blackColorDull ${
+              className={`text-xl font-semibold mb-4 text-blackColorDull dark:text-dark-text ${
                 item.isComingSoon ? " opacity-70" : ""
               }`}
             >

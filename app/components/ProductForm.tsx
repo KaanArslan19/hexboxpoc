@@ -8,7 +8,12 @@ import { ProductNew, ProductCategory, ProductOrService } from "../types";
 import { toast } from "react-toastify";
 import { fileValidator } from "../utils/imageValidators";
 import TurnstileWidget from "./ui/TurnstileWidget";
-
+import {
+  inputClass,
+  textareaClass,
+  selectClass,
+  checkClass,
+} from "../utils/formClasses";
 const steps = [
   { title: "Basic Info" },
   { title: "Details" },
@@ -475,7 +480,7 @@ export default function ProductForm({
                     <Field
                       as="select"
                       name="type"
-                      className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                      className={selectClass}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                         const newType = e.target.value;
                         setFieldValue("type", newType);
@@ -506,7 +511,7 @@ export default function ProductForm({
                         ? "Service Name"
                         : "Product Name"
                     }
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={inputClass}
                   />
                   <ErrorMessage
                     name="name"
@@ -560,7 +565,7 @@ export default function ProductForm({
                   <Field
                     name="manufacturerId"
                     placeholder="Manufacturer ID"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={inputClass}
                   />
                   <ErrorMessage
                     name="manufacturerId"
@@ -574,7 +579,7 @@ export default function ProductForm({
                   <Field
                     name="countryOfOrigin"
                     placeholder="Country of Origin"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={inputClass}
                   />
                   <ErrorMessage
                     name="countryOfOrigin"
@@ -605,7 +610,7 @@ export default function ProductForm({
                         ? "Service Description"
                         : "Product Description"
                     }
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor h-24"
+                    className={textareaClass + " h-24"}
                   />
                   <ErrorMessage
                     name="description"
@@ -619,7 +624,7 @@ export default function ProductForm({
                   <Field
                     as="select"
                     name="category.name"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={selectClass}
                   >
                     {Object.values(ProductCategory).map((category) => (
                       <option key={category} value={category}>
@@ -640,7 +645,7 @@ export default function ProductForm({
                     as="textarea"
                     name="fulfillmentDetails"
                     placeholder="Enter fulfillment details"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor h-24"
+                    className={textareaClass + " h-24"}
                   />
                   <ErrorMessage
                     name="fulfillmentDetails"
@@ -654,7 +659,7 @@ export default function ProductForm({
                   <Field
                     type="date"
                     name="deliveryDate"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={inputClass}
                   />
                   <ErrorMessage
                     name="deliveryDate"
@@ -683,7 +688,7 @@ export default function ProductForm({
                     name="price.amount"
                     type="number"
                     placeholder="Price"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={inputClass}
                   />
                   <ErrorMessage
                     name="price.amount"
@@ -695,7 +700,11 @@ export default function ProductForm({
                   <h3 className="text-xl mb-2">Tax Details</h3>
 
                   <label className="block mb-2">
-                    <Field type="checkbox" name="price.tax_inclusive" />
+                    <Field
+                      type="checkbox"
+                      name="price.tax_inclusive"
+                      className={checkClass}
+                    />
                     <span className="ml-2">Tax Inclusive</span>
                   </label>
                   <ErrorMessage
@@ -712,7 +721,7 @@ export default function ProductForm({
                             name="price.gst_rate"
                             type="number"
                             placeholder="GST Rate (%)"
-                            className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor mb-1"
+                            className={inputClass + " mb-1"}
                           />
                           <ErrorMessage
                             name="price.gst_rate"
@@ -724,7 +733,7 @@ export default function ProductForm({
                             name="price.gst_amount"
                             type="number"
                             placeholder="GST Amount"
-                            className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                            className={inputClass}
                           />
                           <ErrorMessage
                             name="price.gst_amount"
@@ -744,7 +753,7 @@ export default function ProductForm({
                       name="inventory.stock_level"
                       type="number"
                       placeholder="Stock Level"
-                      className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                      className={inputClass}
                     />
                     <ErrorMessage
                       name="inventory.stock_level"
@@ -763,7 +772,11 @@ export default function ProductForm({
               <div className="space-y-4">
                 <div>
                   <label className="block mb-4">
-                    <Field type="checkbox" name="freeShipping" />
+                    <Field
+                      type="checkbox"
+                      name="freeShipping"
+                      className={checkClass}
+                    />
                     <span className="ml-2">Free Shipping</span>
                   </label>
                 </div>
@@ -774,6 +787,7 @@ export default function ProductForm({
                     <Field
                       type="checkbox"
                       name="productReturnPolicy.eligible"
+                      className={checkClass}
                     />
                     <span className="ml-2">Returns Eligible</span>
                   </label>
@@ -786,7 +800,7 @@ export default function ProductForm({
                             name="productReturnPolicy.return_period_days"
                             type="number"
                             placeholder="Return Period (days)"
-                            className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor mb-2"
+                            className={inputClass + " mb-2"}
                           />
                           <ErrorMessage
                             name="productReturnPolicy.return_period_days"
@@ -798,7 +812,7 @@ export default function ProductForm({
                             as="textarea"
                             name="productReturnPolicy.conditions"
                             placeholder="Return Conditions"
-                            className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor h-24"
+                            className={textareaClass + " h-24"}
                           />
                           <ErrorMessage
                             name="productReturnPolicy.conditions"
@@ -823,7 +837,7 @@ export default function ProductForm({
                   <Field
                     type="date"
                     name="service_terms.contract_time_begining"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={inputClass}
                   />
                   <ErrorMessage
                     name="service_terms.contract_time_begining"
@@ -837,7 +851,7 @@ export default function ProductForm({
                   <Field
                     name="service_terms.contract_length"
                     placeholder="e.g. 2 hours, 3 days, 1 week"
-                    className="block w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blueColor"
+                    className={inputClass}
                   />
                   <ErrorMessage
                     name="service_terms.contract_length"
@@ -925,7 +939,7 @@ export default function ProductForm({
                           ? "Service"
                           : "Product"}
                       </h3>
-                      <div className="mt-2 text-sm text-red-700">
+                      <div className="mt-2 text-sm text-red-700 break-words max-w-full">
                         {submitError}
                       </div>
                     </div>
@@ -955,15 +969,40 @@ export default function ProductForm({
                     } else {
                       Object.entries(errors).forEach(([field, error]) => {
                         if (typeof error === "string") {
-                          toast.error(`${field}: ${error}`, {
-                            autoClose: 3000,
+                          const truncatedMessage =
+                            error.length > 100
+                              ? error.substring(0, 100) + "..."
+                              : error;
+                          toast.error(`${field}: ${truncatedMessage}`, {
+                            autoClose: 5000,
+                            style: {
+                              maxWidth: "400px",
+                              wordWrap: "break-word",
+                              whiteSpace: "pre-wrap",
+                            },
                           });
                         } else if (error && typeof error === "object") {
                           Object.entries(error).forEach(
                             ([subField, subError]) => {
-                              toast.error(`${field}.${subField}: ${subError}`, {
-                                autoClose: 3000,
-                              });
+                              const subErrorMessage =
+                                typeof subError === "string"
+                                  ? subError
+                                  : String(subError);
+                              const truncatedSubMessage =
+                                subErrorMessage.length > 100
+                                  ? subErrorMessage.substring(0, 100) + "..."
+                                  : subErrorMessage;
+                              toast.error(
+                                `${field}.${subField}: ${truncatedSubMessage}`,
+                                {
+                                  autoClose: 5000,
+                                  style: {
+                                    maxWidth: "400px",
+                                    wordWrap: "break-word",
+                                    whiteSpace: "pre-wrap",
+                                  },
+                                }
+                              );
                             }
                           );
                         }

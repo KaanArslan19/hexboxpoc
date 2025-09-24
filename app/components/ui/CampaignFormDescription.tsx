@@ -38,15 +38,15 @@ const CampaignFormDescription = () => {
             <button
               type="button"
               onClick={() => toggleSection(section.id)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 rounded-lg dark:hover:bg-dark-surfaceHover transition-colors"
             >
               <h3 className="text-lg font-semibold text-gray-900">
                 {section.title}
               </h3>
               {expandedSections.includes(section.id) ? (
-                <ChevronDown className="w-5 h-5 text-gray-500" />
+                <ChevronDown className="w-5 h-5 text-gray-500 dark:text-dark-text" />
               ) : (
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-5 h-5 text-gray-500 dark:text-dark-text" />
               )}
             </button>
 
@@ -55,8 +55,8 @@ const CampaignFormDescription = () => {
                 <ul className="space-y-3 mt-3">
                   {section.items.map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span className="w-2 h-2 bg-blueColorDull rounded-full mt-2 flex-shrink-0"></span>
-                      <span className="text-gray-700 leading-relaxed">
+                      <span className="w-2 h-2 bg-blueColorDull dark:bg-dark-text rounded-full mt-2 flex-shrink-0"></span>
+                      <span className="text-gray-700 leading-relaxed dark:text-dark-text">
                         {formatText(item)}
                       </span>
                     </li>

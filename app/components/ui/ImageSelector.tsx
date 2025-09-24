@@ -25,7 +25,7 @@ export default function ImageSelector({
       <PhotoIcon className="w-8 h-8 absolute -top-2 -right-2 -z-10" />
     </div>
   ) : (
-    <PhotoIcon className="w-8 h-8 text-blueColor" />
+    <PhotoIcon className="w-8 h-8 text-blueColor dark:text-dark-textMuted" />
   );
 
   return (

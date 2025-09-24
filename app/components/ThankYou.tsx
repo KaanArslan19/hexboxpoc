@@ -75,7 +75,7 @@ export default function ThankYou() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-white to-gray-50 dark:from-dark-bg dark:to-dark-surface">
       {showConfetti && (
         <ReactConfetti
           width={windowDimensions.width}
@@ -86,7 +86,7 @@ export default function ThankYou() {
         />
       )}
 
-      <div className="max-w-2xl w-full bg-white rounded-xl shadow-sm p-8 text-center">
+      <div className="max-w-2xl w-full bg-white dark:bg-dark-surface rounded-xl shadow-sm p-8 text-center">
         <div className="relative w-56 h-56 mx-auto mb-6">
           <Image
             src={`${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`}
@@ -99,20 +99,20 @@ export default function ThankYou() {
 
         <div className="space-y-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800 dark:text-dark-text">
               Success! Your campaign has been created.
             </h1>
-            <p className="text-lg text-gray-600 mb-4">
+            <p className="text-lg text-gray-600 dark:text-dark-text mb-4">
               We are eager to help you reach your goal of{" "}
               <span className="font-semibold">${campaign?.fund_amount}</span> in
               funding.
             </p>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-dark-textMuted">
               One of our team members will be in touch with you soon.
             </p>
           </div>
 
-          <div className="border-t border-b border-gray-100 py-6">
+          <div className="border-t border-b border-gray-100 dark:border-dark-border py-6">
             <div className="flex flex-col md:flex-row items-center justify-center gap-4">
               <button
                 onClick={handleGoBack}
@@ -123,7 +123,7 @@ export default function ThankYou() {
               </button>
 
               <div className="flex items-center justify-center gap-3">
-                <p className="text-gray-600 whitespace-nowrap">
+                <p className="text-gray-600 dark:text-dark-textMuted whitespace-nowrap">
                   Share with others:
                 </p>
                 <ShareButton
@@ -135,7 +135,7 @@ export default function ThankYou() {
             </div>
           </div>
 
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-dark-textMuted">
             Your campaign ID: {campaign._id}
           </div>
         </div>

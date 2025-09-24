@@ -19,7 +19,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google Consent Mode initialization */}
         <Script id="google-consent-mode" strategy="beforeInteractive">
@@ -62,7 +62,7 @@ export default async function RootLayout({
           `}
         </Script>
       </head>
-      <body>
+      <body className="bg-white dark:bg-dark-bg text-black dark:text-dark-text transition-colors duration-200">
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-WGRTDFGZ"

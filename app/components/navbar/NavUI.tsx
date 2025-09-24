@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
-import logo from "../../../public/hexbox_black_logo.svg";
+import logoBlack from "../../../public/hexbox_black_logo.svg";
+import logoWhite from "../../../public/hexbox_white_logo.svg";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { PiUserCircleFill } from "react-icons/pi";
 import { MobileNav } from "../MobileNav";
-import SearchForm from "../SearchForm";
 import Link from "next/link";
 import {
   InfoMenuItems,
@@ -16,9 +16,12 @@ import InfoMenu from "../InfoMenu";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { NFTCollectionButton } from "../ui/NFTCollectionButton";
+import ThemeToggle from "../ThemeToggle";
+import { useTheme } from "next-themes";
 
 export default function NavUI() {
   const [open, setOpen] = React.useState(false);
+  const { theme } = useTheme();
 
   React.useEffect(() => {
     const onResize = () => window.innerWidth >= 960 && setOpen(false);
@@ -27,6 +30,9 @@ export default function NavUI() {
   }, []);
 
   const { address } = useAccount();
+
+  // Choose logo based on theme
+  const currentLogo = theme === "dark" ? logoWhite : logoBlack;
 
   return (
     <>
@@ -37,14 +43,20 @@ export default function NavUI() {
               href="/"
               className="cursor-pointer py-1.5 mr-2 lg:ml-2 font-semibold"
             >
-              <Image src={logo} alt="hexbox_logo" width={50} height={50} />
+              <Image
+                src={currentLogo}
+                alt="hexbox_logo"
+                width={50}
+                height={50}
+                className="transition-opacity duration-200"
+              />
             </Link>
             <div className="hidden lg:flex justify-between gap-4 items-center ml-4">
               {NavItems.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
-                  className="outline-none text-black hover:text-blueColor"
+                  className="outline-none text-black dark:text-white hover:text-blueColor dark:hover:text-dark-textMuted"
                 >
                   <span className="text-xl">{label}</span>
                 </Link>
@@ -58,7 +70,9 @@ export default function NavUI() {
           </div>
 
           <div className="col-span-3 lg:col-span-4 flex items-center justify-end gap-2 ">
-            <div className="hidden lg:flex items-center">
+            <div className="hidden lg:flex items-center gap-2">
+              <ThemeToggle />
+
               <ConnectButton
                 showBalance={false}
                 accountStatus="address"
@@ -72,7 +86,7 @@ export default function NavUI() {
                 className="hidden lg:flex items-center justify-center transition-all duration-200"
                 aria-label="Go to user profile"
               >
-                <PiUserCircleFill className="text-black hover:text-blueColor transition-colors duration-200 w-8 h-8" />
+                <PiUserCircleFill className="text-black dark:text-white hover:text-blueColor transition-colors duration-200 w-8 h-8" />
               </Link>
             )}
 
@@ -83,9 +97,15 @@ export default function NavUI() {
                 aria-label={open ? "Close menu" : "Open menu"}
               >
                 {open ? (
-                  <XMarkIcon className="h-8 w-8 text-black" strokeWidth={2} />
+                  <XMarkIcon
+                    className="h-8 w-8 text-black dark:text-white"
+                    strokeWidth={2}
+                  />
                 ) : (
-                  <Bars3Icon className="h-8 w-8 text-black" strokeWidth={2} />
+                  <Bars3Icon
+                    className="h-8 w-8 text-black dark:text-white"
+                    strokeWidth={2}
+                  />
                 )}
               </button>
             </div>

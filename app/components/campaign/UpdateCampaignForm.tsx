@@ -13,6 +13,7 @@ import { fundingTypesDisplayNames } from "../../lib/auth/utils/productServiceDis
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import TurnstileWidget from "../ui/TurnstileWidget";
+import { inputClass, textareaClass, checkClass } from "../../utils/formClasses";
 
 export interface InitialCampaignValue {
   title: string;
@@ -364,7 +365,7 @@ export default function UpdateCampaignForm(props: Props) {
                 name="title"
                 type="text"
                 placeholder="Title"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.title}
               />
               <ErrorMessage
@@ -377,7 +378,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="one_liner"
                 placeholder="One Liner"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.one_liner}
               />
               <ErrorMessage
@@ -425,7 +426,7 @@ export default function UpdateCampaignForm(props: Props) {
                   name="wallet_address"
                   type="text"
                   placeholder="Wallet Address to receive funds"
-                  className="block w-full p-2 border border-gray-300 focus:border-blueColor rounded mb-4 focus:outline-none"
+                  className={inputClass + " mb-4"}
                 />
                 <button
                   type="button"
@@ -450,7 +451,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="fund_amount"
                 placeholder="Fund Amount"
-                className="block w-full p-2 border border-gray-300 rounded  mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.fund_amount}
               />
               <ErrorMessage
@@ -462,7 +463,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 as="select"
                 name="funding_type"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none"
+                className={inputClass + " mb-4"}
                 value={values.funding_type}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                   setFieldValue("funding_type", e.target.value);
@@ -499,7 +500,7 @@ export default function UpdateCampaignForm(props: Props) {
                   as="textarea"
                   name="description"
                   placeholder="Write your description using Markdown..."
-                  className="block w-full p-2 border border-gray-300 rounded h-32 mb-4 focus:outline-none focus:border-blue-500"
+                  className={textareaClass + " h-32 mb-4"}
                 />
 
                 <ErrorMessage
@@ -508,7 +509,7 @@ export default function UpdateCampaignForm(props: Props) {
                   className="text-red-500 mb-2"
                 />
 
-                <div className="border border-gray-300 p-4 rounded bg-gray-50">
+                <div className="border border-gray-300 p-4 rounded bg-gray-50 dark:bg-dark-surfaceHover dark:text-dark-text">
                   <h4 className="font-semibold mb-2">Preview:</h4>
                   <div className="prose max-w-none">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -522,7 +523,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="location"
                 placeholder="Location"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.location}
               />
               <ErrorMessage
@@ -536,7 +537,7 @@ export default function UpdateCampaignForm(props: Props) {
                 name="email"
                 type="email"
                 placeholder="Email"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.email}
               />
               <ErrorMessage
@@ -550,7 +551,7 @@ export default function UpdateCampaignForm(props: Props) {
                 name="phoneNumber"
                 type="text"
                 placeholder="Phone Number"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.phoneNumber}
               />
               <ErrorMessage
@@ -563,7 +564,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="deadline"
                 type="date"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.deadline}
               />
               <ErrorMessage
@@ -579,7 +580,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="telegram"
                 placeholder="Telegram"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.telegram}
               />
               <ErrorMessage
@@ -592,7 +593,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="discord"
                 placeholder="Discord"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.discord}
               />
               <ErrorMessage
@@ -605,7 +606,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="website"
                 placeholder="Website"
-                className="block w-full p-2 border border-gray-300 rounded mb-8 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-8"}
                 value={values.website}
               />
               <ErrorMessage
@@ -618,7 +619,7 @@ export default function UpdateCampaignForm(props: Props) {
               <Field
                 name="linkedIn"
                 placeholder="LinkedIn"
-                className="block w-full p-2 border border-gray-300 rounded mb-4 focus:outline-none focus:border-blueColor"
+                className={inputClass + " mb-4"}
                 value={values.linkedIn}
               />
               <ErrorMessage
@@ -629,7 +630,7 @@ export default function UpdateCampaignForm(props: Props) {
             </div>
 
             {/* Security Verification Section */}
-            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-dark-surface">
               <h3 className="text-lg font-semibold mb-3">
                 Security Verification
               </h3>

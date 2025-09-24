@@ -41,7 +41,6 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   total_raised,
   comments,
 }) => {
-  console.log(logo, "logooooo");
   const { isAuthenticated, address } = await checkServerAuth();
   const campaignOwner = address === user_id;
   const modifiedProps: any & WalletDetails & { wallet_address: string } = {
@@ -120,15 +119,11 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative w-full h-[400px]">
         <div className="absolute inset-0 w-full h-full rounded-xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blueColor via-blueColorDull to-blueColor" />
-
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(233,78,27,0.7)_0%,transparent_80%)]" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-dark-surface via-dark-surfaceHover to-textMuted/80  dark:from-redColor/60 dark:via-lightBlueColor dark:to-dark-textMuted/80 " />
           <div className="absolute inset-0 backdrop-blur-[100px]" />
-
           <div className="absolute inset-0 opacity-30">
             <div className="hexagon-pattern animate-pulse" />
           </div>
-
           <div className="absolute inset-0">
             <div className="particles-container">
               {[...Array(20)].map((_, i) => (
@@ -268,13 +263,21 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
 
       {isAuthenticated && (
         <div className="w-full md:w-[400px] mb-8">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full">
             <Progress
               percent={+remainingFundAmountPercentage}
               strokeColor={twoColors}
-              className="w-full"
+              className="
+      w-full
+      [&_.ant-progress-inner]:bg-[#002d5d25]          
+      dark:[&_.ant-progress-inner]:bg-[#E6F1FA]    
+      dark:[&_.ant-progress-bg]:bg-[#E94E1B]       
+      dark:[&_.ant-progress-text]:text-[#94A8BC]   
+    "
             />
-            <p className="text-sm">(${total_raised.toLocaleString()})</p>
+            <p className="text-sm dark:text-[#94A8BC]">
+              (${total_raised.toLocaleString()})
+            </p>
           </div>
         </div>
       )}

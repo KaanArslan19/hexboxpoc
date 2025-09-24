@@ -21,20 +21,20 @@ export default function InfoMenu({ menuItems }: Props) {
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
       <MenuHandler>
-        <button className="flex items-center gap-1 py-0.5 pr-2 pl-0.5 lg:ml-auto hover:text-blueColor group">
-          <span className="mr-2 text-xl text-black group-hover:text-blueColor">
+        <button className="flex items-center gap-1 py-0.5 pr-2 pl-0.5 lg:ml-auto  group">
+          <span className="mr-2 text-xl text-black dark:text-white group-hover:text-blueColor dark:group-hover:text-dark-textMuted">
             Info
           </span>
           <ChevronDownIcon
             strokeWidth={2.5}
-            className={`h-3 w-3 transition-transform group-hover:text-blueColor ${
+            className={`h-3 w-3 transition-transform group-hover:text-blueColor text-black dark:group-hover:text-dark-textMuted dark:text-white ${
               isMenuOpen ? "rotate-180" : ""
             }`}
           />
         </button>
       </MenuHandler>
 
-      <MenuList className="p-1">
+      <MenuList className="p-1 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border text-black dark:text-dark-text shadow-lg">
         {menuItems.map(({ href, label }, index) => {
           return (
             <Link
@@ -45,7 +45,7 @@ export default function InfoMenu({ menuItems }: Props) {
             >
               <MenuItem
                 onClick={closeMenu}
-                className="flex items-center gap-2 rounded-none text-black hover:bg-lightBlueColor"
+                className="flex items-center gap-2 rounded-none text-black dark:text-white dark:bg-dark-surface hover:bg-lightBlueColor dark:hover:bg-dark-surfaceHover"
               >
                 <span>{label}</span>
               </MenuItem>
