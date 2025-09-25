@@ -110,21 +110,21 @@ const CookieConsentBanner = () => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-dark-surface rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-transparent dark:border-dark-border">
         <div className="p-6">
           <div className="flex items-start justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               Cookie Preferences
             </h2>
             <button
               onClick={() => setShowBanner(false)}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
+              className="text-gray-400 hover:text-gray-600 dark:text-dark-textMuted dark:hover:text-dark-text text-2xl"
             >
               x{" "}
             </button>
           </div>
 
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-dark-textMuted mb-6">
             We use cookies to enhance your experience, analyze our traffic, and
             for marketing purposes. You can choose which types of cookies you`re
             comfortable with.
@@ -141,23 +141,23 @@ const CookieConsentBanner = () => {
                 </button>
                 <button
                   onClick={handleRejectAll}
-                  className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                  className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium dark:bg-dark-surface dark:text-white dark:hover:bg-dark-surfaceHover border border-transparent dark:border-dark-border"
                 >
                   Reject All
                 </button>
               </div>
               <button
                 onClick={() => setShowDetails(true)}
-                className="w-full text-blue-600 hover:text-blue-800 underline text-sm"
+                className="w-full text-blueColor hover:text-blueColor/80 dark:text-dark-text underline text-sm"
               >
                 Customize Cookie Settings
               </button>
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="border rounded-lg p-4">
+              <div className="border dark:border-dark-border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     Necessary Cookies
                   </h3>
                   <div className="flex items-center">
@@ -165,22 +165,22 @@ const CookieConsentBanner = () => {
                       type="checkbox"
                       checked={preferences.necessary}
                       disabled
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded"
+                      className="w-4 h-4 text-blueColor bg-gray-100 border-gray-300 rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-500">
+                    <span className="ml-2 text-sm text-gray-500 dark:text-dark-textMuted">
                       Always Active
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-textMuted">
                   Essential for the website to function properly. These cannot
                   be disabled.
                 </p>
               </div>
 
-              <div className="border rounded-lg p-4">
+              <div className="border dark:border-dark-border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     Analytics Cookies
                   </h3>
                   <label className="flex items-center cursor-pointer">
@@ -188,20 +188,20 @@ const CookieConsentBanner = () => {
                       type="checkbox"
                       checked={preferences.analytics}
                       onChange={() => handlePreferenceChange("analytics")}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-blueColor bg-gray-100 border-gray-300 rounded focus:ring-blueColor"
                     />
                     <span className="ml-2 text-sm">Enable</span>
                   </label>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-textMuted">
                   Help us understand how visitors interact with our website by
                   collecting and reporting information anonymously.
                 </p>
               </div>
 
-              <div className="border rounded-lg p-4">
+              <div className="border dark:border-dark-border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     Marketing Cookies
                   </h3>
                   <label className="flex items-center cursor-pointer">
@@ -209,20 +209,20 @@ const CookieConsentBanner = () => {
                       type="checkbox"
                       checked={preferences.marketing}
                       onChange={() => handlePreferenceChange("marketing")}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-blueColor bg-gray-100 border-gray-300 rounded focus:ring-blueColor"
                     />
                     <span className="ml-2 text-sm">Enable</span>
                   </label>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-textMuted">
                   Used to track visitors across websites to display relevant
                   advertisements and measure campaign effectiveness.
                 </p>
               </div>
 
-              <div className="border rounded-lg p-4">
+              <div className="border dark:border-dark-border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     Functional Cookies
                   </h3>
                   <label className="flex items-center cursor-pointer">
@@ -235,7 +235,7 @@ const CookieConsentBanner = () => {
                     <span className="ml-2 text-sm">Enable</span>
                   </label>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-textMuted">
                   Enable enhanced functionality like personalized content,
                   social media features, and improved user experience.
                 </p>
@@ -250,7 +250,7 @@ const CookieConsentBanner = () => {
                 </CustomButton>
                 <CustomButton
                   onClick={() => setShowDetails(false)}
-                  className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium border-none"
+                  className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium border-none dark:bg-dark-surface dark:text-white dark:hover:bg-dark-surfaceHover border border-transparent dark:border-dark-border"
                 >
                   Back to Simple View
                 </CustomButton>
@@ -258,12 +258,12 @@ const CookieConsentBanner = () => {
             </div>
           )}
 
-          <div className="mt-6 pt-4 border-t text-center">
-            <p className="text-xs text-gray-500">
+          <div className="mt-6 pt-4 border-t dark:border-dark-border text-center">
+            <p className="text-xs text-gray-500 dark:text-dark-textMuted">
               For more information about how we use cookies, please see our{" "}
               <a
                 href="/privacy-policy"
-                className="text-blueColor hover:text-blueColor/80 underline"
+                className="text-blueColor hover:text-blueColor/80 dark:text-dark-text underline"
               >
                 Privacy Policy
               </a>

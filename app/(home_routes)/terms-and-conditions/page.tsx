@@ -245,13 +245,13 @@ const TermsAndConditions: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white">
-      <div className="mb-8 pb-6 border-b border-gray-200">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-dark-surface">
+      <div className="mb-8 pb-6 border-b border-gray-200 dark:border-dark-border">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
           {termsData.title}
         </h1>
 
-        <div className="flex flex-wrap gap-6 text-sm text-gray-600">
+        <div className="flex flex-wrap gap-6 text-sm text-gray-600 dark:text-dark-textMuted">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             <span>Effective: {termsData.effectiveDate}</span>
@@ -263,14 +263,14 @@ const TermsAndConditions: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+      <div className="mb-8 p-4 bg-amber-50 dark:bg-dark-surfaceHover border border-amber-200 dark:border-dark-border rounded-lg">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-orangeColor mt-0.5 flex-shrink-0" />
           <div>
-            <h3 className="font-semibold text-orangeColor mb-2">
+            <h3 className="font-semibold text-orangeColor dark:text-orangeColor mb-2">
               Important Notice
             </h3>
-            <p className="text-orangeColorDull/70 text-sm">
+            <p className="text-orangeColorDull/70 dark:text-dark-textMuted text-sm">
               By investing via Hexbox, you confirm that you have read,
               understood, and agreed to these Terms. This is a legally binding
               agreement that incorporates blockchain technology and carries
@@ -283,25 +283,27 @@ const TermsAndConditions: React.FC = () => {
       <div className="mb-8">
         <button
           onClick={toggleDefinitions}
-          className="flex items-center gap-2 text-xl font-semibold text-gray-900 hover:text-gray-700 mb-4"
+          className="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-dark-text mb-4"
         >
           {expandedDefinitions ? (
-            <ChevronDown className="w-5 h-5" />
+            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
           ) : (
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
           )}
           Definitions
         </button>
 
         {expandedDefinitions && (
-          <div className="bg-gray-50 rounded-lg p-6">
+          <div className="bg-gray-50 dark:bg-dark-surfaceHover rounded-lg p-6">
             <div className="grid gap-4">
               {termsData.definitions.map((def, index) => (
                 <div key={index} className="border-l-4 border-blueColor pl-4">
-                  <dt className="font-semibold text-gray-900 mb-1">
+                  <dt className="font-semibold text-gray-900 dark:text-white mb-1">
                     {def.term}
                   </dt>
-                  <dd className="text-gray-700">{def.definition}</dd>
+                  <dd className="text-gray-700 dark:text-dark-textMuted">
+                    {def.definition}
+                  </dd>
                 </div>
               ))}
             </div>
@@ -315,23 +317,25 @@ const TermsAndConditions: React.FC = () => {
             key={article.number}
             className={`border rounded-lg ${
               article.isImportant
-                ? "border-red-200 bg-red-50"
-                : "border-gray-200"
+                ? "border-red-200 bg-red-50 dark:border-red-300/40 dark:bg-red-900/10"
+                : "border-gray-200 dark:border-dark-border"
             }`}
           >
             <button
               onClick={() => toggleArticle(article.number)}
               className={`w-full flex items-center justify-between p-4 text-left transition-colors ${
-                article.isImportant ? "hover:bg-red-100" : "hover:bg-gray-50"
+                article.isImportant
+                  ? "hover:bg-red-100 dark:hover:bg-red-900/20"
+                  : "hover:bg-gray-50 dark:hover:bg-dark-surfaceHover"
               }`}
             >
               <div className="flex items-center gap-3">
                 {expandedArticles.includes(article.number) ? (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
                 ) : (
-                  <ChevronRight className="w-5 h-5 text-gray-500" />
+                  <ChevronRight className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
                 )}
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   Article {article.number} – {article.title}
                   {article.isImportant && (
                     <AlertTriangle className="w-4 h-4 text-redColor" />
@@ -344,7 +348,9 @@ const TermsAndConditions: React.FC = () => {
               <div className="px-4 pb-4">
                 <div
                   className={`prose max-w-none pl-8 ${
-                    article.isImportant ? "text-redColor" : "text-gray-700"
+                    article.isImportant
+                      ? "text-redColor"
+                      : "text-gray-700 dark:text-dark-textMuted"
                   }`}
                 >
                   {formatContent(article.content)}
@@ -355,16 +361,16 @@ const TermsAndConditions: React.FC = () => {
         ))}
       </div>
 
-      <div className="mt-12 pt-8 border-t border-gray-200">
-        <div className="bg-blue-50 border border-lightBlueColor rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 mb-3">
+      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-dark-border">
+        <div className="bg-blue-50 dark:bg-dark-surfaceHover border border-lightBlueColor dark:border-dark-border rounded-lg p-6">
+          <h3 className="font-semibold text-blue-900 dark:text-white mb-3">
             Agreement Confirmation
           </h3>
-          <p className="text-blueColor mb-4">
+          <p className="text-blueColor dark:text-blueColor mb-4">
             By investing via Hexbox, you confirm that you have read, understood,
             and agreed to these Terms.
           </p>
-          <div className="text-sm text-blueColor">
+          <div className="text-sm text-blueColor dark:text-dark-textMuted">
             <p>
               <strong>Last updated:</strong> {termsData.lastUpdated}
             </p>

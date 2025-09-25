@@ -192,7 +192,6 @@ Email: hello@hexbox.money`,
   ],
 };
 
-
 const PrivacyAndPolicy: React.FC = () => {
   const [expandedDefinitions, setExpandedDefinitions] = useState(false);
   const [expandedArticles, setExpandedArticles] = useState<number[]>([]);
@@ -226,13 +225,13 @@ const PrivacyAndPolicy: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white">
-      <div className="mb-8 pb-6 border-b border-gray-200">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-dark-surface">
+      <div className="mb-8 pb-6 border-b border-gray-200 dark:border-dark-border">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
           {privacyData.title}
         </h1>
 
-        <div className="flex flex-wrap gap-6 text-sm text-gray-600">
+        <div className="flex flex-wrap gap-6 text-sm text-gray-600 dark:text-dark-textMuted">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             <span>Effective: {privacyData.effectiveDate}</span>
@@ -254,7 +253,7 @@ const PrivacyAndPolicy: React.FC = () => {
       </div>
 
       <div className="mb-8">
-        <div className="prose max-w-none">
+        <div className="prose max-w-none text-gray-700 dark:text-dark-textMuted">
           {formatContent(privacyData.introduction)}
         </div>
       </div>
@@ -262,25 +261,27 @@ const PrivacyAndPolicy: React.FC = () => {
       <div className="mb-8">
         <button
           onClick={toggleDefinitions}
-          className="flex items-center gap-2 text-xl font-semibold text-gray-900 hover:text-gray-700 mb-4"
+          className="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-dark-text mb-4"
         >
           {expandedDefinitions ? (
-            <ChevronDown className="w-5 h-5" />
+            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
           ) : (
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
           )}
           Definitions
         </button>
 
         {expandedDefinitions && (
-          <div className="bg-gray-50 rounded-lg p-6">
+          <div className="bg-gray-50 dark:bg-dark-surfaceHover rounded-lg p-6">
             <div className="grid gap-4">
               {privacyData.definitions.map((def, index) => (
                 <div key={index} className="border-l-4 border-blueColor pl-4">
-                  <dt className="font-semibold text-gray-900 mb-1">
+                  <dt className="font-semibold text-gray-900 dark:text-white mb-1">
                     {def.term}
                   </dt>
-                  <dd className="text-gray-700">{def.definition}</dd>
+                  <dd className="text-gray-700 dark:text-dark-textMuted">
+                    {def.definition}
+                  </dd>
                 </div>
               ))}
             </div>
@@ -292,19 +293,19 @@ const PrivacyAndPolicy: React.FC = () => {
         {privacyData.articles.map((article) => (
           <div
             key={article.number}
-            className="border border-gray-200 rounded-lg"
+            className="border border-gray-200 dark:border-dark-border rounded-lg"
           >
             <button
               onClick={() => toggleArticle(article.number)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-dark-surfaceHover transition-colors"
             >
               <div className="flex items-center gap-3">
                 {expandedArticles.includes(article.number) ? (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
                 ) : (
-                  <ChevronRight className="w-5 h-5 text-gray-500" />
+                  <ChevronRight className="w-5 h-5 text-gray-500 dark:text-dark-textMuted" />
                 )}
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Article {article.number} – {article.title}
                 </h2>
               </div>
@@ -312,7 +313,7 @@ const PrivacyAndPolicy: React.FC = () => {
 
             {expandedArticles.includes(article.number) && (
               <div className="px-4 pb-4">
-                <div className="prose max-w-none text-gray-700 pl-8">
+                <div className="prose max-w-none text-gray-700 dark:text-dark-textMuted pl-8">
                   {formatContent(article.content)}
                 </div>
               </div>
@@ -321,7 +322,7 @@ const PrivacyAndPolicy: React.FC = () => {
         ))}
       </div>
 
-      <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
+      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-dark-border text-center text-sm text-gray-500 dark:text-dark-textMuted">
         <p>Last updated: {privacyData.lastUpdated}</p>
         <p className="mt-2">
           For questions regarding this policy, contact us at{" "}
