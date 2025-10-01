@@ -39,7 +39,12 @@ export async function GET(req: NextRequest) {
 
     const priceObj = typeof product.price === "string" ? JSON.parse(product.price) : product.price;
     const price = priceObj.amount;
-    const totalPrice = Number(price) * Number(quantity);
+    
+    // Use proper decimal arithmetic to avoid floating-point precision errors
+    // Convert to integers by multiplying by 1000000 (6 decimal places for USDC), do the math, then divide back
+    const priceInMicroUnits = Math.round(Number(price) * 1000000);
+    const totalPriceInMicroUnits = priceInMicroUnits * Number(quantity);
+    const totalPrice = totalPriceInMicroUnits / 1000000;
 
     return NextResponse.json({ productId, totalPrice });
 }

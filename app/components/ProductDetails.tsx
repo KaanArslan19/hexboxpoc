@@ -302,8 +302,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
       const calculatedPrice = await getCalculatedPrice.json();
       console.log("Calculated price:", calculatedPrice);
+      // Fix floating-point precision errors by rounding to 6 decimal places
+      const roundedTotalPrice = Number(calculatedPrice.totalPrice).toFixed(6);
       const totalPrice = ethers.parseUnits(
-        calculatedPrice.totalPrice.toString(),
+        roundedTotalPrice,
         6
       );
 
@@ -389,8 +391,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       );
 
       const calculatedPrice = await getCalculatedPrice.json();
+      // Fix floating-point precision errors by rounding to 6 decimal places
+      const roundedTotalPrice = Number(calculatedPrice.totalPrice).toFixed(6);
       const totalPrice = ethers.parseUnits(
-        calculatedPrice.totalPrice.toString(),
+        roundedTotalPrice,
         6
       );
 
