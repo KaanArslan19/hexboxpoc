@@ -9,19 +9,15 @@ import "@/app/lib/auth/init";
 
 async function generateNonceHandler(request: Request) {
   try {
-    // For nonce generation, we don't need an address yet
-    // The nonce will be associated with an address during verification
-    const address = 'pending'; // Temporary placeholder
-
     // Generate a cryptographically secure random nonce
-    //const nonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // No address needed at generation time - it will be associated during verification
     const randomBytes = crypto.getRandomValues(new Uint8Array(16));
     const nonce = Array.from(randomBytes, byte => byte.toString(16).padStart(2, '0')).join('');
-    console.log('Nonce generation: Generated nonce for address:', { address, nonce });
+    console.log('Nonce generation: Generated nonce:', { nonce });
     
-    // Store the nonce in MongoDB for later validation
+    // Store the nonce in MongoDB without an address (will be associated during verification)
     try {
-      await nonceTracker.storeNonce(address, nonce);
+      await nonceTracker.storeNonce(undefined, nonce);
       console.log('Nonce generation: Successfully stored nonce in MongoDB');
     } catch (error) {
       console.error('Nonce generation: Failed to store nonce in MongoDB:', error);
@@ -31,9 +27,8 @@ async function generateNonceHandler(request: Request) {
       );
     }
     
-    // Create a JWT with the actual nonce
+    // Create a JWT with the nonce (no address needed)
     const tempJwt = await new SignJWT({ 
-      address,
       nonce: nonce
     })
       .setProtectedHeader({ alg: 'HS256' })

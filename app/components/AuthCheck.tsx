@@ -64,28 +64,6 @@ export function AuthCheck() {
         return;
       }
 
-      // Implement cooldown to prevent rapid successive auth checks (but skip cooldown for wallet reconnections)
-      const now = Date.now();
-      const prevState = prevConnectionState.current;
-      const isWalletReconnection = !prevState.isConnected && isConnected;
-
-      if (
-        !isWalletReconnection &&
-        now - globalAuthState.lastAuthCheck < globalAuthState.authCheckCooldown
-      ) {
-        authDebugger.log(
-          "auth_check_skipped",
-          {
-            reason: "cooldown_active",
-            timeSinceLastCheck: now - globalAuthState.lastAuthCheck,
-            cooldownPeriod: globalAuthState.authCheckCooldown,
-          },
-          "AuthCheck"
-        );
-        console.log("Auth check cooldown active, skipping");
-        return;
-      }
-
       // Only check auth if wallet is connected and we have an address
       if (!isConnected || !address) {
         authDebugger.log(
@@ -115,19 +93,19 @@ export function AuthCheck() {
 
       // Force authentication if wallet was previously disconnected or if explicitly requested
       const shouldForceAuth =
-        forceAuthOnConnect.current || !prevState.isConnected;
+        forceAuthOnConnect.current || !prevConnectionState.current.isConnected;
 
       if (
         !shouldForceAuth &&
-        prevState.isConnected === currentState.isConnected &&
-        prevState.address === currentState.address
+        prevConnectionState.current.isConnected === currentState.isConnected &&
+        prevConnectionState.current.address === currentState.address
       ) {
         authDebugger.log(
           "auth_check_skipped",
           {
             reason: "state_unchanged",
             currentState,
-            prevState,
+            prevState: prevConnectionState.current,
           },
           "AuthCheck"
         );
@@ -140,13 +118,12 @@ export function AuthCheck() {
 
       // Update previous state
       prevConnectionState.current = currentState;
-      globalAuthState.lastAuthCheck = now;
       globalAuthState.isAuthenticating = true;
 
       try {
         authDebugger.log(
           "auth_check_started",
-          { address, currentState, prevState },
+          { address, currentState, prevState: prevConnectionState.current },
           "AuthCheck"
         );
         console.log("Performing auth check for address:", address);
@@ -205,6 +182,29 @@ export function AuthCheck() {
         globalAuthState.isAuthenticating = false;
       }
     };
+
+    const now = Date.now();
+    const prevState = prevConnectionState.current;
+    const isWalletReconnection = !prevState.isConnected && isConnected;
+
+    if (
+      !isWalletReconnection &&
+      now - globalAuthState.lastAuthCheck < globalAuthState.authCheckCooldown
+    ) {
+      authDebugger.log(
+        "auth_check_skipped",
+        {
+          reason: "cooldown_active",
+          timeSinceLastCheck: now - globalAuthState.lastAuthCheck,
+          cooldownPeriod: globalAuthState.authCheckCooldown,
+        },
+        "AuthCheck"
+      );
+      console.log("Auth check cooldown active, skipping");
+      return;
+    }
+
+    globalAuthState.lastAuthCheck = now;
 
     // Add a small delay to allow wallet state to stabilize
     const timeoutId = setTimeout(checkAuth, 100);

@@ -2,10 +2,11 @@ import { MongoClient, Collection } from 'mongodb';
 
 interface NonceDocument {
   _id?: string;
-  address: string;
+  address?: string; // Optional - may not be known at generation time
   nonce: string;
   createdAt: Date;
   expiresAt: Date;
+  used: boolean; // Track if nonce has been used
 }
 
 class MongoNonceStore {
@@ -24,8 +25,9 @@ class MongoNonceStore {
       this.collection = db.collection<NonceDocument>('nonces');
       
       // Create indexes for performance and automatic cleanup
+      // Make nonce unique by itself (not combined with address)
       await this.collection.createIndex(
-        { address: 1, nonce: 1 }, 
+        { nonce: 1 }, 
         { unique: true }
       );
       await this.collection.createIndex(
@@ -33,6 +35,7 @@ class MongoNonceStore {
         { expireAfterSeconds: 0 }
       );
       await this.collection.createIndex({ address: 1 });
+      await this.collection.createIndex({ used: 1 });
     }
     return this.collection;
   }
@@ -52,43 +55,33 @@ class MongoNonceStore {
         currentTime: now.toISOString()
       });
       
-      // First, let's see what nonces exist (check both by address and by nonce)
-      const existingNoncesByAddress = await collection.find({
+      // Atomically find and update the nonce to mark it as used and associate with address
+      // This works regardless of whether the nonce was stored with or without an address
+      const result = await collection.findOneAndUpdate(
+        {
+          nonce: nonce,
+          used: false,
+          expiresAt: { $gt: now }
+        },
+        {
+          $set: {
+            used: true,
+            address: address.toLowerCase(),
+            usedAt: now
+          }
+        },
+        {
+          returnDocument: 'after'
+        }
+      );
+      
+      console.log('MongoDB: Nonce check result:', {
+        found: !!result,
+        nonce,
         address: address.toLowerCase()
-      }).toArray();
-      
-      const existingNoncesByValue = await collection.find({
-        nonce: nonce
-      }).toArray();
-      
-      console.log('MongoDB: Existing nonces for address:', existingNoncesByAddress);
-      console.log('MongoDB: Existing nonces for nonce value:', existingNoncesByValue);
-      
-      // Try to find and delete the nonce by nonce value first (for pending addresses)
-      // This handles the case where nonce was stored with 'pending' address
-      let result = await collection.findOneAndDelete({
-        nonce: nonce,
-        expiresAt: { $gt: now } // Only find non-expired nonces
       });
-      
-      console.log('MongoDB: findOneAndDelete by nonce result:', result);
-      
-      // If found by nonce value, update it with the actual address before returning
-      if (result) {
-        console.log('MongoDB: Found nonce by value, associating with address:', address.toLowerCase());
-        return true;
-      }
-      
-      // Fallback: try to find by both address and nonce (for cases where address was known)
-      result = await collection.findOneAndDelete({
-        address: address.toLowerCase(),
-        nonce: nonce,
-        expiresAt: { $gt: now }
-      });
-      
-      console.log('MongoDB: findOneAndDelete by address+nonce result:', result);
 
-      // If we found and deleted a document, the nonce was valid and unused
+      // If we found and updated a document, the nonce was valid and unused
       return result !== null;
     } catch (error) {
       console.error('MongoDB nonce validation error:', error);
@@ -97,21 +90,27 @@ class MongoNonceStore {
   }
 
   /**
-   * Store a new nonce for an address
+   * Store a new nonce (optionally with an address)
    * This is called when generating a nonce
+   * Address can be undefined if not known at generation time
    */
-  async storeNonce(address: string, nonce: string): Promise<void> {
+  async storeNonce(address: string | undefined, nonce: string): Promise<void> {
     try {
       const collection = await this.getCollection();
       const now = new Date();
       const expiresAt = new Date(now.getTime() + (this.NONCE_TTL * 1000));
 
-      const document = {
-        address: address.toLowerCase(),
+      const document: NonceDocument = {
         nonce: nonce,
         createdAt: now,
-        expiresAt: expiresAt
+        expiresAt: expiresAt,
+        used: false
       };
+      
+      // Only include address if provided and not a placeholder
+      if (address && address !== 'pending') {
+        document.address = address.toLowerCase();
+      }
       
       console.log('MongoDB: Storing nonce document:', document);
       
@@ -122,7 +121,7 @@ class MongoNonceStore {
         acknowledged: result.acknowledged
       });
 
-      console.log('MongoDB: Successfully stored nonce for address:', address);
+      console.log('MongoDB: Successfully stored nonce');
     } catch (error) {
       // Handle duplicate key error (nonce already exists)
       if (error instanceof Error && 'code' in error && error.code === 11000) {

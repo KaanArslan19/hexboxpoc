@@ -6,9 +6,10 @@ import { mongoNonceStore } from './mongoNonceStore';
  */
 class NonceTracker {
   /**
-   * Store a nonce for an address (used during nonce generation)
+   * Store a nonce (optionally with an address)
+   * Address can be undefined if not known at generation time
    */
-  async storeNonce(address: string, nonce: string): Promise<void> {
+  async storeNonce(address: string | undefined, nonce: string): Promise<void> {
     try {
       await mongoNonceStore.storeNonce(address, nonce);
     } catch (error) {
