@@ -716,6 +716,19 @@ export default function CampaignForm(props: Props) {
                       component="div"
                       className="text-redColor/80 mb-2"
                     />
+
+                    <h3 className="text-xl mb-2">Funds Management</h3>
+                    <Field
+                      as="textarea"
+                      name="funds_management"
+                      placeholder="Describe how you will manage and use the funds..."
+                      className={textareaClass + " h-32 mb-4"}
+                    />
+                    <ErrorMessage
+                      name="funds_management"
+                      component="div"
+                      className="text-redColor/80 mb-2"
+                    />
                   </div>
                 )}
 

@@ -117,6 +117,9 @@ export async function POST(req: NextRequest) {
     const description = (formData.get("description") as string)?.trim();
     const location = (formData.get("location") as string)?.trim();
     const fundAmount = (formData.get("fund_amount") as string)?.trim();
+    const fundsManagement = (
+      formData.get("funds_management") as string
+    )?.trim();
 
     // Validate required fields
     if (
@@ -125,7 +128,8 @@ export async function POST(req: NextRequest) {
       !phoneNumber ||
       !description ||
       !location ||
-      !fundAmount
+      !fundAmount ||
+      !fundsManagement
     ) {
       return NextResponse.json(
         { error: "All required fields must be provided" },
@@ -159,6 +163,7 @@ export async function POST(req: NextRequest) {
     updatedFields.description = description;
     updatedFields.location = location;
     updatedFields.fund_amount = fundAmount;
+    updatedFields.funds_management = fundsManagement;
 
     const oneLiner = (formData.get("one_liner") as string)?.trim();
     if (oneLiner) {

@@ -40,6 +40,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   fundraiser_address,
   total_raised,
   comments,
+  funds_management,
 }) => {
   const { isAuthenticated, address } = await checkServerAuth();
   const campaignOwner = address === user_id;
@@ -90,6 +91,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       children: (
         <ProductTechDetails
           wallet_address={wallet_address ? wallet_address : user_id}
+          funds_management={funds_management}
         />
       ),
     },

@@ -28,27 +28,33 @@ interface Campaign {
   fundraiser_address?: string;
   last_synced?: number;
   comments?: any[];
+  funds_management?: string;
 }
 
 export const GET = async (req: NextRequest) => {
   try {
     // Rate limiting check
-    const identifier = req.headers.get("x-forwarded-for") || 
-                      req.headers.get("x-real-ip") ||
-                      req.ip ||
-                      "unknown";
-    
+    const identifier =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      req.ip ||
+      "unknown";
+
     if (userCampaignsRateLimiter.isRateLimited(identifier)) {
       return NextResponse.json(
-        { 
+        {
           error: "Too many requests. Please try again later.",
-          retryAfter: Math.ceil(userCampaignsRateLimiter.config.windowMs / 1000)
+          retryAfter: Math.ceil(
+            userCampaignsRateLimiter.config.windowMs / 1000
+          ),
         },
-        { 
+        {
           status: 429,
           headers: {
-            'Retry-After': Math.ceil(userCampaignsRateLimiter.config.windowMs / 1000).toString()
-          }
+            "Retry-After": Math.ceil(
+              userCampaignsRateLimiter.config.windowMs / 1000
+            ).toString(),
+          },
         }
       );
     }
@@ -68,19 +74,32 @@ export const GET = async (req: NextRequest) => {
     }
 
     if (!isValidEthAddress(userId)) {
-      return NextResponse.json(
-        { error: "Invalid userId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid userId" }, { status: 400 });
     }
 
-    const limit = Math.min(Math.max(parseInt(req.nextUrl.searchParams.get("limit") || "10"), 1), 100);
-    const skip = Math.max(parseInt(req.nextUrl.searchParams.get("skip") || "0"), 0);
-    
+    const limit = Math.min(
+      Math.max(parseInt(req.nextUrl.searchParams.get("limit") || "10"), 1),
+      100
+    );
+    const skip = Math.max(
+      parseInt(req.nextUrl.searchParams.get("skip") || "0"),
+      0
+    );
+
     // Whitelist allowed sort fields to prevent NoSQL injection
-    const allowedSortFields = ['total_raised', 'createdAt', 'deadline', 'fund_amount', 'timestamp', 'status'];
+    const allowedSortFields = [
+      "total_raised",
+      "createdAt",
+      "deadline",
+      "fund_amount",
+      "timestamp",
+      "status",
+    ];
     const requestedSortBy = req.nextUrl.searchParams.get("sortBy");
-    const sortBy = requestedSortBy && allowedSortFields.includes(requestedSortBy) ? requestedSortBy : "total_raised";
+    const sortBy =
+      requestedSortBy && allowedSortFields.includes(requestedSortBy)
+        ? requestedSortBy
+        : "total_raised";
     const sortOrder = req.nextUrl.searchParams.get("sortOrder") || "desc";
 
     const sortOptions: Record<string, 1 | -1> = {};
@@ -99,12 +118,15 @@ export const GET = async (req: NextRequest) => {
       {
         $facet: {
           data: [{ $skip: skip }, { $limit: limit }],
-          count: [{ $count: "total" }]
-        }
-      }
+          count: [{ $count: "total" }],
+        },
+      },
     ];
 
-    const [result] = await db.collection("campaigns").aggregate(pipeline).toArray();
+    const [result] = await db
+      .collection("campaigns")
+      .aggregate(pipeline)
+      .toArray();
     const userCampaigns: Campaign[] = result.data || [];
     const totalUserCampaigns = result.count[0]?.total || 0;
 
@@ -120,30 +142,31 @@ export const GET = async (req: NextRequest) => {
     }
 
     // Apply censorship to campaign data (remove sensitive fields)
-    const censoredCampaigns = userCampaigns.map(campaign => ({
-      "_id": campaign._id,
-      "user_id": campaign.user_id,
-      "title": campaign.title,
-      "description": campaign.description,
-      "wallet_address": campaign.wallet_address,
-      "logo": campaign.logo,
-      "timestamp": campaign.timestamp,
-      "status": campaign.status,
-      "fund_amount": campaign.fund_amount,
-      "total_raised": campaign.total_raised,
-      "one_liner": campaign.one_liner,
-      "social_links": campaign.social_links,
-      "location": campaign.location,
-      "deadline": campaign.deadline,
-      "is_verified": campaign.is_verified,
-      "factCheck": campaign.factCheck,
-      "funding_type": campaign.funding_type,
-      "evm_wa": campaign.evm_wa,
-      "configured": campaign.configured,
-      "transactions": campaign.transactions,
-      "fundraiser_address": campaign.fundraiser_address,
-      "last_synced": campaign.last_synced,
-      "comments": campaign.comments,
+    const censoredCampaigns = userCampaigns.map((campaign) => ({
+      _id: campaign._id,
+      user_id: campaign.user_id,
+      title: campaign.title,
+      description: campaign.description,
+      wallet_address: campaign.wallet_address,
+      logo: campaign.logo,
+      timestamp: campaign.timestamp,
+      status: campaign.status,
+      fund_amount: campaign.fund_amount,
+      total_raised: campaign.total_raised,
+      one_liner: campaign.one_liner,
+      social_links: campaign.social_links,
+      location: campaign.location,
+      deadline: campaign.deadline,
+      is_verified: campaign.is_verified,
+      factCheck: campaign.factCheck,
+      funding_type: campaign.funding_type,
+      evm_wa: campaign.evm_wa,
+      configured: campaign.configured,
+      transactions: campaign.transactions,
+      fundraiser_address: campaign.fundraiser_address,
+      last_synced: campaign.last_synced,
+      comments: campaign.comments,
+      funds_management: campaign.funds_management,
     }));
 
     return NextResponse.json({
@@ -154,6 +177,9 @@ export const GET = async (req: NextRequest) => {
     });
   } catch (e) {
     console.error("Error in getUserCampaigns:", e);
-    return NextResponse.json({ error: "Failed to fetch campaigns" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch campaigns" },
+      { status: 500 }
+    );
   }
 };

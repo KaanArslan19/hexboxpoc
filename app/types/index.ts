@@ -75,6 +75,7 @@ export interface CampaignDetailsProps {
   is_verified: boolean;
   email: string;
   phoneNumber: string;
+  funds_management: string;
   comments?: Comment[];
 }
 export interface CampaignBackendDetails {
@@ -101,6 +102,7 @@ export interface CampaignBackendDetails {
   is_verified: boolean;
   email: string;
   phoneNumber: string;
+  funds_management: string;
   comments?: Comment[];
 }
 export enum Status {
@@ -148,6 +150,7 @@ export interface NewCampaignInfo {
   logo: File;
   wallet_address: string;
   funding_type: FundingType;
+  funds_management: string;
   turnstileToken?: string; // Optional Turnstile token for bot protection
 }
 export interface NewCampaignInfoResponse {
@@ -164,6 +167,7 @@ export interface NewCampaignInfoResponse {
   fund_amount: number;
   funding_type: FundingType;
   wallet_address: string;
+  funds_management: string;
 }
 export interface CampaignInfoUpdate {
   title: string;
@@ -178,6 +182,7 @@ export interface CampaignInfoUpdate {
   fund_amount: number;
   funding_type: FundingType;
   wallet_address: string;
+  funds_management: string;
   turnstileToken?: string; // Optional for backward compatibility
 }
 

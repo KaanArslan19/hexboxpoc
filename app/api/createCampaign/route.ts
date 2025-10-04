@@ -79,6 +79,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "phoneNumber",
       "social_links",
       "location",
+      "funds_management",
     ];
 
     const missingFields = requiredFields.filter(
@@ -127,6 +128,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "location",
       "email",
       "phoneNumber",
+      "funds_management",
     ];
 
     for (const field of requiredStringFields) {
@@ -261,6 +263,14 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       campaignEntries.phoneNumber.toString().length > 18
     ) {
       characterLimitErrors.phoneNumber = `Phone number exceeds maximum of 18 characters`;
+    }
+
+    // Funds management: 1000 characters
+    if (
+      campaignEntries.funds_management &&
+      campaignEntries.funds_management.toString().length > 1000
+    ) {
+      characterLimitErrors.funds_management = `Funds management description exceeds maximum of 1000 characters`;
     }
 
     // Wallet address: 42 characters, EVM format
@@ -405,6 +415,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       transactions: [],
       email: trimString(campaignEntries.email),
       phoneNumber: trimString(campaignEntries.phoneNumber),
+      funds_management: trimString(campaignEntries.funds_management),
     };
     console.log(campaign, "campaign");
 

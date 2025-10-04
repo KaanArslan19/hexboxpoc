@@ -57,6 +57,7 @@ export default function UpdateCampaign({ campaign }: Props) {
     wallet_address: campaign.wallet_address || "",
     email: campaign.email || "",
     phoneNumber: campaign.phoneNumber || "",
+    funds_management: campaign.funds_management || "",
   };
   console.log("initialValues", initialValues);
   const handleImageRemove = (source: string) => {
@@ -85,6 +86,7 @@ export default function UpdateCampaign({ campaign }: Props) {
       formData.append("wallet_address", values.wallet_address);
 
       formData.append("fund_amount", values.fund_amount.toString());
+      formData.append("funds_management", values.funds_management);
 
       if (values.deadline) {
         const deadlineValue =

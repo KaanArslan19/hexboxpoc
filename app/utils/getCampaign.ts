@@ -44,6 +44,7 @@ export async function getCampaign(campaignId: string, censored: boolean) {
         fundraiser_address: campaign.fundraiser_address,
         last_synced: campaign.last_synced,
         comments: campaign.comments,
+        funds_management: campaign.funds_management,
       };
     }
 

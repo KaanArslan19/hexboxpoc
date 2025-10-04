@@ -36,6 +36,7 @@ const fetchCampaignInfo = async (campaignId: string, userAddress: string) => {
     product_or_service: campaign.product_or_service,
     fund_amount: campaign.fund_amount,
     wallet_address: campaign.wallet_address,
+    funds_management: campaign.funds_management,
   };
 
   return finalCampaign;

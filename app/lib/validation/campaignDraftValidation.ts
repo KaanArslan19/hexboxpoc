@@ -96,6 +96,10 @@ export const campaignFieldValidators = {
   acceptTerms: Yup.boolean()
     .oneOf([true], "You must accept the terms and conditions to proceed")
     .required("You must accept the terms and conditions"),
+
+  funds_management: Yup.string()
+    .max(1000, "Funds management description must be 1000 characters or less")
+    .required("Funds management description is required"),
 };
 
 // Step-by-step validation schemas for frontend form (matches existing structure)
@@ -124,6 +128,7 @@ export const campaignFormValidationSchemas = [
   Yup.object({
     fundAmount: campaignFieldValidators.fundAmount,
     wallet_address: campaignFieldValidators.wallet_address,
+    funds_management: campaignFieldValidators.funds_management,
   }),
 
   // Step 4: Funding Type
@@ -256,6 +261,10 @@ export const campaignDraftValidationSchema = Yup.object()
         return Object.values(FundingType).includes(value as FundingType);
       }),
     acceptTerms: Yup.boolean().nullable(),
+    funds_management: Yup.string()
+      .max(1000, "Funds management description must be 1000 characters or less")
+      .transform((value) => (value === "" ? null : value))
+      .nullable(),
   })
   .noUnknown(false); // Allow additional fields for future extensibility
 
@@ -276,6 +285,7 @@ export const campaignFormInitialValues = {
   website: "",
   linkedIn: "",
   funding_type: FundingType.Limitless,
+  funds_management: "",
   acceptTerms: false,
   turnstileToken: "",
 };

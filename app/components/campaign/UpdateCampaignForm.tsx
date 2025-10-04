@@ -27,6 +27,7 @@ export interface InitialCampaignValue {
   fund_amount: number;
   wallet_address: string;
   funding_type: FundingType;
+  funds_management: string;
   social_links: {
     telegram: string;
     discord: string;
@@ -49,7 +50,6 @@ const fileSizeValidator = Yup.mixed().test(
     return false;
   }
 );
-
 const BASE_URL = `${process.env.R2_BUCKET_URL}/campaign_logos/`;
 
 // Extended validation schema that includes turnstile verification
@@ -74,6 +74,9 @@ const validationCombinedSchema = Yup.object({
   funding_type: Yup.string()
     .oneOf(Object.values(FundingType))
     .required("Please select a funding type"),
+  funds_management: Yup.string()
+    .max(1000, "Funds management description must be 1000 characters or less")
+    .required("Funds management description is required"),
   turnstileToken: Yup.string().required(
     "Please complete the security verification"
   ),
@@ -95,6 +98,7 @@ const defaultValues = {
   wallet_address: "",
   fund_amount: 0,
   funding_type: FundingType.Limitless,
+  funds_management: "",
   turnstileToken: "",
 };
 
@@ -106,7 +110,7 @@ interface Props {
 
 export default function UpdateCampaignForm(props: Props) {
   const { onSubmit, onImageRemove, initialValuesProp } = props;
-
+  console.log(initialValuesProp.funds_management, "funds_management");
   // Get Turnstile site key from environment variables
   const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
@@ -182,6 +186,7 @@ export default function UpdateCampaignForm(props: Props) {
       funding_type: initialValuesProp.funding_type || FundingType.Limitless,
       fund_amount: initialValuesProp.fund_amount || 0,
       wallet_address: initialValuesProp.wallet_address || "",
+      funds_management: initialValuesProp.funds_management || "",
       turnstileToken: "", // Always initialize as empty
     };
   }, [initialValuesProp]);
@@ -320,6 +325,7 @@ export default function UpdateCampaignForm(props: Props) {
         fund_amount: Number(values.fund_amount),
         wallet_address: values.wallet_address,
         funding_type: values.funding_type as FundingType,
+        funds_management: values.funds_management,
         turnstileToken: values.turnstileToken, // Use form field value
       };
 
@@ -459,6 +465,21 @@ export default function UpdateCampaignForm(props: Props) {
                 component="div"
                 className="text-redColor/80 mb-2"
               />
+
+              <h3 className="text-xl mb-2">Funds Management</h3>
+              <Field
+                as="textarea"
+                name="funds_management"
+                placeholder="Describe how you will manage and use the funds..."
+                className={textareaClass + " h-32 mb-4"}
+                value={values.funds_management}
+              />
+              <ErrorMessage
+                name="funds_management"
+                component="div"
+                className="text-redColor/80 mb-2"
+              />
+
               <h3 className="text-xl mb-2">Funding Type</h3>
               <Field
                 as="select"

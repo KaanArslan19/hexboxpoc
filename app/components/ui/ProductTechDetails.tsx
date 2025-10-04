@@ -5,16 +5,22 @@ import { CampaignDetailsProps } from "@/app/types";
 interface CampaignProductsProps {
   campaign?: CampaignDetailsProps;
   wallet_address?: string;
+  funds_management?: string;
 }
 const ProductTechDetails = ({
   campaign,
   wallet_address,
+  funds_management,
 }: CampaignProductsProps) => {
   const [copied, setCopied] = useState(false);
 
   const walletAddress = campaign
     ? campaign.wallet_address || campaign.user_id
     : wallet_address;
+
+  const fundsManagementText = campaign
+    ? campaign.funds_management
+    : funds_management;
 
   const handleCopy = async () => {
     if (!walletAddress) return;
@@ -50,6 +56,19 @@ const ProductTechDetails = ({
           </button>
         </div>
       </div>
+
+      {fundsManagementText && (
+        <div className="mb-4">
+          <span className="font-semibold text-gray-800 dark:text-dark-text">
+            Funds Management
+          </span>
+          <div className="mt-1 p-3 bg-gray-100 dark:bg-dark-surface border border-transparent dark:border-dark-border rounded-md">
+            <p className="text-sm text-gray-700 dark:text-dark-textMuted leading-relaxed">
+              {fundsManagementText}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
