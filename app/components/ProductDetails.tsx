@@ -807,10 +807,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
               <div>
                 {isFinalized ? (
-                  <div className="mb-4 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                  <div className="mb-4 p-4 bg-gradient-to-r from-redColor/10 to-orangeColor/10 dark:from-redColor/20 dark:to-orangeColor/20 rounded-lg border border-redColorDull dark:border-redColor">
                     <div className="flex items-center mb-2">
                       <svg
-                        className="w-5 h-5 text-red-600 dark:text-red-400 mr-2"
+                        className="w-5 h-5 text-redColor dark:text-redColor mr-2"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -820,11 +820,11 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span className="text-red-800 dark:text-red-200 font-semibold">
+                      <span className="text-redColor dark:text-redColor font-semibold">
                         Campaign Finalized
                       </span>
                     </div>
-                    <p className="text-red-700 dark:text-red-300 text-sm">
+                    <p className="text-redColorDull dark:text-redColor text-sm">
                       This campaign has been finalized and is no longer
                       accepting contributions. Thank you for your interest!
                     </p>
