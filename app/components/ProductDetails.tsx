@@ -4,7 +4,7 @@ import Image from "next/image";
 import { CampaignDetailsProps, ProductFetch } from "@/app/types";
 import Link from "next/link";
 import CustomButton from "./ui/CustomButton";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAccount, useWalletClient } from "wagmi"; // Import useAccount and useWalletClient for wallet connection check
 import { ethers } from "ethers";
 import { CONTRACTS, ABIS } from "@/app/utils/contracts/contracts";
@@ -68,6 +68,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const [localProduct, setLocalProduct] = useState(product);
   const [isVerifying, setIsVerifying] = useState(false);
   const [localCampaign, setLocalCampaign] = useState(campaign);
+  const [isFinalized, setIsFinalized] = useState(false);
 
   useEffect(() => {
     setLocalProduct(product);
@@ -240,14 +241,35 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     },
   ];
 
-  const getCampaignAddress = async () => {
+  const getCampaignAddress = useCallback(async () => {
     const response = await apiFetch(
       `/api/getCampaignFromProduct?productId=${product.id}&fields=fundraiser_address`
     );
     const data = await response.json();
 
     return data.campaign.fundraiser_address;
-  };
+  }, [product.id]);
+
+  const checkCampaignFinalized = useCallback(async () => {
+    try {
+      const campaignAddress = await getCampaignAddress();
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      );
+      const contract = new ethers.Contract(
+        campaignAddress,
+        USDCFundraiserABI.abi,
+        provider
+      );
+
+      const finalized = await contract.finalized();
+      setIsFinalized(finalized);
+      return finalized;
+    } catch (error) {
+      console.error("Error checking campaign finalized status:", error);
+      return false;
+    }
+  }, [getCampaignAddress]);
 
   const checkUSDCBalance = async () => {
     try {
@@ -304,10 +326,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       console.log("Calculated price:", calculatedPrice);
       // Fix floating-point precision errors by rounding to 6 decimal places
       const roundedTotalPrice = Number(calculatedPrice.totalPrice).toFixed(6);
-      const totalPrice = ethers.parseUnits(
-        roundedTotalPrice,
-        6
-      );
+      const totalPrice = ethers.parseUnits(roundedTotalPrice, 6);
 
       // Check if user has enough USDC
       const usdcBalance = await checkUSDCBalance();
@@ -393,10 +412,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       const calculatedPrice = await getCalculatedPrice.json();
       // Fix floating-point precision errors by rounding to 6 decimal places
       const roundedTotalPrice = Number(calculatedPrice.totalPrice).toFixed(6);
-      const totalPrice = ethers.parseUnits(
-        roundedTotalPrice,
-        6
-      );
+      const totalPrice = ethers.parseUnits(roundedTotalPrice, 6);
 
       // Check if user has enough USDC
       const usdcBalance = await checkUSDCBalance();
@@ -557,29 +573,32 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   };
 
   // Add function to check token balance
-  const checkTokenBalance = async (campaignAddress: string) => {
-    try {
-      const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
-      );
-      const productTokenContract = new ethers.Contract(
-        CONTRACTS.ProductToken.fuji,
-        ProductTokenABI.abi,
-        provider
-      ) as unknown as ProductToken;
+  const checkTokenBalance = useCallback(
+    async (campaignAddress: string) => {
+      try {
+        const provider = new ethers.JsonRpcProvider(
+          process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        );
+        const productTokenContract = new ethers.Contract(
+          CONTRACTS.ProductToken.fuji,
+          ProductTokenABI.abi,
+          provider
+        ) as unknown as ProductToken;
 
-      const balance = await productTokenContract.balanceOf(
-        address!,
-        ethers.parseUnits(product.productId.toString(), 0)
-      );
-      setTokenBalance(balance);
-      console.log("Token balance:", balance);
-      return balance > 0;
-    } catch (error) {
-      console.error("Error checking token balance:", error);
-      return false;
-    }
-  };
+        const balance = await productTokenContract.balanceOf(
+          address!,
+          ethers.parseUnits(product.productId.toString(), 0)
+        );
+        setTokenBalance(balance);
+        console.log("Token balance:", balance);
+        return balance > 0;
+      } catch (error) {
+        console.error("Error checking token balance:", error);
+        return false;
+      }
+    },
+    [address, product.productId]
+  );
 
   const handleRefund = async () => {
     if (!isConnected || !walletClient) {
@@ -678,7 +697,18 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     };
 
     updateTokenBalance();
-  }, [address, isConnected, product.productId]); // Dependencies array includes address and product ID
+  }, [
+    address,
+    isConnected,
+    product.productId,
+    checkTokenBalance,
+    getCampaignAddress,
+  ]); // Dependencies array includes address and product ID
+
+  // Check if campaign is finalized on component mount
+  useEffect(() => {
+    checkCampaignFinalized();
+  }, [checkCampaignFinalized]);
 
   const calculateCommission = async (quantity: number) => {
     if (quantity <= 0) return;
@@ -776,18 +806,43 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               </div>
 
               <div>
-                <Input
-                  placeholder="Enter quantity of items to purchase"
-                  className="!border-2 !border-gray-300 dark:!border-dark-border bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 dark:placeholder:text-dark-textMuted placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200"
-                  labelProps={{
-                    className: "hidden",
-                  }}
-                  step="1"
-                  type="number"
-                  min="0"
-                  value={productQuantity === 0 ? "" : productQuantity}
-                  onChange={handleInputChange}
-                />
+                {isFinalized ? (
+                  <div className="mb-4 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <div className="flex items-center mb-2">
+                      <svg
+                        className="w-5 h-5 text-red-600 dark:text-red-400 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="text-red-800 dark:text-red-200 font-semibold">
+                        Campaign Finalized
+                      </span>
+                    </div>
+                    <p className="text-red-700 dark:text-red-300 text-sm">
+                      This campaign has been finalized and is no longer
+                      accepting contributions. Thank you for your interest!
+                    </p>
+                  </div>
+                ) : (
+                  <Input
+                    placeholder="Enter quantity of items to purchase"
+                    className="!border-2 !border-gray-300 dark:!border-dark-border bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 dark:placeholder:text-dark-textMuted placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200"
+                    labelProps={{
+                      className: "hidden",
+                    }}
+                    step="1"
+                    type="number"
+                    min="0"
+                    value={productQuantity === 0 ? "" : productQuantity}
+                    onChange={handleInputChange}
+                  />
+                )}
               </div>
 
               <div>
@@ -869,15 +924,22 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         isApproving ||
                         isVerifying ||
                         isRefunding ||
-                        !acceptTerms
+                        !acceptTerms ||
+                        isFinalized
                       }
                       className={`py-3 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full font-semibold rounded-lg shadow-md transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 ${
-                        isLoading || isApproving || isVerifying || !acceptTerms
+                        isLoading ||
+                        isApproving ||
+                        isVerifying ||
+                        !acceptTerms ||
+                        isFinalized
                           ? "opacity-50 cursor-not-allowed hover:transform-none"
                           : ""
                       }`}
                     >
-                      {isApproving
+                      {isFinalized
+                        ? "Campaign Finalized"
+                        : isApproving
                         ? "Approving USDC..."
                         : isLoading
                         ? "Generating transaction..."
@@ -887,7 +949,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     </CustomButton>
                   </Link>
 
-                  {tokenBalance > 0 && (
+                  {tokenBalance > 0 && !isFinalized && (
                     <CustomButton
                       onClick={handleRefund}
                       disabled={
@@ -895,14 +957,16 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         isLoading ||
                         isApproving ||
                         isVerifying ||
-                        !acceptTerms
+                        !acceptTerms ||
+                        isFinalized
                       }
                       className={`py-3 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full font-semibold rounded-lg shadow-md border-redColorDull transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 ${
                         isRefunding ||
                         isLoading ||
                         isApproving ||
                         isVerifying ||
-                        !acceptTerms
+                        !acceptTerms ||
+                        isFinalized
                           ? "opacity-50 cursor-not-allowed hover:transform-none"
                           : ""
                       }`}
