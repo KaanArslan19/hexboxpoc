@@ -17,7 +17,7 @@ export default async function Home() {
           <FeaturedCampaigns listings={campaigns} />
           <div className="text-center mt-16  px-4 ">
             <h1 className="text-4xl md:text-6xl font-customFont_bold mb-4 text-blueColorDull dark:text-dark-text">
-              Make an Impact
+              Crowdfunding Innovation{" "}
             </h1>
             <p className="mx-auto text-lg lg:text-xl text-textPrimary dark:text-dark-textMuted">
               Fuel the spark, ignite the action.
