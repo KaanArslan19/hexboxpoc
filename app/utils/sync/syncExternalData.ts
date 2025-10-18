@@ -1,7 +1,7 @@
 import client from "@/app/utils/mongodb";
 import { ethers } from "ethers";
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
-import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 import { ObjectId } from "mongodb";
 
 /**

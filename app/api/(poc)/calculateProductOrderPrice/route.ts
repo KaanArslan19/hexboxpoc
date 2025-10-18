@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     }
 
    // console.log(productId, quantity);
-    const product = await client.db("hexbox_poc").collection("products").findOne({ productId: Number(productId) });
+    const product = await client.db("hexbox_poc").collection("products").findOne({ productId: productId });
     // console.log(product);
 
     if (!product) {

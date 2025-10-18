@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
 import { ethers } from "ethers";
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
-import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
-import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
-import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductToken.sol/ProductToken.json";
+import USDCFundraiserFactoryUpgradable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactoryUpgradeable.sol/USDCFundraiserFactoryUpgradeable.json";
+//import USDCFundraiserUpgradable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradable.sol/USDCFundraiserUpgradable.json";
+//import ProductTokenUpgradable from "@/app/utils/contracts/artifacts/contracts/ProductTokenUpgradable.sol/ProductTokenUpgradable.json";
 import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { deleteCampaign } from "@/app/utils/poc_utils/deleteCampaign";
+import { syncProductIdsWithChain } from "@/app/utils/poc_utils/syncProductIdsWithChain";
 
 import type { ProductToken } from "@/app/utils/typechain-types";
 
@@ -109,7 +109,7 @@ export const POST = async (req: NextRequest) => {
     // Get factory contract
     const factoryContract = new ethers.Contract(
       CONTRACTS.USDCFundraiserFactory.fuji,
-      USDCFundraiserFactory.abi,
+      USDCFundraiserFactoryUpgradable.abi,
       provider
     );
 
@@ -155,23 +155,23 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const deployer = new ethers.Wallet(
-      process.env.DEPLOYER_PRIVATE_KEY!,
-      provider
-    );
+    // const deployer = new ethers.Wallet(
+    //   process.env.DEPLOYER_PRIVATE_KEY!,
+    //   provider
+    // );
 
-    const productToken = new ethers.Contract(
-      CONTRACTS.ProductToken.fuji,
-      ProductTokenABI.abi,
-      provider
-    ).connect(deployer) as unknown as ProductToken;
+    // const productToken = new ethers.Contract(
+    //   CONTRACTS.ProductToken.fuji,
+    //   ProductTokenABI.abi,
+    //   provider
+    // ).connect(deployer) as unknown as ProductToken;
 
-    const grantRole = await productToken.grantRole(
-      await productToken.MINTER_ROLE(),
-      fundraiserAddress
-    );
-    console.log("Grant role:", grantRole);
-    await grantRole.wait();
+    // const grantRole = await productToken.grantRole(
+    //   await productToken.MINTER_ROLE(),
+    //   fundraiserAddress
+    // );
+    // console.log("Grant role:", grantRole);
+    // await grantRole.wait();
 
     await db.collection("campaigns").updateOne(
       { _id: new ObjectId(campaignId) },
@@ -183,6 +183,21 @@ export const POST = async (req: NextRequest) => {
       }
     );
     console.log("Campaign updated:", result);
+
+    // Sync product IDs with on-chain unique product IDs
+    console.log("Starting product ID synchronization...");
+    const syncResult = await syncProductIdsWithChain(
+      campaignId,
+      fundraiserAddress.toLowerCase()
+    );
+    
+    if (!syncResult.success) {
+      console.error("Product ID sync completed with errors:", syncResult.errors);
+      // Log errors but don't fail the entire request
+      // The campaign is still created successfully
+    } else {
+      console.log("Product ID sync completed successfully:", syncResult.syncedProducts);
+    }
 
     // const fundraiser = new ethers.Contract(
     //   fundraiserAddress,
@@ -321,6 +336,10 @@ export const POST = async (req: NextRequest) => {
       success: true,
       fundraiserAddress,
       transactionHash,
+      productSync: {
+        synced: syncResult.syncedProducts.length,
+        errors: syncResult.errors.length > 0 ? syncResult.errors : undefined,
+      },
     });
   } catch (error) {
     console.error("Error processing fundraiser creation:", error);

@@ -9,8 +9,8 @@ import { useAccount, useWalletClient } from "wagmi"; // Import useAccount and us
 import { ethers } from "ethers";
 import { CONTRACTS, ABIS } from "@/app/utils/contracts/contracts";
 import type { ProductToken } from "@/app/utils/typechain-types";
-import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductToken.sol/ProductToken.json";
-import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductTokenUpgradeable.sol/ProductTokenUpgradeable.json";
+import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 import { Tabs } from "antd";
 import { Input } from "@material-tailwind/react";
 import { productOrServiceLabels } from "@/app/utils/nameConvention";
@@ -630,10 +630,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         USDCFundraiserABI.abi,
         provider
       );
-
+      console.log("product original product id ", product.originalProductId);
       // Encode the refund function call
       const txData = contract.interface.encodeFunctionData("claimRefund", [
-        BigInt(product.productId),
+        BigInt(product.originalProductId),
         BigInt(productQuantity),
       ]);
 

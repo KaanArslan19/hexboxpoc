@@ -151,6 +151,7 @@ export const getUserOwnedProducts = async (
       sold_count: Number(product.sold_count) || 0,
       fulfillmentDetails: product.fulfillmentDetails || "",
       deliveryDate: product.deliveryDate || "",
+      originalProductId: product.originalProductId || 0,
     };
   });
 

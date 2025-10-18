@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { ethers } from "ethers";
-import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import USDCFundraiserUpgradable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 import { isAddressValidCampaign } from "@/app/utils/poc_utils/isAddressValidCampaign";
 
 export async function POST(req: NextRequest) {
@@ -71,12 +71,12 @@ export async function POST(req: NextRequest) {
     // Get the contract instance
     const contract = new ethers.Contract(
       campaignAddress,
-      USDCFundraiser.abi,
+      USDCFundraiserUpgradable.abi,
       provider
     );
 
     // Convert values using different methods to see which works
-    const convertedProductId = ethers.parseUnits(productId.toString(), 0);
+    let convertedProductId = ethers.parseUnits(productId.toString(), 0);
     const convertedQuantity = ethers.parseUnits(quantity.toString(), 0);
 
     // Check if the campaign is finalized
@@ -104,6 +104,8 @@ export async function POST(req: NextRequest) {
 
     // Try to get the product to verify the ID exists and check its status
     try {
+      console.log("Product ID:", convertedProductId);
+
       const product = await contract.products(convertedProductId);
       console.log("Product from contract:", {
         productId: product[0].toString(),
@@ -118,7 +120,6 @@ export async function POST(req: NextRequest) {
           { status: 404 }
         );
       }
-
       // Check if product has supply limit and if it's exceeded
       const supplyLimit = product[2];
       console.log("Product supply limit:", supplyLimit.toString());
@@ -172,6 +173,9 @@ export async function POST(req: NextRequest) {
     //   },
     // });
 
+    const originalProductId = await contract.getOriginalProductId(convertedProductId);
+    console.log("Original Product ID:", originalProductId);
+    convertedProductId = originalProductId;
     // Try encoding with the converted values
     const txData = contract.interface.encodeFunctionData("deposit", [
       convertedProductId,

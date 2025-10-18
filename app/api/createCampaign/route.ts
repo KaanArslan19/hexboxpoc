@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
 import { ethers } from "ethers";
-import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
+import USDCFundraiserFactoryUpgradable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactoryUpgradeable.sol/USDCFundraiserFactoryUpgradeable.json";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createDonationProduct } from "@/app/utils/poc_utils/createDonationProduct";
@@ -451,7 +451,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     // Get factory contract interface
     const factoryContract = new ethers.Contract(
       CONTRACTS.USDCFundraiserFactory.fuji,
-      USDCFundraiserFactory.abi,
+      USDCFundraiserFactoryUpgradable.abi,
       provider
     );
 

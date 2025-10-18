@@ -54,6 +54,7 @@ export const getProduct = async (
       sold_count: Number(product.sold_count) || 0,
       fulfillmentDetails: product.fulfillmentDetails || "",
       deliveryDate: product.deliveryDate || "",
+      originalProductId: Number(product.originalProductId) || 0,
     };
 
     return formattedProduct;

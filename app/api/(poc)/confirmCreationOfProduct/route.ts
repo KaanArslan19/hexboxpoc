@@ -3,7 +3,8 @@ import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { ethers } from "ethers";
 import client from "@/app/utils/mongodb";
 import { ObjectId } from "mongodb";
-import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import USDCFundraiserUpgradable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
+import { syncSingleProductIdWithChain } from "@/app/utils/poc_utils/syncProductIdsWithChain";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -198,13 +199,17 @@ export const POST = async (req: NextRequest) => {
     // Get the fundraiser contract
     const fundraiserContract = new ethers.Contract(
       campaign.fundraiser_address,
-      USDCFundraiser.abi,
+      USDCFundraiserUpgradable.abi,
       provider
     );
 
     // Check if the product exists in the contract
     try {
-      const productConfig = await fundraiserContract.products(product.productId);
+      // Get unique product ID from contract first
+      const uniqueProductId = await fundraiserContract.getUniqueProductId(BigInt(product.productId));
+      console.log("Unique product ID from contract:", uniqueProductId.toString());
+      
+      const productConfig = await fundraiserContract.products(uniqueProductId);
       
       if (productConfig.price.toString() === "0") {
         // Product not found in contract, check status before deleting from database
@@ -239,10 +244,30 @@ export const POST = async (req: NextRequest) => {
         { $set: { status: "available" } }
       );
       
+      // Sync product ID with on-chain unique product ID
+      console.log("Starting product ID synchronization for product:", productId);
+      const syncResult = await syncSingleProductIdWithChain(
+        productId,
+        campaign.fundraiser_address
+      );
+      
+      if (!syncResult.success) {
+        console.error("Product ID sync completed with errors:", syncResult.error);
+        // Log error but don't fail the request
+      } else {
+        console.log("Product ID sync completed successfully:", syncResult);
+      }
+      
       return NextResponse.json({
         success: true,
-        productId,
+        productId: syncResult.uniqueProductId || productId,
         transactionHash,
+        productSync: {
+          originalProductId: syncResult.productId,
+          uniqueProductId: syncResult.uniqueProductId,
+          syncSuccess: syncResult.success,
+          error: syncResult.error,
+        },
       });
     } catch (error) {
       console.error("Error verifying product in contract:", error);

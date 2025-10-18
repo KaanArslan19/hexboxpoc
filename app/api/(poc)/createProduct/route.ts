@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createProduct, ProductCreationResult } from "@/app/utils/poc_utils/createProduct";
 import { ethers } from "ethers";
-import USDCFundraiser from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import USDCFundraiserUpgradable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 import { getCampaign } from "@/app/utils/getCampaign";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
@@ -248,7 +248,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     // Get the fundraiser contract
     const fundraiserContract = new ethers.Contract(
       campaign.fundraiser_address,
-      USDCFundraiser.abi,
+      USDCFundraiserUpgradable.abi,
       provider
     );
 

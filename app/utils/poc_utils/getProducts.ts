@@ -95,6 +95,7 @@ export const getProducts = async (
         sold_count: Number(product.sold_count) || 0,
         fulfillmentDetails: product.fulfillmentDetails || "",
         deliveryDate: product.deliveryDate || "",
+        originalProductId: product.originalProductId || 0,
       };
     });
 
@@ -192,6 +193,7 @@ export const getAllProducts = async (): Promise<ProductFetch[]> => {
         sold_count: Number(product.sold_count) || 0,
         fulfillmentDetails: product.fulfillmentDetails || "",
         deliveryDate: product.deliveryDate || "",
+        originalProductId: product.originalProductId || 0,
       };
     });
     return formattedProducts

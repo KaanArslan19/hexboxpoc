@@ -248,6 +248,7 @@ export interface ProductFetch {
   sold_count: number;
   fulfillmentDetails: string;
   deliveryDate: string;
+  originalProductId: number;
 }
 export interface NewProductInfo {
   image: string;

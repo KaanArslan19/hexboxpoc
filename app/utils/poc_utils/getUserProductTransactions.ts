@@ -1,7 +1,7 @@
 import { ethers, EventLog } from "ethers";
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
-import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductToken.sol/ProductToken.json";
-import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import ProductTokenABI from "@/app/utils/contracts/artifacts/contracts/ProductTokenUpgradeable.sol/ProductTokenUpgradeable.json";
+import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 import { ProductFetch } from "@/app/types";
 
 export interface ProductTransaction {
