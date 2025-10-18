@@ -163,10 +163,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
-    // limit to safe bounds (<= 1 trillion)
-    if (fundAmountNumber > 1_000_000_000_000) {
+    // limit to safe bounds (<= 10K)
+    if (fundAmountNumber > 10000) {
       return NextResponse.json(
-        { error: "Fund amount exceeds maximum allowed" },
+        { error: "Fund amount exceeds maximum allowed (10,000)" },
         { status: 400 }
       );
     }
