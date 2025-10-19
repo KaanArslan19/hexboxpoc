@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { S3Client, CopyObjectCommand, DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, CopyObjectCommand, DeleteObjectCommand, HeadObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import client from "@/app/utils/mongodb";
 import USDCFundraiserUpgradeable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 
@@ -39,6 +39,71 @@ async function objectExists(key: string): Promise<boolean> {
     return true;
   } catch (error) {
     return false;
+  }
+}
+
+/**
+ * Updates the metadata JSON file with the new unique product ID
+ */
+async function updateMetadataImageUrl(
+  metadataKey: string,
+  oldProductId: string | number,
+  newProductId: string,
+  logoExtension: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Get the existing metadata file
+    const getResponse = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: metadataKey,
+      })
+    );
+
+    // Read the file content
+    const bodyContents = await getResponse.Body?.transformToString();
+    if (!bodyContents) {
+      return { success: false, error: "Failed to read metadata file" };
+    }
+
+    // Parse the JSON
+    const metadata = JSON.parse(bodyContents);
+
+    // Update the image URL with the new product ID
+    const oldLogoFilename = `${oldProductId}.${logoExtension}`;
+    const newLogoFilename = `${newProductId}.${logoExtension}`;
+    
+    if (metadata.image && metadata.image.includes(oldLogoFilename)) {
+      metadata.image = metadata.image.replace(oldLogoFilename, newLogoFilename);
+    }
+
+    // Update the ID attribute if it exists
+    if (metadata.attributes && Array.isArray(metadata.attributes)) {
+      const idAttribute = metadata.attributes.find((attr: any) => attr.trait_type === "ID");
+      if (idAttribute) {
+        idAttribute.value = newProductId;
+      }
+    }
+
+    // Upload the updated metadata
+    const updatedContent = JSON.stringify(metadata);
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: metadataKey,
+        Body: updatedContent,
+        ContentType: "application/json",
+      })
+    );
+
+    console.log(`Successfully updated metadata image URL from ${oldLogoFilename} to ${newLogoFilename}`);
+    return { success: true };
+  } catch (error) {
+    console.error(`Error updating metadata image URL:`, error);
+    return {
+      success: false,
+      error: `Failed to update metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
+    };
   }
 }
 
@@ -156,6 +221,9 @@ export async function syncSingleProductIdWithChain(
     }
 
     const errors: string[] = [];
+    
+    // Get logo file extension for metadata update
+    const logoExtension = product.logo ? product.logo.split(".").pop() || "" : "";
 
     // Rename metadata file
     const oldMetadataKey = `product_metadata/${originalProductId}.json`;
@@ -163,6 +231,17 @@ export async function syncSingleProductIdWithChain(
     const metadataResult = await renameR2File(oldMetadataKey, newMetadataKey);
     if (!metadataResult.success) {
       errors.push(`Metadata rename failed: ${metadataResult.error}`);
+    } else {
+      // Update the metadata JSON content with new image URL
+      const metadataUpdateResult = await updateMetadataImageUrl(
+        newMetadataKey,
+        originalProductId,
+        uniqueProductIdStr,
+        logoExtension
+      );
+      if (!metadataUpdateResult.success) {
+        errors.push(`Metadata content update failed: ${metadataUpdateResult.error}`);
+      }
     }
 
     // Rename logo file if it exists
@@ -329,12 +408,26 @@ export async function syncProductIdsWithChain(
           continue;
         }
 
+        // Get logo file extension for metadata update
+        const logoExtension = product.logo ? product.logo.split(".").pop() || "" : "";
+
         // Rename metadata file
         const oldMetadataKey = `product_metadata/${originalProductId}.json`;
         const newMetadataKey = `product_metadata/${uniqueProductIdStr}.json`;
         const metadataResult = await renameR2File(oldMetadataKey, newMetadataKey);
         if (!metadataResult.success) {
           errors.push(`Metadata rename failed for product ${originalProductId}: ${metadataResult.error}`);
+        } else {
+          // Update the metadata JSON content with new image URL
+          const metadataUpdateResult = await updateMetadataImageUrl(
+            newMetadataKey,
+            originalProductId,
+            uniqueProductIdStr,
+            logoExtension
+          );
+          if (!metadataUpdateResult.success) {
+            errors.push(`Metadata content update failed for product ${originalProductId}: ${metadataUpdateResult.error}`);
+          }
         }
 
         // Rename logo file if it exists
