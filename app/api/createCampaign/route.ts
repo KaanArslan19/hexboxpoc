@@ -508,7 +508,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     );
     donationProduct.append("freeShipping", "false");
     donationProduct.append("productReturnPolicy", "false");
-    donationProduct.append("status", "available");
+    donationProduct.append("status", "draft");
     donationProduct.append("images", "");
     donationProduct.append("userId", creatorWalletAddress as string);
     donationProduct.append("campaignId", campaignId);

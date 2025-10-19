@@ -201,6 +201,7 @@ export async function syncSingleProductIdWithChain(
           originalProductId: originalProductId,
           productId: uniqueProductIdStr,
           logo: product.logo ? `${uniqueProductIdStr}.${product.logo.split(".").pop()}` : product.logo,
+          status: "available",
           images: product.images?.uploadedFiles
             ? {
                 uploadedFiles: product.images.uploadedFiles.map(
@@ -372,6 +373,7 @@ export async function syncProductIdsWithChain(
               originalProductId: originalProductId,
               productId: uniqueProductIdStr,
               logo: product.logo ? `${uniqueProductIdStr}.${product.logo.split(".").pop()}` : product.logo,
+              status: "available",
               images: product.images?.uploadedFiles
                 ? {
                     uploadedFiles: product.images.uploadedFiles.map(

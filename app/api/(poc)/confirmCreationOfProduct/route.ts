@@ -238,11 +238,11 @@ export const POST = async (req: NextRequest) => {
         }
       }
       
-      // Update product status in database
-      await db.collection("products").updateOne(
-        { productId: productId },
-        { $set: { status: "available" } }
-      );
+      // // Update product status in database
+      // await db.collection("products").updateOne(
+      //   { productId: productId },
+      //   { $set: { status: "available" } }
+      // );
       
       // Sync product ID with on-chain unique product ID
       console.log("Starting product ID synchronization for product:", productId);
