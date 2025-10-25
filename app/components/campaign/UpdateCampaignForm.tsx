@@ -13,6 +13,7 @@ import { fundingTypesDisplayNames } from "../../lib/auth/utils/productServiceDis
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import TurnstileWidget from "../ui/TurnstileWidget";
+import LocationAutocomplete from "../ui/LocationAutocomplete";
 import { inputClass, textareaClass, checkClass } from "../../utils/formClasses";
 
 export interface InitialCampaignValue {
@@ -541,11 +542,12 @@ export default function UpdateCampaignForm(props: Props) {
               </div>
 
               <h3 className="text-xl mb-2">Campaign Location</h3>
-              <Field
+              <LocationAutocomplete
                 name="location"
-                placeholder="Location"
-                className={inputClass + " mb-4"}
                 value={values.location}
+                onChange={(value) => setFieldValue("location", value)}
+                placeholder="Search for a location..."
+                className={inputClass + " mb-4"}
               />
               <ErrorMessage
                 name="location"
