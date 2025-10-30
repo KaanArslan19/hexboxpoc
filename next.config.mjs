@@ -23,7 +23,6 @@ const nextConfig = {
     JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
     NEXT_PUBLIC_TESTNET_RPC_URL: process.env.NEXT_PUBLIC_TESTNET_RPC_URL,
     DEPLOYER_PRIVATE_KEY: process.env.DEPLOYER_PRIVATE_KEY,
-    GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY,
   },
   productionBrowserSourceMaps: false, //added to fix the source Map ERR
   images: {

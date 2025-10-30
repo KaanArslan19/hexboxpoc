@@ -6,7 +6,10 @@ import {
   initializeRateLimitCollection,
 } from "@/app/utils/rateLimiting/geoapifyRateLimiter";
 
-const GEOAPIFY_API_KEY = process.env.GEOAPIFY_API_KEY;
+// Ensure Node.js runtime for access to process.env and MongoDB driver
+export const runtime = "nodejs";
+
+// Read the API key at request time to avoid build-time inlining issues
 
 // Initialize the rate limiting collection on first load
 // This creates necessary indexes for efficient queries
@@ -20,6 +23,7 @@ async function ensureInitialized() {
 
 export async function GET(request: NextRequest) {
   try {
+    const GEOAPIFY_API_KEY = process.env.GEOAPIFY_API_KEY;
     // Ensure MongoDB collection is initialized
     await ensureInitialized();
 
