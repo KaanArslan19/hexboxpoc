@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 const SIZE_LIMITS = {
   GET: 1048576,    // 1MB - should be minimal for GET requests
   POST: 10485760,  // 10MB - for file uploads and large data
-  PUT: 2097152,    // 2MB - for draft updates with potential file data
+  PUT: 6291456,    // 6MB - for draft updates with potential file data
   DELETE: 1048576, // 1MB - should be minimal for DELETE requests
   PATCH: 2097152,  // 2MB - for partial updates
 } as const;
