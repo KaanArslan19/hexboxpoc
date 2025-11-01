@@ -179,6 +179,7 @@ export const POST = async (req: NextRequest) => {
         $set: {
           configured: true,
           fundraiser_address: fundraiserAddress.toLowerCase(),
+          status: "active",
         },
       }
     );
