@@ -8,6 +8,7 @@ import { ProductFetch, CampaignDetailsProps } from "@/app/types";
 import Link from "next/link";
 import CustomButton from "./CustomButton";
 import { DescriptionAccordion } from "./DescriptionAccordion";
+import { CONTRACTS } from "@/app/utils/contracts/contracts";
 
 export default function ProductOverview({
   product,
@@ -70,7 +71,7 @@ export default function ProductOverview({
             Smart Contract
           </span>
           <Link
-            href={`https://testnet.snowtrace.io/nft/0xC0095941F79c6C44f6Bbb4Fe92E9612B5f1aD80a/${product.productId}?chainid=43113&type=erc1155`}
+            href={`https://testnet.snowtrace.io/nft/${CONTRACTS.ProductToken.fuji}/${product.productId}?chainid=43113&type=erc1155`}
             target="_blank"
             className="w-full"
           >

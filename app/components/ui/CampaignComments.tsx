@@ -61,7 +61,17 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
   const [comments, setComments] = useState<Comment[]>(commentsProp || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+  // Set initial hasMoreComments state based on current comments
+  useEffect(() => {
+    // For now, we'll assume there are no more comments if we have less than 10 comments
+    // This should be replaced with actual API logic
+    setHasMoreComments(comments.length >= 10);
+  }, [comments.length]);
+
+  console.log(comments, "comments");
   // Turnstile configuration
   const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
@@ -302,6 +312,28 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
           : comment
       )
     );
+  };
+
+  const handleLoadMoreComments = async () => {
+    if (!hasMoreComments || isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      // TODO: Replace with actual API call to load more comments
+      // For now, we'll simulate loading more comments
+      // In a real implementation, you would call your API endpoint
+      // const response = await apiFetch(`/api/getComments?campaignId=${campaignId}&page=${currentPage}&limit=10`);
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // For demonstration, we'll set hasMoreComments to false after "loading"
+      setHasMoreComments(false);
+    } catch (error) {
+      console.error("Error loading more comments:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   return (
@@ -679,8 +711,20 @@ const CampaignComments: React.FC<CampaignCommentsProps> = ({
 
       {comments.length > 0 && (
         <div className="text-center mt-8">
-          <button className="px-6 py-2 border border-gray-300 dark:border-dark-border text-gray-700 dark:text-dark-text rounded-lg hover:bg-gray-50 dark:hover:bg-dark-surfaceHover transition-colors">
-            Load more comments
+          <button
+            onClick={handleLoadMoreComments}
+            disabled={!hasMoreComments || isLoadingMore}
+            className={`px-6 py-2 border border-gray-300 dark:border-dark-border text-gray-700 dark:text-dark-text rounded-lg transition-colors ${
+              hasMoreComments && !isLoadingMore
+                ? "hover:bg-gray-50 dark:hover:bg-dark-surfaceHover"
+                : "opacity-50 cursor-not-allowed"
+            }`}
+          >
+            {isLoadingMore
+              ? "Loading..."
+              : hasMoreComments
+              ? "Load more comments"
+              : "No more comments"}
           </button>
         </div>
       )}

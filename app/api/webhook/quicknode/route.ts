@@ -2,7 +2,7 @@ import client from "@/app/utils/mongodb";
 import { NextRequest } from "next/server";
 import { getAllCampaignFundraisers } from "@/app/utils/poc_utils/getAllCampaignFundraisers";
 import { ethers } from "ethers";
-import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiser.sol/USDCFundraiser.json";
+import USDCFundraiserABI from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 import { syncExternalData } from "@/app/utils/sync/syncExternalData";
 const WEBHOOK_SECRET = "jhsdhsdah"; //process.env.WEBHOOK_SECRET;
 

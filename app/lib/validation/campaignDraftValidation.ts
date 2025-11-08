@@ -79,7 +79,7 @@ export const campaignFieldValidators = {
     .typeError("Fund amount must be a number")
     .required("Fund amount is required")
     .min(0.0000001, "Fund amount must be greater than 0")
-    .max(1000000000000, "Fund amount must be less than 1 trillion"),
+    .max(10000, "Fund amount must be less than 10,000"),
 
   wallet_address: Yup.string()
     .max(42, "Wallet address must be 42 characters or less")
@@ -180,10 +180,10 @@ export const campaignDraftValidationSchema = Yup.object()
       .nullable()
       .test(
         "fund-range",
-        "Fund amount must be positive and less than 1 trillion",
+        "Fund amount must be positive and less than 10K",
         function (value) {
           if (value === null || value === undefined || value === 0) return true; // Allow empty/null/zero for drafts
-          return value > 0 && value <= 1000000000000;
+          return value > 0 && value <= 10000;
         }
       ),
     logo: Yup.mixed().nullable(), // Can be File object, string path, or null

@@ -21,6 +21,7 @@ import remarkGfm from "remark-gfm";
 import { debounce } from "lodash";
 import CampaignFormDescription from "./ui/CampaignFormDescription";
 import TurnstileWidget from "./ui/TurnstileWidget";
+import LocationAutocomplete from "./ui/LocationAutocomplete";
 import { inputClass, textareaClass, checkClass } from "../utils/formClasses";
 const steps = [
   { title: "Project Info" },
@@ -602,9 +603,11 @@ export default function CampaignForm(props: Props) {
                     </div>
 
                     <h3 className="text-xl mb-2">Campaigns Location</h3>
-                    <Field
+                    <LocationAutocomplete
                       name="location"
-                      placeholder="Location"
+                      value={values.location}
+                      onChange={(value) => setFieldValue("location", value)}
+                      placeholder="Search for a location..."
                       className={inputClass + " mb-4"}
                     />
                     <ErrorMessage

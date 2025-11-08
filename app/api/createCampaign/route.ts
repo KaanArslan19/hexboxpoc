@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { CONTRACTS } from "@/app/utils/contracts/contracts";
 import { ethers } from "ethers";
-import USDCFundraiserFactory from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactory.sol/USDCFundraiserFactory.json";
+import USDCFundraiserFactoryUpgradable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserFactoryUpgradeable.sol/USDCFundraiserFactoryUpgradeable.json";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { uploadImageToR2 } from "@/app/utils/imageUpload";
 import { createDonationProduct } from "@/app/utils/poc_utils/createDonationProduct";
@@ -163,10 +163,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
-    // limit to safe bounds (<= 1 trillion)
-    if (fundAmountNumber > 1_000_000_000_000) {
+    // limit to safe bounds (<= 10K)
+    if (fundAmountNumber > 10000) {
       return NextResponse.json(
-        { error: "Fund amount exceeds maximum allowed" },
+        { error: "Fund amount exceeds maximum allowed (10,000)" },
         { status: 400 }
       );
     }
@@ -451,7 +451,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     // Get factory contract interface
     const factoryContract = new ethers.Contract(
       CONTRACTS.USDCFundraiserFactory.fuji,
-      USDCFundraiserFactory.abi,
+      USDCFundraiserFactoryUpgradable.abi,
       provider
     );
 
@@ -508,7 +508,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     );
     donationProduct.append("freeShipping", "false");
     donationProduct.append("productReturnPolicy", "false");
-    donationProduct.append("status", "available");
+    donationProduct.append("status", "draft");
     donationProduct.append("images", "");
     donationProduct.append("userId", creatorWalletAddress as string);
     donationProduct.append("campaignId", campaignId);
