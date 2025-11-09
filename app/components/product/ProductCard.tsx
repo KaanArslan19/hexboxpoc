@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductFetch> = ({
           alt={name}
           fill
           sizes="112px"
-          className="object-contain rounded-md"
+          className="object-contain rounded-md p-1"
         />
       </div>
       <h3 className="text-md font-bold text-gray-800 dark:text-white text-center truncate max-w-[90%] mb-2">

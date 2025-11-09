@@ -240,7 +240,6 @@ export default function CampaignForm(props: Props) {
     }
   };
 
-  // Turnstile token received - mark as verified for frontend UX
   // Note: Actual validation happens server-side to prevent double validation
   const handleTurnstileSuccess = (token: string): void => {
     setTurnstileToken(token);

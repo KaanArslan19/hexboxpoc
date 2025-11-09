@@ -28,7 +28,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
           </div>
         )}
         <Image
-          className="h-[170px] w-full object-contain object-center"
+          className="h-[170px] w-full object-contain object-center p-1"
           loading="lazy"
           src={`${process.env.R2_BUCKET_URL}/campaign_logos/` + logo}
           alt={title}

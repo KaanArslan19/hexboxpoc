@@ -33,7 +33,7 @@ const HexagonImage: FC<HexagonImageProps> = ({
   return (
     <div className={`relative ${className}`}>
       <div
-        className="relative bg-lightBlueColor dark:bg-dark-surfaceHover"
+        className="relative bg-lightBlueColor dark:bg-dark-surfaceHover "
         style={{
           width: `${adjustedSize}px`,
           height: `${hexHeight}px`,
@@ -41,8 +41,14 @@ const HexagonImage: FC<HexagonImageProps> = ({
             "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
         }}
       >
-        <div className="w-full h-full relative">
-          <Image src={src} alt={alt} fill className="object-contain" priority />
+        <div className="w-full h-full relative ">
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            className="object-contain p-2"
+            priority
+          />
         </div>
       </div>
     </div>

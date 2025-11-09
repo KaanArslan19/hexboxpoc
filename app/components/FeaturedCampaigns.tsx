@@ -208,7 +208,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
                       <div className="w-full md:w-2/5 relative h-60 md:h-full">
                         <div className="absolute inset-0 z-10"></div>
                         <Image
-                          className="h-full w-full object-cover object-center"
+                          className="h-full w-full object-contain object-center p-2"
                           loading="lazy"
                           src={
                             `${process.env.R2_BUCKET_URL}/campaign_logos/` +
