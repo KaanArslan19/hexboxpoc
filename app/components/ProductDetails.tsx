@@ -21,6 +21,7 @@ import ReactConfetti from "react-confetti";
 import Modal from "react-modal";
 import { DescriptionAccordion } from "./ui/DescriptionAccordion";
 import { apiFetch } from "@/app/utils/api-client";
+import { toast } from "react-toastify";
 
 interface CampaignProductsProps {
   product: ProductFetch;
@@ -296,7 +297,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
   const handleApprove = async (_campaignAddress: string) => {
     if (!isConnected || !walletClient) {
-      alert("Please connect your wallet first");
+      toast.error("Please connect your wallet first", { autoClose: 4000 });
       return;
     }
 
@@ -359,11 +360,19 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       }
     } catch (error) {
       console.error("Error approving USDC:", error);
-      alert(
+      const message =
         error instanceof Error
           ? error.message
-          : "Failed to approve USDC spending. Please try again."
-      );
+          : "Failed to approve USDC spending. Please try again.";
+      if (
+        message.toLowerCase().includes("user rejected") ||
+        message.toLowerCase().includes("user denied") ||
+        message.toLowerCase().includes("denied transaction signature")
+      ) {
+        toast.info("Transaction cancelled by user.", { autoClose: 4000 });
+      } else {
+        toast.error(message, { autoClose: 6000 });
+      }
       return false;
     } finally {
       setIsApproving(false);
@@ -374,21 +383,24 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     setIsLoading(true);
 
     if (!isConnected) {
-      alert("Please connect your wallet first");
+      toast.error("Please connect your wallet first", { autoClose: 4000 });
       setIsLoading(false);
       return;
     }
 
     if (!acceptTerms) {
-      alert(
-        "Please accept the Terms and Conditions and Privacy Policy to continue"
+      toast.warning(
+        "Please accept the Terms and Conditions and Privacy Policy to continue",
+        {
+          autoClose: 5000,
+        }
       );
       setIsLoading(false);
       return;
     }
 
     if (productQuantity <= 0) {
-      alert("Please enter a valid quantity");
+      toast.warning("Please enter a valid quantity", { autoClose: 4000 });
       setIsLoading(false);
       return;
     }
@@ -419,8 +431,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       if (usdcBalance < totalPrice) {
         const formattedBalance = ethers.formatUnits(usdcBalance, 6);
         const formattedPrice = ethers.formatUnits(totalPrice, 6);
-        alert(
-          `Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`
+        toast.error(
+          `Insufficient USDC balance. You have ${formattedBalance} USDC but need ${formattedPrice} USDC.`,
+          { autoClose: 6000 }
         );
         setIsLoading(false);
         return;
@@ -468,19 +481,26 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
         // Handle specific error types
         if (errorData.errorType === "CAMPAIGN_FINALIZED") {
-          alert(
-            "This campaign has been finalized and is no longer accepting contributions. Please check back for future campaigns!"
+          toast.info(
+            "This campaign has been finalized and is no longer accepting contributions. Please check back for future campaigns!",
+            { autoClose: 6000 }
           );
           setIsLoading(false);
           return;
         } else if (errorData.errorType === "INSUFFICIENT_SUPPLY") {
-          alert(
-            "Sorry, there isn't enough supply remaining for this product. Please reduce your quantity or try another product."
+          toast.warning(
+            "Sorry, there isn't enough supply remaining for this product. Please reduce your quantity or try another product.",
+            { autoClose: 6000 }
           );
           setIsLoading(false);
           return;
         } else if (response.status === 404) {
-          alert("Product not found. This product may no longer be available.");
+          toast.error(
+            "Product not found. This product may no longer be available.",
+            {
+              autoClose: 6000,
+            }
+          );
           setIsLoading(false);
           return;
         } else {
@@ -490,11 +510,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
             errorData,
             headers: Object.fromEntries(response.headers.entries()),
           });
-          alert(
+          toast.error(
             `Failed to prepare transaction: ${
               errorData.error ||
               `HTTP ${response.status}: ${response.statusText}`
-            }`
+            }`,
+            { autoClose: 7000 }
           );
           setIsLoading(false);
           return;
@@ -558,13 +579,20 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         error instanceof Error ? error.message : String(error);
 
       if (errorMessage.includes("user rejected")) {
-        alert("Transaction was cancelled by user.");
+        toast.info("Transaction cancelled by user.", { autoClose: 4000 });
       } else if (errorMessage.includes("insufficient funds")) {
-        alert("Insufficient funds to complete the transaction.");
+        toast.error("Insufficient funds to complete the transaction.", {
+          autoClose: 5000,
+        });
       } else if (errorMessage.includes("network")) {
-        alert("Network error. Please check your connection and try again.");
+        toast.error(
+          "Network error. Please check your connection and try again.",
+          { autoClose: 5000 }
+        );
       } else {
-        alert("Failed to back project. Please try again.");
+        toast.error("Failed to back project. Please try again.", {
+          autoClose: 5000,
+        });
       }
     } finally {
       setIsLoading(false);
@@ -602,12 +630,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
   const handleRefund = async () => {
     if (!isConnected || !walletClient) {
-      alert("Please connect your wallet first");
+      toast.error("Please connect your wallet first", { autoClose: 4000 });
       return;
     }
 
     if (productQuantity <= 0) {
-      alert("Please enter a valid quantity");
+      toast.warning("Please enter a valid quantity", { autoClose: 4000 });
       return;
     }
 
@@ -645,7 +673,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       const receipt = await provider.waitForTransaction(hash);
 
       if (receipt?.status === 1) {
-        alert("Successfully refunded!");
+        toast.success("Successfully refunded!", { autoClose: 4000 });
 
         setLocalProduct((prevProduct) => ({
           ...prevProduct,
@@ -669,11 +697,19 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       }
     } catch (error) {
       console.error("Error refunding:", error);
-      alert(
+      const message =
         error instanceof Error
           ? error.message
-          : "Failed to refund. Please try again."
-      );
+          : "Failed to refund. Please try again.";
+      if (
+        message.toLowerCase().includes("user rejected") ||
+        message.toLowerCase().includes("user denied") ||
+        message.toLowerCase().includes("denied transaction signature")
+      ) {
+        toast.info("Refund cancelled by user.", { autoClose: 4000 });
+      } else {
+        toast.error(message, { autoClose: 6000 });
+      }
     } finally {
       setIsRefunding(false);
     }
@@ -749,12 +785,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 flex flex-col min-h-0">
-            <div className="relative w-full h-96 mb-6">
+            <div className="relative w-full h-96 mb-6 ">
               <Image
                 src={`${process.env.R2_BUCKET_URL}/product_logos/${product.logo}`}
                 alt={product.name}
                 fill
-                className="object-contain rounded-xl shadow-lg"
+                className="object-contain rounded-xl shadow-lg p-2"
                 priority
               />
             </div>
