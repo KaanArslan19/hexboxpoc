@@ -842,7 +842,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               </div>
 
               <div>
-                {isFinalized ? (
+                {isFinalized && (
                   <div className="mb-4 p-4 bg-gradient-to-r from-redColor/10 to-orangeColor/10 dark:from-redColor/20 dark:to-orangeColor/20 rounded-lg border border-redColorDull dark:border-redColor">
                     <div className="flex items-center mb-2">
                       <svg
@@ -862,12 +862,26 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     </div>
                     <p className="text-redColorDull dark:text-redColor text-sm">
                       This campaign has been finalized and is no longer
-                      accepting contributions. Thank you for your interest!
+                      accepting contributions.{" "}
+                      {localCampaign.funding_type === "AllOrNothing" &&
+                        localCampaign.total_raised < localCampaign.fund_amount &&
+                        tokenBalance > 0 &&
+                        "However, you can request a refund below."}
                     </p>
                   </div>
-                ) : (
+                )}
+                {/* Show input if campaign is not finalized OR if it's AllOrNothing finalized without meeting target and user has tokens */}
+                {(!isFinalized ||
+                  (localCampaign.funding_type === "AllOrNothing" &&
+                    isFinalized &&
+                    localCampaign.total_raised < localCampaign.fund_amount &&
+                    tokenBalance > 0)) && (
                   <Input
-                    placeholder="Enter quantity of items to purchase"
+                    placeholder={
+                      isFinalized
+                        ? "Enter quantity of items to refund"
+                        : "Enter quantity of items to purchase"
+                    }
                     className="!border-2 !border-gray-300 dark:!border-dark-border bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 dark:placeholder:text-dark-textMuted placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200"
                     labelProps={{
                       className: "hidden",
@@ -985,33 +999,40 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     </CustomButton>
                   </Link>
 
-                  {tokenBalance > 0 && !isFinalized && (
-                    <CustomButton
-                      onClick={handleRefund}
-                      disabled={
-                        isRefunding ||
-                        isLoading ||
-                        isApproving ||
-                        isVerifying ||
-                        !acceptTerms ||
-                        isFinalized
-                      }
-                      className={`py-3 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full font-semibold rounded-lg shadow-md border-redColorDull transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 ${
-                        isRefunding ||
-                        isLoading ||
-                        isApproving ||
-                        isVerifying ||
-                        !acceptTerms ||
-                        isFinalized
-                          ? "opacity-50 cursor-not-allowed hover:transform-none"
-                          : ""
-                      }`}
-                    >
-                      {isRefunding || isLoading || isApproving || isVerifying
-                        ? "Processing..."
-                        : "Request Refund"}
-                    </CustomButton>
-                  )}
+{/* Refund button visibility logic:
+                     - Always require tokenBalance > 0
+                     - AllOrNothing: Show if finalized AND target not met
+                     - Other types: Hide if finalized
+                  */}
+                  {tokenBalance > 0 &&
+                    (localCampaign.funding_type === "AllOrNothing"
+                      ? isFinalized &&
+                        localCampaign.total_raised < localCampaign.fund_amount
+                      : !isFinalized) && (
+                      <CustomButton
+                        onClick={handleRefund}
+                        disabled={
+                          isRefunding ||
+                          isLoading ||
+                          isApproving ||
+                          isVerifying ||
+                          !acceptTerms
+                        }
+                        className={`py-3 md:py-4 hover:bg-redColor/80 bg-redColor text-white w-full font-semibold rounded-lg shadow-md border-redColorDull transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 ${
+                          isRefunding ||
+                          isLoading ||
+                          isApproving ||
+                          isVerifying ||
+                          !acceptTerms
+                            ? "opacity-50 cursor-not-allowed hover:transform-none"
+                            : ""
+                        }`}
+                      >
+                        {isRefunding || isLoading || isApproving || isVerifying
+                          ? "Processing..."
+                          : "Request Refund"}
+                      </CustomButton>
+                    )}
                 </div>
               </div>
             </div>
