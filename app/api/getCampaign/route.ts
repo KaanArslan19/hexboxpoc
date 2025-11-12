@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-import { getCampaign } from "@/app/utils/getCampaign";
+import { getPublicCampaign } from "@/app/utils/campaigns";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +30,7 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
       );
     }
 
-    const campaign = await getCampaign(campaignId as string, true);
+    const campaign = await getPublicCampaign(campaignId as string);
     if (!campaign) {
       return NextResponse.json(
         { error: "Campaign not found" },

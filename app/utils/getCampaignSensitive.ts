@@ -33,8 +33,8 @@ export async function getCampaign(campaignId: string, censored: boolean) {
         social_links: campaign.social_links,
         location: campaign.location,
         deadline: campaign.deadline,
-        /*         email: campaign.email,
-        phoneNumber: campaign.phoneNumber, */
+        email: campaign.email,
+        phoneNumber: campaign.phoneNumber,
         is_verified: campaign.is_verified,
         factCheck: campaign.factCheck,
         funding_type: campaign.funding_type,

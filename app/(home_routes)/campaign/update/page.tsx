@@ -1,6 +1,6 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { getCampaign } from "@/app/utils/getCampaign";
+import { getExecutorCampaign } from "@/app/utils/campaigns";
 import UpdateCampaign from "@/app/components/campaign/UpdateCampaign";
 import { FundingType, ProductOrService } from "@/app/types";
 import { checkServerAuth } from "@/app/utils/CheckServerAuth";
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const fetchCampaignInfo = async (campaignId: string, userAddress: string) => {
-  const campaign = await getCampaign(campaignId, true);
+  const campaign = await getExecutorCampaign(campaignId);
   if (!campaign) return redirect("/404");
 
   // CRITICAL: Server-side ownership validation
