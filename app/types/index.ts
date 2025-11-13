@@ -230,6 +230,7 @@ export interface ProductFetch {
   inventory: {
     stock_level: number;
   };
+  isUnlimitedStock?: boolean;
   freeShipping: boolean | string;
   productReturnPolicy: {
     eligible: boolean;
@@ -310,4 +311,5 @@ export interface ProductNew {
   status: string;
   fulfillmentDetails: string;
   deliveryDate: string;
+  isUnlimitedStock?: boolean;
 }

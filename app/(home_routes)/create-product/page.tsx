@@ -30,18 +30,21 @@ export default function CreateProductPage({ searchParams }: Props) {
       try {
         setTransactionStatus("Confirming product creation...");
 
-        const confirmResponse = await apiFetch("/api/confirmCreationOfProduct", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            transactionHash: hash,
-            status: "success",
-            productId: responseData.productId,
-            campaignId: responseData.campaignId,
-          }),
-        });
+        const confirmResponse = await apiFetch(
+          "/api/confirmCreationOfProduct",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              transactionHash: hash,
+              status: "success",
+              productId: responseData.productId,
+              campaignId: responseData.campaignId,
+            }),
+          }
+        );
 
         const confirmData = await confirmResponse.json();
 
@@ -78,18 +81,21 @@ export default function CreateProductPage({ searchParams }: Props) {
       if (responseData?.productId) {
         try {
           console.log("Attempting to delete product:", responseData.productId);
-          const cleanupResponse = await apiFetch("/api/confirm-product-creation", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              transactionHash: "",
-              status: "failed",
-              productId: responseData.productId,
-              campaignId: responseData.campaignId,
-            }),
-          });
+          const cleanupResponse = await apiFetch(
+            "/api/confirm-product-creation",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                transactionHash: "",
+                status: "failed",
+                productId: responseData.productId,
+                campaignId: responseData.campaignId,
+              }),
+            }
+          );
 
           console.log("Cleanup response status:", cleanupResponse.status);
           const cleanupData = await cleanupResponse.json();
@@ -181,10 +187,21 @@ export default function CreateProductPage({ searchParams }: Props) {
       formData.append("category", JSON.stringify(values.category));
       formData.append("isDonationProduct", "false");
 
-      formData.append("freeShipping", values.freeShipping);
-
       if (values.type === ProductOrService.ServiceOnly) {
-        formData.append("inventory", "null");
+        formData.append(
+          "isUnlimitedStock",
+          values.isUnlimitedStock ? "true" : "false"
+        );
+        if (values.isUnlimitedStock) {
+          formData.append("inventory", "null");
+        } else {
+          formData.append(
+            "inventory",
+            JSON.stringify({
+              stock_level: Number(values.inventory?.stock_level ?? 0),
+            })
+          );
+        }
         formData.append("freeShipping", "false");
         formData.append("productReturnPolicy", "null");
 
@@ -202,9 +219,9 @@ export default function CreateProductPage({ searchParams }: Props) {
         formData.append(
           "inventory",
           JSON.stringify(
-            values.type === ProductOrService.ServiceOnly
-              ? { stock_level: 0 }
-              : values.inventory ?? { stock_level: 0 }
+            values.inventory ?? {
+              stock_level: 0,
+            }
           )
         );
         formData.append(

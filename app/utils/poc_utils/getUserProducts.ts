@@ -63,7 +63,7 @@ export const getUserProducts = async (
         productId: product.productId || 0,
         manufacturerId: product.userId || "",
         name: product.name || "",
-        type: (product.type as ProductOrService) || "ProductOnly",
+        type: (product.type as ProductOrService) || ProductOrService.ProductOnly,
         countryOfOrigin: product.countryOfOrigin || "",
         category: {
           name: product.category
@@ -80,14 +80,30 @@ export const getUserProducts = async (
           gst_amount: Number(parsedPrice.gst_amount) || 0,
         },
         inventory: {
-          stock_level: Number(parsedInventory.stock_level) || 0,
+          stock_level: Number(parsedInventory?.stock_level) || 0,
         },
-        freeShipping: product.freeShipping === "true" || false,
-        productReturnPolicy: {
-          eligible: product.returnPolicy === "true" || false,
-          return_period_days: 0,
-          conditions: "",
-        },
+        isUnlimitedStock:
+          (product.type as ProductOrService) === ProductOrService.ServiceOnly
+            ? Boolean(product.isUnlimitedStock)
+            : false,
+        freeShipping:
+          (product.type as ProductOrService) === ProductOrService.ServiceOnly
+            ? false
+            : product.freeShipping === "true" ||
+              product.freeShipping === true ||
+              false,
+        productReturnPolicy:
+          (product.type as ProductOrService) === ProductOrService.ServiceOnly
+            ? null
+            : product.productReturnPolicy
+            ? typeof product.productReturnPolicy === "string"
+              ? JSON.parse(product.productReturnPolicy)
+              : product.productReturnPolicy
+            : {
+                eligible: false,
+                return_period_days: 0,
+                conditions: "",
+              },
         campaignId: product.campaignId || "",
         userId: product.userId || "",
         logo: product.logo || "",
