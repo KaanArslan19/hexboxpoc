@@ -29,7 +29,6 @@ export const getProducts = async (
         gst_rate: 0,
         gst_amount: 0,
       };
-      
       let parsedInventory: { stock_level?: number } = { stock_level: 0 };
 
       // Safe parsing for price
@@ -37,7 +36,7 @@ export const getProducts = async (
         parsedPrice =
           typeof product.price === "string"
             ? JSON.parse(product.price)
-          : product.price || parsedPrice;
+            : product.price || parsedPrice;
       } catch (error) {
         console.error("Error parsing price:", error);
       }
@@ -51,10 +50,9 @@ export const getProducts = async (
       } catch (error) {
         console.error("Error parsing inventory:", error);
       }
-      
-      parsedInventory = {
-        stock_level: Number(parsedInventory?.stock_level ?? 0) || 0,
-      };
+
+      const normalizedStockLevel =
+        Number(parsedInventory?.stock_level ?? 0) || 0;
 
       const productType =
         (product.type as ProductOrService) || ProductOrService.ProductOnly;
@@ -82,7 +80,7 @@ export const getProducts = async (
           gst_amount: Number(parsedPrice.gst_amount) || 0,
         },
         inventory: {
-          stock_level: parsedInventory.stock_level,
+          stock_level: normalizedStockLevel,
         },
         isUnlimitedStock:
           productType === ProductOrService.ServiceOnly
@@ -124,7 +122,7 @@ export const getProducts = async (
 
     return formattedProducts
       .filter((product): product is ProductFetch => product !== undefined)
-      .filter(product => product.status !== "draft");
+      .filter((product) => product.status !== "draft");
   } catch (error) {
     console.error("Error in getProducts:", error);
     return [];
@@ -221,7 +219,7 @@ export const getAllProducts = async (): Promise<ProductFetch[]> => {
     });
     return formattedProducts
       .filter((product): product is ProductFetch => product !== undefined)
-      .filter(product => product.status !== "draft");
+      .filter((product) => product.status !== "draft");
   } catch (error) {
     console.error("Error in getAllProducts:", error);
     return [];
