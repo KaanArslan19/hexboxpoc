@@ -27,7 +27,7 @@ const steps = [
   { title: "Project Info" },
   { title: "Description" },
   { title: "Financial Supply" },
-  { title: "Funding Type" },
+  { title: "Funding Type & Deadline" },
   { title: "Review" },
 ];
 
@@ -376,10 +376,21 @@ export default function CampaignForm(props: Props) {
         turnstileToken: formTurnstileToken,
         ...rest
       } = values;
+      // For Limitless funding type, use a generic far-future deadline if not provided
+      let deadlineValue: number;
+      if (rest.funding_type === FundingType.Limitless && !values.deadline) {
+        // Set deadline to 100 years from now (generic value for Limitless)
+        const farFutureDate = new Date();
+        farFutureDate.setFullYear(farFutureDate.getFullYear() + 100);
+        deadlineValue = farFutureDate.getTime();
+      } else {
+        deadlineValue = Date.parse(values.deadline);
+      }
+
       const campaignData: NewCampaignInfo = {
         ...rest,
         logo: logo!,
-        deadline: Date.parse(values.deadline),
+        deadline: deadlineValue,
         fundAmount: Number(values.fundAmount),
         turnstileToken: turnstileToken, // Use state variable for server-side validation
         social_links: {
@@ -614,18 +625,6 @@ export default function CampaignForm(props: Props) {
                       component="div"
                       className="text-redColor/80 mb-2"
                     />
-                    <h3 className="text-xl mb-2">Campaigns Deadline</h3>
-                    <Field
-                      name="deadline"
-                      type="date"
-                      placeholder="Deadline"
-                      className={inputClass + " mb-4"}
-                    />
-                    <ErrorMessage
-                      name="deadline"
-                      component="div"
-                      className="text-redColor/80 mb-2"
-                    />
                     <h3 className="text-xl mb-2">Contact Information</h3>
                     <Field
                       name="email"
@@ -743,7 +742,27 @@ export default function CampaignForm(props: Props) {
                     </p>
 
                     <FundingTypeSelector
-                      setFieldValue={setFieldValue}
+                      setFieldValue={(field, value) => {
+                        setFieldValue(field, value);
+                        // If Limitless is selected, set a generic far-future deadline
+                        if (value === FundingType.Limitless) {
+                          // Set deadline to 100 years from now (generic value)
+                          const farFutureDate = new Date();
+                          farFutureDate.setFullYear(
+                            farFutureDate.getFullYear() + 100
+                          );
+                          setFieldValue(
+                            "deadline",
+                            farFutureDate.toISOString().split("T")[0]
+                          );
+                        } else if (
+                          values.funding_type === FundingType.Limitless &&
+                          value !== FundingType.Limitless
+                        ) {
+                          // If switching away from Limitless, clear the deadline
+                          setFieldValue("deadline", "");
+                        }
+                      }}
                       value={values.funding_type}
                     />
 
@@ -751,6 +770,34 @@ export default function CampaignForm(props: Props) {
                       name="funding_type"
                       component="div"
                       className="text-redColor/80 mt-4"
+                    />
+
+                    <h3 className="text-xl mb-2 mt-6">
+                      Campaign Deadline
+                      {values.funding_type === FundingType.Limitless && (
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                          (Optional for Limitless funding)
+                        </span>
+                      )}
+                    </h3>
+                    <Field
+                      name="deadline"
+                      type="date"
+                      placeholder="Deadline"
+                      className={inputClass + " mb-4"}
+                      disabled={values.funding_type === FundingType.Limitless}
+                    />
+                    {values.funding_type === FundingType.Limitless && (
+                      <p className="text-sm text-gray-500 mb-4">
+                        Deadline is not required for Limitless funding. Funds
+                        are immediately transferred to your escrow wallet and
+                        can be withdrawn at any time.
+                      </p>
+                    )}
+                    <ErrorMessage
+                      name="deadline"
+                      component="div"
+                      className="text-redColor/80 mb-2"
                     />
                   </div>
                 )}

@@ -36,9 +36,14 @@ export const campaignFieldValidators = {
     .max(60, "Location must be 60 characters or less")
     .required("Location is required"),
 
-  deadline: Yup.date()
-    .required("Project Deadline date is required")
-    .min(new Date(), "Deadline must be in the future"),
+  deadline: Yup.date().when("funding_type", {
+    is: (funding_type: FundingType) => funding_type !== FundingType.Limitless,
+    then: (schema) =>
+      schema
+        .required("Project Deadline date is required")
+        .min(new Date(), "Deadline must be in the future"),
+    otherwise: (schema) => schema.nullable(),
+  }),
 
   email: Yup.string()
     .email("Invalid email format")
@@ -115,7 +120,6 @@ export const campaignFormValidationSchemas = [
   Yup.object({
     description: campaignFieldValidators.description,
     location: campaignFieldValidators.location,
-    deadline: campaignFieldValidators.deadline,
     email: campaignFieldValidators.email,
     phoneNumber: campaignFieldValidators.phoneNumber,
     website: campaignFieldValidators.website,
@@ -134,6 +138,7 @@ export const campaignFormValidationSchemas = [
   // Step 4: Funding Type
   Yup.object({
     funding_type: campaignFieldValidators.funding_type,
+    deadline: campaignFieldValidators.deadline,
   }),
 
   // Step 5: Review

@@ -19,6 +19,8 @@ import ProductTechDetails from "../ui/ProductTechDetails";
 import { FaUserAlt } from "react-icons/fa";
 import ShareButton from "../ui/ShareButton";
 import CampaignComments from "../ui/CampaignComments";
+import WithdrawFundsButton from "./WithdrawFundsButton";
+import { FundingType } from "@/app/types";
 
 const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   _id,
@@ -41,6 +43,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
   total_raised,
   comments,
   funds_management,
+  funding_type,
 }) => {
   const { isAuthenticated, address } = await checkServerAuth();
   const campaignOwner = address === user_id;
@@ -185,11 +188,19 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
             </p>
           </div>
           {campaignOwner && (
-            <Link href={`/campaign/update?campaignId=${_id}`}>
-              <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
-                Update Campaign
-              </CustomButton>
-            </Link>
+            <>
+              <Link href={`/campaign/update?campaignId=${_id}`}>
+                <CustomButton className="py-2 px-6 hover:bg-blueColor/80 bg-blueColor text-white rounded-lg">
+                  Update Campaign
+                </CustomButton>
+              </Link>
+              <WithdrawFundsButton
+                fundraiserAddress={fundraiser_address}
+                fundingType={funding_type}
+                campaignOwner={campaignOwner}
+                businessWallet={wallet_address}
+              />
+            </>
           )}
         </div>
 
@@ -277,7 +288,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
       dark:[&_.ant-progress-text]:text-[#94A8BC]   
     "
             />
-            <p className="text-sm dark:text-[#94A8BC]">
+            <p className="text-md dark:text-[#94A8BC]">
               (${total_raised.toLocaleString()})
             </p>
           </div>
