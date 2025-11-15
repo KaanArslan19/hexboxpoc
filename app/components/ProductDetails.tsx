@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { CampaignDetailsProps, ProductFetch } from "@/app/types";
+import { CampaignDetailsProps, ProductFetch, FundingType } from "@/app/types";
 import Link from "next/link";
 import CustomButton from "./ui/CustomButton";
 import { useState, useEffect, useCallback } from "react";
@@ -48,6 +48,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     Math.ceil((campaign.deadline * 1000 - Date.now()) / (1000 * 60 * 60 * 24)),
     0
   );
+
+  // Check if campaign is limitless (either by funding type or if days exceed reasonable threshold)
+  const isLimitless =
+    campaign.funding_type === FundingType.Limitless || daysToGo > 1000;
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
 
@@ -837,7 +841,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   Days to Go
                 </p>
                 <p className="text-3xl font-bold text-orangeColorDull dark:text-orangeColor">
-                  {daysToGo}
+                  {isLimitless ? "Limitless" : daysToGo}
                 </p>
               </div>
 
@@ -864,7 +868,8 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                       This campaign has been finalized and is no longer
                       accepting contributions.{" "}
                       {localCampaign.funding_type === "AllOrNothing" &&
-                        localCampaign.total_raised < localCampaign.fund_amount &&
+                        localCampaign.total_raised <
+                          localCampaign.fund_amount &&
                         tokenBalance > 0 &&
                         "However, you can request a refund below."}
                     </p>
@@ -999,7 +1004,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     </CustomButton>
                   </Link>
 
-{/* Refund button visibility logic:
+                  {/* Refund button visibility logic:
                      - Always require tokenBalance > 0
                      - AllOrNothing: Show if finalized AND target not met
                      - Other types: Hide if finalized

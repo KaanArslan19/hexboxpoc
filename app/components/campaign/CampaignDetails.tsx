@@ -229,8 +229,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
           </div>
 
           <div className="flex flex-col items-end gap-4 order-1 sm:order-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-lg lg:text-xl truncate max-w-[400px]">
+            <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
+              <span className="text-lg lg:text-xl truncate max-w-[180px] sm:max-w-[250px] lg:max-w-[400px]">
                 {location}
               </span>
               <svg

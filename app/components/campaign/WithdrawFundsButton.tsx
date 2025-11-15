@@ -62,38 +62,52 @@ export default function WithdrawFundsButton({
     const checkFundsAvailability = async () => {
       if (!fundraiserAddress) {
         setIsCheckingFunds(false);
+        setHasFunds(false);
+        setWithdrawableAmount(BigInt(0));
         return;
       }
 
       try {
         setIsCheckingFunds(true);
+        // Reset state at the start to prevent showing stale values
+        setHasFunds(false);
+        setWithdrawableAmount(BigInt(0));
         const provider = new ethers.JsonRpcProvider(
           process.env.NEXT_PUBLIC_TESTNET_RPC_URL
         );
 
-        // For Limitless funding, funds are in the escrow wallet (beneficiaryWallet)
-        // not in the contract itself
+        // For Limitless funding, check both contract balance and beneficiaryWallet balance
+        // According to the contract, funds go to the contract first, then to beneficiaryWallet on finalization
         const contract = new ethers.Contract(
           fundraiserAddress,
           USDCFundraiserABI.abi,
           provider
         );
 
-        // Get the escrow wallet address (beneficiaryWallet)
-        const escrowWallet = await contract.beneficiaryWallet();
+        // Get the beneficiaryWallet address (this is the business wallet where funds should go)
+        // and check if finalized
+        const [beneficiaryWallet, isFinalizedRaw] = await Promise.all([
+          contract.beneficiaryWallet(),
+          contract.finalized().catch((err) => {
+            console.warn("Error checking finalized status:", err);
+            return false; // If finalized() fails, assume not finalized
+          }),
+        ]);
 
-        // Check USDC balance of the escrow wallet
+        // Ensure isFinalized is a boolean
+        const isFinalized = Boolean(isFinalizedRaw);
+
+        // Verify beneficiaryWallet matches businessWallet (they should be the same)
+        if (beneficiaryWallet.toLowerCase() !== businessWallet.toLowerCase()) {
+          console.warn(
+            "Beneficiary wallet mismatch:",
+            beneficiaryWallet,
+            "vs business wallet:",
+            businessWallet
+          );
+        }
+
         // Use a complete ERC20 ABI for balance checking
-        const ERC20_ABI = [
-          "function balanceOf(address account) view external returns (uint256)",
-        ];
-
-        const usdcContract = new ethers.Contract(
-          CONTRACTS.USDC.fuji,
-          ERC20_ABI,
-          provider
-        );
-
         const ERC20_READ_ABI = [
           "function balanceOf(address account) view returns (uint256)",
           "function decimals() view returns (uint8)",
@@ -105,8 +119,9 @@ export default function WithdrawFundsButton({
           provider
         );
 
-        const [escrowBalance, decimals] = await Promise.all([
-          usdcReadContract.balanceOf(escrowWallet),
+        // Since beneficiaryWallet === businessWallet, we only need to check contract balance
+        const [contractBalance, decimals] = await Promise.all([
+          usdcReadContract.balanceOf(fundraiserAddress),
           usdcReadContract.decimals().catch((err: unknown) => {
             console.warn(
               "Unable to fetch USDC decimals, defaulting to 6:",
@@ -118,14 +133,54 @@ export default function WithdrawFundsButton({
 
         setUsdcDecimals(Number(decimals));
 
-        // For Limitless, funds are immediately transferred to escrow wallet
-        // So we check the escrow wallet balance
-        const hasAvailableFunds =
-          typeof escrowBalance === "bigint" &&
-          escrowBalance >= MIN_WITHDRAWABLE;
+        // For Limitless funding:
+        // - beneficiaryWallet === businessWallet (they're always the same - executor's wallet)
+        // - If not finalized: funds are in the contract, executor can finalize to release them
+        // - If finalized: funds are already in beneficiaryWallet (executor's wallet), nothing to withdraw
+        // So we only need to check contract balance when not finalized
+        let availableBalance: bigint;
 
-        setWithdrawableAmount(hasAvailableFunds ? escrowBalance : BigInt(0));
-        setHasFunds(hasAvailableFunds);
+        if (isFinalized) {
+          // Campaign is finalized, funds are already in executor's wallet
+          // Nothing available to withdraw
+          availableBalance = BigInt(0);
+        } else {
+          // Campaign is NOT finalized, funds are in the contract
+          // This is what can be withdrawn by calling finalize()
+          if (contractBalance < MIN_WITHDRAWABLE) {
+            availableBalance = BigInt(0);
+          } else {
+            availableBalance = contractBalance;
+          }
+        }
+
+        // Validate the balance
+        const hasAvailableFunds =
+          typeof availableBalance === "bigint" &&
+          availableBalance >= MIN_WITHDRAWABLE;
+
+        // Debug logging
+        console.log("Balance check:", {
+          fundraiserAddress,
+          beneficiaryWallet,
+          businessWallet,
+          isFinalized,
+          contractBalance: contractBalance.toString(),
+          availableBalance: availableBalance.toString(),
+          hasAvailableFunds,
+          note: isFinalized
+            ? "Campaign finalized - funds already in executor's wallet, nothing to withdraw"
+            : "Campaign not finalized - checking contract balance (can be withdrawn by finalizing)",
+        });
+
+        // Only set funds if we have a valid balance from the correct source
+        if (hasAvailableFunds) {
+          setWithdrawableAmount(availableBalance);
+          setHasFunds(true);
+        } else {
+          setWithdrawableAmount(BigInt(0));
+          setHasFunds(false);
+        }
       } catch (error) {
         console.error("Error checking funds availability:", error);
         setHasFunds(false);
@@ -155,7 +210,7 @@ export default function WithdrawFundsButton({
 
     // Double-check funds availability before proceeding
     if (!hasFunds || withdrawableAmount < MIN_WITHDRAWABLE) {
-      toast.error("No funds available to withdraw from escrow wallet.", {
+      toast.error("No funds available to withdraw from the wallet.", {
         autoClose: 6000,
       });
       return;
@@ -178,191 +233,123 @@ export default function WithdrawFundsButton({
         provider
       );
 
-      // Get the escrow wallet address (beneficiaryWallet)
-      const escrowWallet = await contract.beneficiaryWallet();
+      // Get the beneficiaryWallet address (this is the business wallet where funds should go)
+      // and check if finalized
+      const [beneficiaryWallet, isFinalizedRaw] = await Promise.all([
+        contract.beneficiaryWallet(),
+        contract.finalized().catch(() => false),
+      ]);
 
-      // Use a complete ERC20 ABI for USDC operations
-      const ERC20_ABI = [
-        "function transfer(address to, uint256 amount) external returns (bool)",
-        "function transferFrom(address from, address to, uint256 amount) external returns (bool)",
-        "function approve(address spender, uint256 amount) external returns (bool)",
-        "function balanceOf(address account) view external returns (uint256)",
-        "function allowance(address owner, address spender) view external returns (uint256)",
-        "function decimals() view external returns (uint8)",
+      const isFinalized = Boolean(isFinalizedRaw);
+
+      // Verify beneficiaryWallet matches businessWallet (they should be the same)
+      if (beneficiaryWallet.toLowerCase() !== businessWallet.toLowerCase()) {
+        console.warn(
+          "Beneficiary wallet mismatch in withdrawal:",
+          beneficiaryWallet,
+          "vs business wallet:",
+          businessWallet
+        );
+      }
+
+      // CRITICAL: Check balance BEFORE attempting any transaction
+      // For Limitless: if not finalized, funds are in contract; if finalized, funds are already in beneficiaryWallet (executor's wallet)
+      // Since beneficiaryWallet === businessWallet, we only need to check contract balance when not finalized
+
+      if (isFinalized) {
+        // Campaign is already finalized, funds are already in executor's wallet
+        // Nothing to withdraw
+        toast.info("Campaign is already finalized. Funds are in your wallet.", {
+          autoClose: 4000,
+        });
+        setHasFunds(false);
+        setWithdrawableAmount(BigInt(0));
+        return;
+      }
+
+      // Campaign is NOT finalized, check contract balance
+      const ERC20_READ_ABI = [
+        "function balanceOf(address account) view returns (uint256)",
       ];
 
-      const usdcContract = new ethers.Contract(
+      const usdcReadContract = new ethers.Contract(
         CONTRACTS.USDC.fuji,
-        ERC20_ABI,
+        ERC20_READ_ABI,
         provider
       );
 
-      // CRITICAL: Check balance BEFORE attempting any transaction
-      const escrowBalance = await usdcContract.balanceOf(escrowWallet);
+      // Check contract balance
+      const contractBalance = await usdcReadContract.balanceOf(
+        fundraiserAddress
+      );
 
       // Validate balance is greater than zero
       if (
-        typeof escrowBalance !== "bigint" ||
-        escrowBalance < MIN_WITHDRAWABLE
+        typeof contractBalance !== "bigint" ||
+        contractBalance < MIN_WITHDRAWABLE
       ) {
         // Update state to reflect no funds
         setHasFunds(false);
         setWithdrawableAmount(BigInt(0));
         throw new Error(
-          "No funds available to withdraw from escrow wallet. The escrow wallet balance is zero."
+          "No funds available to withdraw. Contract balance is zero."
         );
-      }
-
-      // Additional validation: ensure balance is a valid BigInt
-      if (typeof escrowBalance !== "bigint") {
-        throw new Error("Invalid balance data received from the contract.");
       }
 
       // FINAL BALANCE CHECK: Verify balance one more time right before transaction
       // This prevents race conditions where balance might have changed
-      const finalBalanceCheck = await usdcContract.balanceOf(escrowWallet);
+      const finalContractBalance = await usdcReadContract.balanceOf(
+        fundraiserAddress
+      );
 
       if (
-        typeof finalBalanceCheck !== "bigint" ||
-        finalBalanceCheck < MIN_WITHDRAWABLE
+        typeof finalContractBalance !== "bigint" ||
+        finalContractBalance < MIN_WITHDRAWABLE
       ) {
         setHasFunds(false);
         setWithdrawableAmount(BigInt(0));
         throw new Error(
-          "No funds available to withdraw. The escrow wallet balance is zero."
+          "No funds available to withdraw. Contract balance is zero."
         );
       }
 
-      // Use the most recent balance for the transfer
-      const transferAmount = finalBalanceCheck;
-      setWithdrawableAmount(transferAmount);
-
-      // For Limitless funding, transfer funds from escrow wallet (beneficiaryWallet) to business wallet
-      // The escrow wallet should be controlled by the campaign owner
-      // Check if connected wallet is the escrow wallet
-      let hash: `0x${string}`;
-
-      if (connectedAddress?.toLowerCase() !== escrowWallet.toLowerCase()) {
-        // If not the escrow wallet, we need to use transferFrom with approval
-        // But first check if we have approval
-        try {
-          const allowance = await usdcContract.allowance(
-            escrowWallet,
-            connectedAddress || ""
-          );
-
-          if (!allowance || allowance < transferAmount) {
-            // Need approval first - but we can't approve from a different wallet
-            // So we need the user to connect the escrow wallet
-            throw new Error(
-              `Please connect the escrow wallet (${escrowWallet}) to withdraw funds. The connected wallet does not have permission to transfer from the escrow wallet.`
-            );
-          }
-
-          // Use transferFrom since we have approval
-          const transferFromData = usdcContract.interface.encodeFunctionData(
-            "transferFrom",
-            [escrowWallet, businessWallet, transferAmount]
-          );
-
-          hash = await walletClient.sendTransaction({
-            to: CONTRACTS.USDC.fuji as `0x${string}`,
-            data: transferFromData as `0x${string}`,
-          });
-        } catch (error) {
-          if (
-            error instanceof Error &&
-            error.message.includes("escrow wallet")
-          ) {
-            throw error;
-          }
-          throw new Error(
-            `Unable to check approval. Please ensure you have connected the escrow wallet (${escrowWallet}) or have proper approval.`
-          );
-        }
-      } else {
-        // Connected wallet IS the escrow wallet - can transfer directly
-        try {
-          const transferData = usdcContract.interface.encodeFunctionData(
-            "transfer",
-            [businessWallet, transferAmount]
-          );
-
-          hash = await walletClient.sendTransaction({
-            to: CONTRACTS.USDC.fuji as `0x${string}`,
-            data: transferData as `0x${string}`,
-          });
-        } catch (error) {
-          if (error instanceof Error) {
-            // Check for specific encoding errors
-            if (
-              error.message.includes("unknown function") ||
-              error.message.includes("INVALID_ARGUMENT")
-            ) {
-              throw new Error(
-                "Failed to encode transfer function. Please ensure the USDC contract supports standard ERC20 transfer operations."
-              );
-            }
-          }
-          throw error;
-        }
-      }
-
-      const transferReceipt = await provider.waitForTransaction(hash);
-
-      if (!transferReceipt || transferReceipt.status !== 1) {
-        throw new Error("Withdrawal transaction failed");
-      }
-
-      // Attempt to finalize the campaign after successful withdrawal
-      let finalizeSucceeded = false;
-      let finalizeErrorMessage: string | null = null;
-
-      try {
-        const finalizeData = contract.interface.encodeFunctionData(
-          "finalize",
-          []
-        );
-        const finalizeHash = await walletClient.sendTransaction({
-          to: fundraiserAddress as `0x${string}`,
-          data: finalizeData as `0x${string}`,
-        });
-
-        const finalizeReceipt = await provider.waitForTransaction(finalizeHash);
-
-        if (finalizeReceipt && finalizeReceipt.status === 1) {
-          finalizeSucceeded = true;
-        } else {
-          throw new Error("Finalization transaction failed");
-        }
-      } catch (finalizeError) {
-        if (finalizeError instanceof Error) {
-          const finalizeMessage = finalizeError.message.toLowerCase();
-          if (finalizeMessage.includes("already finalized")) {
-            finalizeSucceeded = true;
-          } else if (finalizeMessage.includes("not authorized")) {
-            finalizeErrorMessage =
-              "Campaign finalized requires the campaign admin or owner wallet. Please reconnect with the authorized wallet.";
-          } else {
-            finalizeErrorMessage = finalizeError.message;
-          }
-        } else {
-          finalizeErrorMessage = "Unknown error while finalizing the campaign.";
-        }
-      }
-
-      if (finalizeSucceeded) {
-        toast.success("Funds withdrawn and campaign finalized successfully!", {
+      if (isFinalized) {
+        // Campaign is already finalized, funds are already in beneficiaryWallet (executor's wallet)
+        toast.info("Campaign is already finalized. Funds are in your wallet.", {
           autoClose: 4000,
         });
-      } else if (finalizeErrorMessage) {
-        toast.warning(
-          `Funds withdrawn, but finalizing the campaign failed: ${finalizeErrorMessage}`,
-          { autoClose: 6000 }
-        );
+        setHasFunds(false);
+        setWithdrawableAmount(BigInt(0));
+        return;
       }
 
-      // Update state after attempt
+      // Campaign is NOT finalized, funds are in the contract
+      // Call finalize() to release funds to beneficiaryWallet (executor's wallet)
+      // For Limitless: finalize() checks if caller is owner or campaignAdmin, then transfers funds
+      const finalizeData = contract.interface.encodeFunctionData(
+        "finalize",
+        []
+      );
+      const finalizeHash = await walletClient.sendTransaction({
+        to: fundraiserAddress as `0x${string}`,
+        data: finalizeData as `0x${string}`,
+      });
+
+      const finalizeReceipt = await provider.waitForTransaction(finalizeHash);
+
+      if (!finalizeReceipt || finalizeReceipt.status !== 1) {
+        throw new Error("Failed to finalize campaign and release funds");
+      }
+
+      // Finalization successful - funds are now in beneficiaryWallet (executor's wallet)
+      toast.success(
+        "Campaign finalized successfully! Funds have been released to your wallet.",
+        {
+          autoClose: 4000,
+        }
+      );
+
+      // Update state after successful withdrawal
       setHasFunds(false);
       setWithdrawableAmount(BigInt(0));
       // Refresh funds check
@@ -479,7 +466,7 @@ export default function WithdrawFundsButton({
           No Funds Available
         </CustomButton>
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-          No funds available in escrow wallet to withdraw.
+          No funds available in the wallet to withdraw.
         </div>
       </div>
     );
