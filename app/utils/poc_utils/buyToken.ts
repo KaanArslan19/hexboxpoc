@@ -4,11 +4,11 @@ import { v4 as uuidv4 } from "uuid";
 import { getTokenDetails } from "./getTokenDetails";
 import { getTokenWalletAddress } from "./getTokenWalletAddress";
 import { createUSDCTransaction } from "./createUSDCTransaction";
-import { getCampaign } from "../getCampaign";
+import { getPublicCampaign } from "../campaigns";
 
 export const buyToken = async (campaign_id: string, amount: number) => {
   try {
-    const campaign = await getCampaign(campaign_id, true);
+    const campaign = await getPublicCampaign(campaign_id);
     if (!campaign) {
       return { error: "Campaign not found" };
     }

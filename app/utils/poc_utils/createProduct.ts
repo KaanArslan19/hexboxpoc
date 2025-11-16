@@ -81,6 +81,12 @@ export async function createProduct(
 
     const productEntries = Object.fromEntries(formData.entries());
 
+    const isUnlimitedStockRaw = productEntries.isUnlimitedStock;
+    const isUnlimitedStock =
+      typeof isUnlimitedStockRaw === "string"
+        ? isUnlimitedStockRaw === "true" || isUnlimitedStockRaw === "on"
+        : false;
+
     const parsePrice = (priceInput: any) => {
       // Handle cases where price might come as string or object
       const price =
@@ -98,7 +104,11 @@ export async function createProduct(
     console.log(parsePrice(productEntries.price), "parsePrice");
     // Parse inventory safely
     const parseInventory = (inventoryInput: any) => {
-      if (inventoryInput === "null" || !inventoryInput) {
+      if (
+        inventoryInput === "null" ||
+        inventoryInput === null ||
+        inventoryInput === undefined
+      ) {
         return { stock_level: 0 };
       }
 
@@ -110,7 +120,7 @@ export async function createProduct(
           return { stock_level: 0 };
         }
       }
-      console.log(parseInventory(productEntries.inventory), "parseInventory");
+
       // If it's somehow a File or another unexpected type, return default
       if (
         !(inventoryInput instanceof Object) ||
@@ -121,6 +131,9 @@ export async function createProduct(
 
       return inventoryInput as { stock_level: number };
     };
+
+    const parsedInventory = parseInventory(productEntries.inventory);
+    const productType = productEntries.type;
 
     let product = {
       productId: uuid,
@@ -136,12 +149,14 @@ export async function createProduct(
       deliveryDate: productEntries.deliveryDate || "",
 
       inventory:
-        productEntries.type === "ServiceOnly"
-          ? { stock_level: 0 }
-          : parseInventory(productEntries.inventory),
+        productType === "ServiceOnly"
+          ? {
+              stock_level: Number(parsedInventory?.stock_level || 0),
+            }
+          : parsedInventory ?? { stock_level: 0 },
 
       freeShipping:
-        productEntries.type === "ServiceOnly"
+        productType === "ServiceOnly"
           ? false
           : productEntries.freeShipping === "true" || false,
 
@@ -155,7 +170,7 @@ export async function createProduct(
           : productEntries.category,
 
       returnPolicy:
-        productEntries.type === "ServiceOnly"
+        productType === "ServiceOnly"
           ? null
           : productEntries.productReturnPolicy
           ? typeof productEntries.productReturnPolicy === "string"
@@ -170,19 +185,21 @@ export async function createProduct(
       price: parsePrice(productEntries.price),
 
       supply:
-        productEntries.type === "ServiceOnly"
-          ? 0
-          : (() => {
-              const parsedInventory = parseInventory(productEntries.inventory);
-              return parsedInventory?.stock_level || 0;
-            })(),
+        productType === "ServiceOnly"
+          ? isUnlimitedStock
+            ? 0
+            : parsedInventory?.stock_level || 0
+          : parsedInventory?.stock_level || 0,
 
       serviceTerms:
-        productEntries.type === "ServiceOnly" && productEntries.service_terms
+        productType === "ServiceOnly" && productEntries.service_terms
           ? typeof productEntries.service_terms === "string"
             ? JSON.parse(productEntries.service_terms)
             : productEntries.service_terms
           : null,
+
+      isUnlimitedStock:
+        productType === "ServiceOnly" ? isUnlimitedStock : false,
 
       isDonationProduct: false,
 

@@ -78,6 +78,11 @@ const validationCombinedSchema = Yup.object({
   funds_management: Yup.string()
     .max(1000, "Funds management description must be 1000 characters or less")
     .required("Funds management description is required"),
+  deadline: Yup.string().when("funding_type", {
+    is: (funding_type: FundingType) => funding_type !== FundingType.Limitless,
+    then: (schema) => schema.required("Deadline is required"),
+    otherwise: (schema) => schema.nullable(),
+  }),
   turnstileToken: Yup.string().required(
     "Please complete the security verification"
   ),
@@ -308,13 +313,24 @@ export default function UpdateCampaignForm(props: Props) {
         throw new Error("Please complete the security verification");
       }
 
+      // For Limitless funding type, use a generic far-future deadline if not provided
+      let deadlineValue: number;
+      if (values.funding_type === FundingType.Limitless && !values.deadline) {
+        // Set deadline to 100 years from now (generic value for Limitless)
+        const farFutureDate = new Date();
+        farFutureDate.setFullYear(farFutureDate.getFullYear() + 100);
+        deadlineValue = farFutureDate.getTime();
+      } else {
+        deadlineValue = new Date(values.deadline).getTime();
+      }
+
       const projectData: CampaignInfoUpdate = {
         title: values.title,
         email: values.email,
         phoneNumber: values.phoneNumber,
         description: values.description,
         logo: logo || values.logo,
-        deadline: new Date(values.deadline).getTime(),
+        deadline: deadlineValue,
         location: values.location,
         one_liner: values.one_liner,
         social_links: {
@@ -488,8 +504,20 @@ export default function UpdateCampaignForm(props: Props) {
                 className={inputClass + " mb-4"}
                 value={values.funding_type}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setFieldValue("funding_type", e.target.value);
-                  setSelectedFundingType(e.target.value as FundingType);
+                  const newFundingType = e.target.value as FundingType;
+                  setFieldValue("funding_type", newFundingType);
+                  setSelectedFundingType(newFundingType);
+                  // If Limitless is selected, set a generic far-future deadline
+                  if (newFundingType === FundingType.Limitless) {
+                    const farFutureDate = new Date();
+                    farFutureDate.setFullYear(
+                      farFutureDate.getFullYear() + 100
+                    );
+                    setFieldValue(
+                      "deadline",
+                      farFutureDate.toISOString().split("T")[0]
+                    );
+                  }
                 }}
               >
                 {Object.entries(fundingTypesDisplayNames).map(
@@ -583,13 +611,28 @@ export default function UpdateCampaignForm(props: Props) {
                 className="text-redColor/80 mb-2"
               />
 
-              <h3 className="text-xl mb-2">Deadline</h3>
+              <h3 className="text-xl mb-2">
+                Deadline
+                {values.funding_type === FundingType.Limitless && (
+                  <span className="text-sm font-normal text-gray-500 ml-2">
+                    (Optional for Limitless funding type)
+                  </span>
+                )}
+              </h3>
               <Field
                 name="deadline"
                 type="date"
                 className={inputClass + " mb-4"}
                 value={values.deadline}
+                disabled={values.funding_type === FundingType.Limitless}
               />
+              {values.funding_type === FundingType.Limitless && (
+                <p className="text-sm text-gray-500 mb-4">
+                  Deadline is not required for Limitless funding. Funds are
+                  immediately transferred to your escrow wallet and can be
+                  withdrawn at any time.
+                </p>
+              )}
               <ErrorMessage
                 name="deadline"
                 component="div"

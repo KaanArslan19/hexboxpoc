@@ -29,15 +29,14 @@ export const getProducts = async (
         gst_rate: 0,
         gst_amount: 0,
       };
-      
-      let parsedInventory = { stock_level: 0 };
+      let parsedInventory: { stock_level?: number } = { stock_level: 0 };
 
       // Safe parsing for price
       try {
         parsedPrice =
           typeof product.price === "string"
             ? JSON.parse(product.price)
-          : product.price || parsedPrice;
+            : product.price || parsedPrice;
       } catch (error) {
         console.error("Error parsing price:", error);
       }
@@ -51,14 +50,20 @@ export const getProducts = async (
       } catch (error) {
         console.error("Error parsing inventory:", error);
       }
-      
+
+      const normalizedStockLevel =
+        Number(parsedInventory?.stock_level ?? 0) || 0;
+
+      const productType =
+        (product.type as ProductOrService) || ProductOrService.ProductOnly;
+
       // Return a properly formatted product for all products, including drafts
       return {
         id: product._id.toString(),
         productId: product.productId || 0,
         manufacturerId: product.userId || "",
         name: product.name || "",
-        type: (product.type as ProductOrService) || "ProductOnly",
+        type: productType,
         countryOfOrigin: product.countryOfOrigin || "",
         category: {
           name: product.category
@@ -75,14 +80,30 @@ export const getProducts = async (
           gst_amount: Number(parsedPrice.gst_amount) || 0,
         },
         inventory: {
-          stock_level: Number(parsedInventory.stock_level) || 0,
+          stock_level: normalizedStockLevel,
         },
-        freeShipping: product.freeShipping === "true" || false,
-        productReturnPolicy: {
-          eligible: product.returnPolicy === "true" || false,
-          return_period_days: 0,
-          conditions: "",
-        },
+        isUnlimitedStock:
+          productType === ProductOrService.ServiceOnly
+            ? Boolean(product.isUnlimitedStock)
+            : false,
+        freeShipping:
+          productType === ProductOrService.ServiceOnly
+            ? false
+            : product.freeShipping === "true" ||
+              product.freeShipping === true ||
+              false,
+        productReturnPolicy:
+          productType === ProductOrService.ServiceOnly
+            ? null
+            : product.productReturnPolicy
+            ? typeof product.productReturnPolicy === "string"
+              ? JSON.parse(product.productReturnPolicy)
+              : product.productReturnPolicy
+            : {
+                eligible: false,
+                return_period_days: 0,
+                conditions: "",
+              },
         campaignId: product.campaignId || "",
         userId: product.userId || "",
         logo: product.logo || "",
@@ -101,7 +122,7 @@ export const getProducts = async (
 
     return formattedProducts
       .filter((product): product is ProductFetch => product !== undefined)
-      .filter(product => product.status !== "draft");
+      .filter((product) => product.status !== "draft");
   } catch (error) {
     console.error("Error in getProducts:", error);
     return [];
@@ -198,7 +219,7 @@ export const getAllProducts = async (): Promise<ProductFetch[]> => {
     });
     return formattedProducts
       .filter((product): product is ProductFetch => product !== undefined)
-      .filter(product => product.status !== "draft");
+      .filter((product) => product.status !== "draft");
   } catch (error) {
     console.error("Error in getAllProducts:", error);
     return [];

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import client from "@/app/utils/mongodb";
 import { getServerSideUser } from "@/app/utils/getServerSideUser";
 import { ObjectId } from "mongodb";
-import { getCampaign } from "@/app/utils/getCampaign";
+import { getPublicCampaign } from "@/app/utils/campaigns";
 import { deleteCampaign } from "@/app/utils/poc_utils/deleteCampaign";
 import { getProducts } from "@/app/utils/poc_utils/getProducts";
 import { deleteProduct } from "@/app/utils/poc_utils/deleteProduct";
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const campaign = await getCampaign(campaignId, false);
+    const campaign = await getPublicCampaign(campaignId);
     console.log("Found campaign:", campaign);
 
     if (!campaign) {
@@ -82,4 +82,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

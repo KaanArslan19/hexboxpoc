@@ -24,31 +24,62 @@ export const getProduct = async (
       productId: product.productId || 0,
       manufacturerId: product.userId || "",
       name: product.name || "",
-      type: "ProductOnly" as ProductOrService,
-      countryOfOrigin: "",
+      type: (product.type as ProductOrService) || ProductOrService.ProductOnly,
+      countryOfOrigin: product.countryOfOrigin || "",
       category: {
         name: "TECH" as ProductCategory,
       },
       description: product.description || "",
       price: {
-        amount: Number(product.price) || 0,
-        tax_inclusive: false, // Default value
-        gst_rate: 0, // Default value
-        gst_amount: 0, // Default value
+        amount:
+          typeof product.price === "object"
+            ? Number(product.price.amount) || 0
+            : Number(product.price) || 0,
+        tax_inclusive:
+          typeof product.price === "object"
+            ? Boolean(product.price.tax_inclusive)
+            : false,
+        gst_rate:
+          typeof product.price === "object"
+            ? Number(product.price.gst_rate) || 0
+            : 0,
+        gst_amount:
+          typeof product.price === "object"
+            ? Number(product.price.gst_amount) || 0
+            : 0,
       },
       inventory: {
-        stock_level: Number(product.supply) || 0,
+        stock_level:
+          typeof product.inventory === "object"
+            ? Number(product.inventory?.stock_level) || 0
+            : Number(product.supply) || 0,
       },
-      freeShipping: false, // Default value
-      productReturnPolicy: {
-        eligible: false, // Default value
-        return_period_days: 0, // Default value
-        conditions: "", // Default value
-      },
+      isUnlimitedStock:
+        product.type === ProductOrService.ServiceOnly
+          ? Boolean(product.isUnlimitedStock)
+          : false,
+      freeShipping:
+        product.type === ProductOrService.ServiceOnly
+          ? false
+          : product.freeShipping === "true" ||
+            product.freeShipping === true ||
+            false,
+      productReturnPolicy:
+        product.type === ProductOrService.ServiceOnly
+          ? null
+          : product.productReturnPolicy
+          ? typeof product.productReturnPolicy === "string"
+            ? JSON.parse(product.productReturnPolicy)
+            : product.productReturnPolicy
+          : {
+              eligible: false,
+              return_period_days: 0,
+              conditions: "",
+            },
       campaignId: product.campaignId || "",
       userId: product.userId || "",
       logo: product.logo || "",
-      images: product.images || [],
+      images: product.images || { uploadedFiles: [], errors: null },
       status: product.status || "",
       supply: Number(product.supply) || 0,
       sold_count: Number(product.sold_count) || 0,

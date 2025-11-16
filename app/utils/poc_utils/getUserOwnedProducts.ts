@@ -1,5 +1,5 @@
 import client from "@/app/utils/mongodb";
-import { ProductFetch } from "@/app/types";
+import { ProductFetch, ProductOrService } from "@/app/types";
 import { isValidEthAddress } from "./isValidEthAddress";
 
 interface UserProductTransaction {
@@ -19,7 +19,6 @@ interface UserProductTransaction {
 export const getUserOwnedProducts = async (
   userAddress: string
 ): Promise<UserProductTransaction[]> => {
-
   const isValidAddress = isValidEthAddress(userAddress);
   if (!isValidAddress) {
     throw new Error("Invalid Ethereum address format");
@@ -30,10 +29,16 @@ export const getUserOwnedProducts = async (
   const userAddressLower = userAddress.toLowerCase();
 
   // Step 1: Find campaigns with transactions from the user
-  const escapedAddress = userAddressLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const campaignsWithUserTx = await db.collection("campaigns").find({
-    "transactions.from": { $regex: new RegExp(`^${escapedAddress}$`, "i") }
-  }).toArray();
+  const escapedAddress = userAddressLower.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+  const campaignsWithUserTx = await db
+    .collection("campaigns")
+    .find({
+      "transactions.from": { $regex: new RegExp(`^${escapedAddress}$`, "i") },
+    })
+    .toArray();
 
   // Step 2: Extract product IDs from user's transactions
   const productIds = new Set<string>();
@@ -44,7 +49,7 @@ export const getUserOwnedProducts = async (
 
   for (const campaign of campaignsWithUserTx) {
     if (!Array.isArray(campaign.transactions)) continue;
-    
+
     for (const tx of campaign.transactions) {
       if (
         typeof tx.from === "string" &&
@@ -65,7 +70,7 @@ export const getUserOwnedProducts = async (
               functionName: decoded.name || "",
               args: decoded.args.map(String),
               status: tx.status || "",
-            }
+            },
           });
         }
       }
@@ -73,10 +78,15 @@ export const getUserOwnedProducts = async (
   }
 
   // Step 3: Fetch only the products that the user owns
-  const productIdsArray = Array.from(productIds).map(id => parseInt(id)).filter(id => !isNaN(id));
-  const products = await db.collection("products").find({
-    productId: { $in: productIdsArray }
-  }).toArray();
+  const productIdsArray = Array.from(productIds)
+    .map((id) => parseInt(id))
+    .filter((id) => !isNaN(id));
+  const products = await db
+    .collection("products")
+    .find({
+      productId: { $in: productIdsArray },
+    })
+    .toArray();
 
   // Step 4: Build product map with formatting
   const productMap: { [id: string]: ProductFetch } = {};
@@ -109,12 +119,14 @@ export const getUserOwnedProducts = async (
     } catch {
       parsedInventory = { stock_level: 0 };
     }
+    const productType =
+      (product.type as ProductOrService) || ProductOrService.ProductOnly;
     productMap[String(product.productId)] = {
       id: product._id.toString(),
       productId: product.productId || 0,
       manufacturerId: product.userId || "",
       name: product.name || "",
-      type: product.type || "ProductOnly",
+      type: productType,
       countryOfOrigin: product.countryOfOrigin || "",
       category: {
         name: product.category
@@ -131,14 +143,30 @@ export const getUserOwnedProducts = async (
         gst_amount: Number(parsedPrice.gst_amount) || 0,
       },
       inventory: {
-        stock_level: Number(parsedInventory.stock_level) || 0,
+        stock_level: Number(parsedInventory?.stock_level) || 0,
       },
-      freeShipping: product.freeShipping === "true" || false,
-      productReturnPolicy: {
-        eligible: product.returnPolicy === "true" || false,
-        return_period_days: 0,
-        conditions: "",
-      },
+      isUnlimitedStock:
+        productType === ProductOrService.ServiceOnly
+          ? Boolean(product.isUnlimitedStock)
+          : false,
+      freeShipping:
+        productType === ProductOrService.ServiceOnly
+          ? false
+          : product.freeShipping === "true" ||
+            product.freeShipping === true ||
+            false,
+      productReturnPolicy:
+        productType === ProductOrService.ServiceOnly
+          ? null
+          : product.productReturnPolicy
+          ? typeof product.productReturnPolicy === "string"
+            ? JSON.parse(product.productReturnPolicy)
+            : product.productReturnPolicy
+          : {
+              eligible: false,
+              return_period_days: 0,
+              conditions: "",
+            },
       campaignId: product.campaignId || "",
       userId: product.userId || "",
       logo: product.logo || "",

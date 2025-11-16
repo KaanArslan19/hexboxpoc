@@ -90,12 +90,9 @@ export const fetchCampaigns = async (
   }
 };
 export const fetchCampaignsByUser = async (userId: string): Promise<any> => {
-  const response = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/userCampaigns?userId=${userId}`,
-    {
-      cache: "no-store",
-    }
-  );
+  const response = await fetch(`/api/userCampaigns?userId=${userId}`, {
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch campaigns for the user");

@@ -22,6 +22,21 @@ const steps = [
   { title: "Review" },
 ];
 
+type ProductFormValues = Omit<
+  ProductNew,
+  "inventory" | "freeShipping" | "productReturnPolicy"
+> & {
+  inventory?: ProductNew["inventory"];
+  freeShipping?: boolean;
+  productReturnPolicy?: ProductNew["productReturnPolicy"];
+  service_terms?: {
+    contract_time_begining: string;
+    contract_length: string;
+  };
+  isUnlimitedStock: boolean;
+  turnstileToken?: string;
+};
+
 const baseValidationSchemas = {
   basicInfo: Yup.object({
     name: Yup.string()
@@ -119,6 +134,14 @@ const baseValidationSchemas = {
         otherwise: (schema) => schema.nullable(),
       }),
     }),
+    inventory: Yup.object({
+      stock_level: Yup.number()
+        .typeError("Stock level must be a number")
+        .integer("Stock level must be an integer")
+        .min(1, "Stock level must be at least 1")
+        .max(1000000000000, "Stock level must be less than 1 trillion"),
+    }),
+    isUnlimitedStock: Yup.boolean(),
   }),
 
   // Shipping & Terms - different for product vs service
@@ -185,7 +208,7 @@ const getValidationSchema = (type: string, step: number) => {
   }
 };
 
-const productInitialValues: ProductNew = {
+const productInitialValues: ProductFormValues = {
   manufacturerId: "",
   name: "",
   type: ProductOrService.ProductOnly,
@@ -214,18 +237,22 @@ const productInitialValues: ProductNew = {
   status: "draft",
   fulfillmentDetails: "",
   deliveryDate: "",
+  isUnlimitedStock: false,
 };
 
-const serviceInitialValues = {
+const serviceInitialValues: ProductFormValues = {
   ...productInitialValues,
   type: ProductOrService.ServiceOnly,
-  inventory: undefined,
+  inventory: {
+    stock_level: 1,
+  },
   freeShipping: undefined,
   productReturnPolicy: undefined,
   service_terms: {
     contract_time_begining: "",
     contract_length: "2 hours",
   },
+  isUnlimitedStock: false,
 };
 
 interface Props {
@@ -259,7 +286,7 @@ export default function ProductForm({
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
 
   // All hooks must be called before any early returns
-  const formikRef = useRef<FormikProps<any>>(null);
+  const formikRef = useRef<FormikProps<ProductFormValues> | null>(null);
 
   // Get Turnstile site key from environment variables
   const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -398,7 +425,7 @@ export default function ProductForm({
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: ProductFormValues) => {
     setIsPending(true);
     setSubmitError(null);
 
@@ -408,12 +435,25 @@ export default function ProductForm({
         throw new Error("Please complete the security verification");
       }
 
-      const productData = {
-        ...values,
-        logo: values.logo as string,
+      const { isUnlimitedStock, ...restValues } = values;
+
+      const productData: any = {
+        ...restValues,
+        logo: restValues.logo as string,
         images: imageFiles,
         turnstileToken: turnstileToken, // Include Turnstile token for server-side validation
       };
+
+      if (
+        productData.type === ProductOrService.ServiceOnly &&
+        isUnlimitedStock
+      ) {
+        delete productData.inventory;
+      } else if (productData.inventory?.stock_level !== undefined) {
+        productData.inventory.stock_level = Number(
+          productData.inventory.stock_level
+        );
+      }
       console.log("productData", productData);
 
       await onSubmit(productData);
@@ -427,7 +467,7 @@ export default function ProductForm({
   };
 
   return (
-    <Formik
+    <Formik<ProductFormValues>
       innerRef={formikRef}
       initialValues={
         formType === ProductOrService.ServiceOnly
@@ -746,14 +786,77 @@ export default function ProductForm({
                   </Field>
                 </div>
 
-                {formType === ProductOrService.ProductOnly && (
+                {(formType === ProductOrService.ProductOnly ||
+                  formType === ProductOrService.ServiceOnly) && (
                   <div>
-                    <h3 className="text-xl mb-2">Stock Level (Optional)</h3>
+                    <h3 className="text-xl mb-2">
+                      {formType === ProductOrService.ServiceOnly
+                        ? "Capacity"
+                        : "Stock Level (Optional)"}
+                    </h3>
+                    {formType === ProductOrService.ServiceOnly && (
+                      <div className="mb-2 space-y-1">
+                        <Field name="isUnlimitedStock">
+                          {({
+                            field,
+                          }: {
+                            field: {
+                              value: boolean;
+                              name: string;
+                              onBlur: any;
+                              onChange: any;
+                            };
+                          }) => {
+                            const { value, ...checkboxField } = field;
+                            return (
+                              <label className="inline-flex items-center">
+                                <input
+                                  type="checkbox"
+                                  {...checkboxField}
+                                  checked={Boolean(value)}
+                                  className={checkClass}
+                                  onChange={(event) => {
+                                    const checked = event.target.checked;
+                                    checkboxField.onChange(event);
+                                    const currentStock = Number(
+                                      values.inventory?.stock_level ?? 0
+                                    );
+                                    if (checked) {
+                                      setFieldValue(
+                                        "inventory.stock_level",
+                                        currentStock > 0 ? currentStock : 1
+                                      );
+                                    } else if (currentStock < 1) {
+                                      setFieldValue("inventory.stock_level", 1);
+                                    }
+                                  }}
+                                />
+                                <span className="ml-2 text-sm text-gray-700">
+                                  Unlimited availability
+                                </span>
+                              </label>
+                            );
+                          }}
+                        </Field>
+                        <p className="text-xs text-gray-500">
+                          Uncheck to limit the number of bookings for this
+                          service.
+                        </p>
+                      </div>
+                    )}
                     <Field
                       name="inventory.stock_level"
                       type="number"
-                      placeholder="Stock Level"
+                      placeholder={
+                        formType === ProductOrService.ServiceOnly
+                          ? "Maximum bookings"
+                          : "Stock Level"
+                      }
                       className={inputClass}
+                      disabled={
+                        formType === ProductOrService.ServiceOnly &&
+                        values.isUnlimitedStock
+                      }
                     />
                     <ErrorMessage
                       name="inventory.stock_level"
@@ -877,11 +980,11 @@ export default function ProductForm({
               </p>
 
               {/* Security Verification Section */}
-              <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
                   Security Verification
                 </h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                   Please complete the security verification below to proceed
                   with your{" "}
                   {formType === ProductOrService.ServiceOnly
@@ -901,16 +1004,16 @@ export default function ProductForm({
                 />
 
                 {isVerifyingTurnstile && (
-                  <div className="mt-2 text-sm text-blue-600">
+                  <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
                     <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 dark:border-blue-400 mr-2"></div>
                       Verifying security token...
                     </div>
                   </div>
                 )}
 
                 {turnstileError && (
-                  <div className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+                  <div className="mt-2 text-sm text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-md p-2">
                     {turnstileError}
                   </div>
                 )}
@@ -954,7 +1057,7 @@ export default function ProductForm({
               type="button"
               disabled={currentStep === 0}
               onClick={() => setCurrentStep((prev) => prev - 1)}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               Back
             </button>
