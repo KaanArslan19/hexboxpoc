@@ -1062,8 +1062,6 @@ export default function CampaignForm(props: Props) {
                         console.log("Saving data:", data);
                         updateFormData(data);
 
-                        toast.success("Draft saved successfully!");
-
                         setTimeout(() => {
                           setIsSaving(false);
                         }, 3000);

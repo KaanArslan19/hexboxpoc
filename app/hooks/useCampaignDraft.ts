@@ -86,10 +86,6 @@ export function useCampaignDraft(initialData: any) {
       } else {
         // Success - clear any previous errors
         setSaveError(null);
-        toast.success('Draft saved successfully', {
-          position: "top-right",
-          autoClose: 2000,
-        });
       }
     } catch (error) {
       console.error('Error saving draft:', error);
