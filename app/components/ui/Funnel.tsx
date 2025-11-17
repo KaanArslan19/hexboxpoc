@@ -24,7 +24,7 @@ export default function Funnel(funnelProps: Props) {
             : undefined
         }
       >
-        <CustomButton className="bg-blueColor text-white hover:bg-blueColor/90 py-2 md:py-4 w-full md:w-auto">
+        <CustomButton className="bg-blueColor text-white hover:bg-blueColor/90  py-2 md:py-4 w-full md:w-auto">
           {funnelProps.firstButtonText}
         </CustomButton>
       </Link>
@@ -38,7 +38,7 @@ export default function Funnel(funnelProps: Props) {
             : undefined
         }
       >
-        <CustomButton className="py-2 md:py-4 hover:bg-lightBlueColor w-full md:w-auto custom-button-dynamic">
+        <CustomButton className="py-2 md:py-4 hover:bg-lightBlueColor w-full md:w-auto custom-button-dynamic dark:hover:bg-dark-surfaceHover">
           {funnelProps.secondButtonText}
         </CustomButton>
       </Link>

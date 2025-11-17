@@ -102,8 +102,53 @@ export const campaignFieldValidators = {
     .oneOf([true], "You must accept the terms and conditions to proceed")
     .required("You must accept the terms and conditions"),
 
-  funds_management: Yup.string()
-    .max(1000, "Funds management description must be 1000 characters or less")
+  funds_management: Yup.mixed()
+    .test(
+      "funds-management-format",
+      "Funds management description is required",
+      (value) => {
+        if (!value) return false;
+        // Accept string
+        if (typeof value === "string" && value.trim()) return true;
+        // Accept array of history entries
+        if (Array.isArray(value) && value.length > 0) {
+          return value.every(
+            (entry) =>
+              typeof entry === "object" &&
+              entry !== null &&
+              "text" in entry &&
+              typeof entry.text === "string" &&
+              entry.text.trim().length > 0
+          );
+        }
+        return false;
+      }
+    )
+    .test(
+      "funds-management-length",
+      "Funds management description must be 1000 characters or less",
+      (value) => {
+        if (!value) return true;
+        // If string, check length
+        if (typeof value === "string") {
+          return value.length <= 1000;
+        }
+        // If array, check each entry
+        if (Array.isArray(value)) {
+          return value.every((entry) => {
+            if (
+              typeof entry === "object" &&
+              entry !== null &&
+              "text" in entry
+            ) {
+              return String(entry.text).length <= 1000;
+            }
+            return true;
+          });
+        }
+        return true;
+      }
+    )
     .required("Funds management description is required"),
 };
 
@@ -266,10 +311,33 @@ export const campaignDraftValidationSchema = Yup.object()
         return Object.values(FundingType).includes(value as FundingType);
       }),
     acceptTerms: Yup.boolean().nullable(),
-    funds_management: Yup.string()
-      .max(1000, "Funds management description must be 1000 characters or less")
-      .transform((value) => (value === "" ? null : value))
-      .nullable(),
+    funds_management: Yup.mixed()
+      .transform((value) => {
+        if (value === "" || value === null || value === undefined) return null;
+        return value;
+      })
+      .nullable()
+      .test(
+        "funds-management-format",
+        "Invalid funds management format",
+        (value) => {
+          if (!value) return true; // Allow null/empty for drafts
+          // Accept string
+          if (typeof value === "string") return value.length <= 1000;
+          // Accept array of history entries
+          if (Array.isArray(value)) {
+            return value.every(
+              (entry) =>
+                typeof entry === "object" &&
+                entry !== null &&
+                "text" in entry &&
+                typeof entry.text === "string" &&
+                entry.text.length <= 1000
+            );
+          }
+          return false;
+        }
+      ),
   })
   .noUnknown(false); // Allow additional fields for future extensibility
 

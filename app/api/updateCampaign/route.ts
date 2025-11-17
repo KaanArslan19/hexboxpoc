@@ -117,9 +117,7 @@ export async function POST(req: NextRequest) {
     const description = (formData.get("description") as string)?.trim();
     const location = (formData.get("location") as string)?.trim();
     const fundAmount = (formData.get("fund_amount") as string)?.trim();
-    const fundsManagement = (
-      formData.get("funds_management") as string
-    )?.trim();
+    const rawFundsManagement = formData.get("funds_management");
 
     // Validate required fields
     if (
@@ -129,10 +127,69 @@ export async function POST(req: NextRequest) {
       !description ||
       !location ||
       !fundAmount ||
-      !fundsManagement
+      !rawFundsManagement
     ) {
       return NextResponse.json(
         { error: "All required fields must be provided" },
+        { status: 400 }
+      );
+    }
+
+    // Handle funds_management: convert to array format and append new entry if changed
+    let fundsManagementArray: Array<{ text: string; timestamp: number }> = [];
+    const existingFundsManagement = existingCampaign.funds_management;
+
+    // Normalize existing funds_management to array format
+    if (Array.isArray(existingFundsManagement)) {
+      fundsManagementArray = [...existingFundsManagement];
+    } else if (
+      typeof existingFundsManagement === "string" &&
+      existingFundsManagement.trim()
+    ) {
+      // Convert legacy string format to array
+      fundsManagementArray = [
+        {
+          text: existingFundsManagement.trim(),
+          timestamp: Date.now(), // Use current time as fallback for legacy entries
+        },
+      ];
+    }
+
+    // Process new funds_management value
+    let newFundsManagementText = "";
+    if (typeof rawFundsManagement === "string") {
+      newFundsManagementText = rawFundsManagement.trim();
+    } else if (Array.isArray(rawFundsManagement)) {
+      // If it's already an array, get the latest entry
+      const latestEntry = rawFundsManagement[rawFundsManagement.length - 1];
+      newFundsManagementText = latestEntry?.text || "";
+    }
+
+    // Only append if the text has changed
+    const currentText =
+      fundsManagementArray.length > 0
+        ? fundsManagementArray[fundsManagementArray.length - 1].text
+        : "";
+
+    if (newFundsManagementText && newFundsManagementText !== currentText) {
+      fundsManagementArray.push({
+        text: newFundsManagementText,
+        timestamp: Date.now(),
+      });
+    } else if (!newFundsManagementText) {
+      return NextResponse.json(
+        { error: "Funds management description is required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate character limit
+    if (newFundsManagementText.length > 1000) {
+      return NextResponse.json(
+        {
+          error:
+            "Funds management description exceeds maximum of 1000 characters",
+        },
         { status: 400 }
       );
     }
@@ -163,7 +220,7 @@ export async function POST(req: NextRequest) {
     updatedFields.description = description;
     updatedFields.location = location;
     updatedFields.fund_amount = fundAmount;
-    updatedFields.funds_management = fundsManagement;
+    updatedFields.funds_management = fundsManagementArray;
 
     const oneLiner = (formData.get("one_liner") as string)?.trim();
     if (oneLiner) {

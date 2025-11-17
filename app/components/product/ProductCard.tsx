@@ -18,7 +18,7 @@ const ProductCard: React.FC<ProductFetch> = ({
   return (
     <div
       onClick={() => router.push(`/product?productId=${id}`)}
-      className="cursor-pointer bg-white dark:bg-dark-surfaceHover shadow-md rounded-2xl p-4 flex flex-col items-center hover:shadow-lg transition-shadow border border-gray-200 dark:border-dark-border"
+      className="cursor-pointer bg-white dark:bg-dark-surfaceHover shadow-md rounded-2xl p-4 flex flex-col items-center hover:shadow-lg hover:shadow-dark-border dark:hover:shadow-textMuted  transition-shadow border border-dark-border dark:border-dark-border"
     >
       <div className="relative w-28 h-28 mb-4">
         <Image

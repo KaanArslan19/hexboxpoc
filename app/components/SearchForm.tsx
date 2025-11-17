@@ -98,7 +98,7 @@ export default function SearchForm({ submitTo = "/search" }: Props) {
       <div
         className={`
           relative flex items-center overflow-hidden rounded-full
-          border border-gray-300 bg-white shadow-lg transition-all duration-300
+          border border-blueColorDull/20 bg-white shadow-lg transition-all duration-300
           ${isFocused ? "ring-2 ring-blueColor/30 shadow-lightBlueColor" : ""}`}
       >
         <input
@@ -109,8 +109,8 @@ export default function SearchForm({ submitTo = "/search" }: Props) {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className="
-            w-full py-2 px-6 text-gray-900 outline-none bg-transparent
-            placeholder:text-gray-500 text-base font-medium
+            w-full py-2 px-6 text-textPrimary outline-none bg-transparent
+            placeholder:text-textMuted text-base font-medium
           "
           aria-label="Search by campaign title"
         />
@@ -119,7 +119,7 @@ export default function SearchForm({ submitTo = "/search" }: Props) {
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-12 h-full px-2 flex items-center justify-center text-gray-400 hover:text-gray-600"
+            className="absolute right-12 h-full px-2 flex items-center justify-center text-textMuted dark:text-textPrimary hover:text-textPrimary "
             aria-label="Clear search"
           >
             <svg

@@ -16,6 +16,8 @@ import TurnstileWidget from "../ui/TurnstileWidget";
 import LocationAutocomplete from "../ui/LocationAutocomplete";
 import { inputClass, textareaClass, checkClass } from "../../utils/formClasses";
 
+import { FundsManagement } from "../../types";
+
 export interface InitialCampaignValue {
   title: string;
   email: string;
@@ -28,7 +30,7 @@ export interface InitialCampaignValue {
   fund_amount: number;
   wallet_address: string;
   funding_type: FundingType;
-  funds_management: string;
+  funds_management: FundsManagement;
   social_links: {
     telegram: string;
     discord: string;
@@ -75,8 +77,53 @@ const validationCombinedSchema = Yup.object({
   funding_type: Yup.string()
     .oneOf(Object.values(FundingType))
     .required("Please select a funding type"),
-  funds_management: Yup.string()
-    .max(1000, "Funds management description must be 1000 characters or less")
+  funds_management: Yup.mixed()
+    .test(
+      "funds-management-format",
+      "Funds management description is required",
+      (value) => {
+        if (!value) return false;
+        // Accept string
+        if (typeof value === "string" && value.trim()) return true;
+        // Accept array of history entries
+        if (Array.isArray(value) && value.length > 0) {
+          return value.every(
+            (entry) =>
+              typeof entry === "object" &&
+              entry !== null &&
+              "text" in entry &&
+              typeof entry.text === "string" &&
+              entry.text.trim().length > 0
+          );
+        }
+        return false;
+      }
+    )
+    .test(
+      "funds-management-length",
+      "Funds management description must be 1000 characters or less",
+      (value) => {
+        if (!value) return true;
+        // If string, check length
+        if (typeof value === "string") {
+          return value.length <= 1000;
+        }
+        // If array, check each entry
+        if (Array.isArray(value)) {
+          return value.every((entry) => {
+            if (
+              typeof entry === "object" &&
+              entry !== null &&
+              "text" in entry
+            ) {
+              return String(entry.text).length <= 1000;
+            }
+            return true;
+          });
+        }
+        return true;
+      }
+    )
     .required("Funds management description is required"),
   deadline: Yup.string().when("funding_type", {
     is: (funding_type: FundingType) => funding_type !== FundingType.Limitless,
@@ -192,7 +239,14 @@ export default function UpdateCampaignForm(props: Props) {
       funding_type: initialValuesProp.funding_type || FundingType.Limitless,
       fund_amount: initialValuesProp.fund_amount || 0,
       wallet_address: initialValuesProp.wallet_address || "",
-      funds_management: initialValuesProp.funds_management || "",
+      funds_management: (() => {
+        // Extract the latest entry from array if it's an array, otherwise use string
+        const fm = initialValuesProp.funds_management;
+        if (Array.isArray(fm) && fm.length > 0) {
+          return fm[fm.length - 1].text;
+        }
+        return typeof fm === "string" ? fm : "";
+      })(),
       turnstileToken: "", // Always initialize as empty
     };
   }, [initialValuesProp]);
@@ -324,6 +378,16 @@ export default function UpdateCampaignForm(props: Props) {
         deadlineValue = new Date(values.deadline).getTime();
       }
 
+      // Handle funds_management: convert string to array format
+      // The API will handle appending to existing history
+      const fundsManagementValue =
+        typeof values.funds_management === "string" &&
+        values.funds_management.trim()
+          ? values.funds_management.trim()
+          : Array.isArray(values.funds_management)
+          ? values.funds_management
+          : "";
+
       const projectData: CampaignInfoUpdate = {
         title: values.title,
         email: values.email,
@@ -342,7 +406,7 @@ export default function UpdateCampaignForm(props: Props) {
         fund_amount: Number(values.fund_amount),
         wallet_address: values.wallet_address,
         funding_type: values.funding_type as FundingType,
-        funds_management: values.funds_management,
+        funds_management: fundsManagementValue,
         turnstileToken: values.turnstileToken, // Use form field value
       };
 

@@ -51,6 +51,15 @@ interface Comment {
   replies: Comment[];
   isExpanded: boolean;
 }
+// Funds management history entry type
+export interface FundsManagementHistoryEntry {
+  text: string;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+
+// Funds management can be string (legacy) or array of history entries
+export type FundsManagement = string | FundsManagementHistoryEntry[];
+
 export interface CampaignDetailsProps {
   _id: string;
   user_id: string;
@@ -75,7 +84,7 @@ export interface CampaignDetailsProps {
   is_verified: boolean;
   email: string;
   phoneNumber: string;
-  funds_management: string;
+  funds_management: FundsManagement;
   comments?: Comment[];
 }
 export interface CampaignBackendDetails {
@@ -102,7 +111,7 @@ export interface CampaignBackendDetails {
   is_verified: boolean;
   email: string;
   phoneNumber: string;
-  funds_management: string;
+  funds_management: FundsManagement;
   comments?: Comment[];
 }
 export enum Status {
@@ -150,7 +159,7 @@ export interface NewCampaignInfo {
   logo: File;
   wallet_address: string;
   funding_type: FundingType;
-  funds_management: string;
+  funds_management: FundsManagement;
   turnstileToken?: string; // Optional Turnstile token for bot protection
 }
 export interface NewCampaignInfoResponse {
@@ -167,7 +176,7 @@ export interface NewCampaignInfoResponse {
   fund_amount: number;
   funding_type: FundingType;
   wallet_address: string;
-  funds_management: string;
+  funds_management: FundsManagement;
 }
 export interface CampaignInfoUpdate {
   title: string;
@@ -182,7 +191,7 @@ export interface CampaignInfoUpdate {
   fund_amount: number;
   funding_type: FundingType;
   wallet_address: string;
-  funds_management: string;
+  funds_management: FundsManagement;
   turnstileToken?: string; // Optional for backward compatibility
 }
 

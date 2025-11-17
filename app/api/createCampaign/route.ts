@@ -66,7 +66,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     console.log("Turnstile verification successful for campaign creation");
 
-    // Check for required fields
+    // Check for required fields (funds_management will be validated later as it can be string or array)
     const requiredFields = [
       "title",
       "description",
@@ -82,9 +82,18 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "funds_management",
     ];
 
-    const missingFields = requiredFields.filter(
-      (field) => !formData.has(field) || !formData.get(field)
-    );
+    const missingFields = requiredFields.filter((field) => {
+      const value = formData.get(field);
+      // Special handling for funds_management - it can be string or array
+      if (field === "funds_management") {
+        if (!value) return true;
+        // If it's a string, check if it's not empty
+        if (typeof value === "string" && !value.trim()) return true;
+        // If it's an array (sent as JSON string), validate it later
+        return false;
+      }
+      return !value;
+    });
 
     if (missingFields.length > 0) {
       return NextResponse.json(
@@ -120,6 +129,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       typeof v === "string" ? v.trim() : "";
 
     // Required string fields must be non-empty after trimming
+    // Note: funds_management is handled separately as it can be string or array
     const requiredStringFields: Array<keyof typeof campaignEntries> = [
       "title",
       "description",
@@ -128,7 +138,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       "location",
       "email",
       "phoneNumber",
-      "funds_management",
     ];
 
     for (const field of requiredStringFields) {
@@ -142,6 +151,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       // put back trimmed value
       (campaignEntries as any)[field] = value;
     }
+
+    // Handle funds_management separately - get it directly from formData
+    const rawFundsManagementFromForm = formData.get("funds_management");
 
     // Validate wallet address format (EVM)
     const walletAddress = String(campaignEntries.wallet_address);
@@ -265,12 +277,74 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       characterLimitErrors.phoneNumber = `Phone number exceeds maximum of 18 characters`;
     }
 
-    // Funds management: 1000 characters
-    if (
-      campaignEntries.funds_management &&
-      campaignEntries.funds_management.toString().length > 1000
-    ) {
-      characterLimitErrors.funds_management = `Funds management description exceeds maximum of 1000 characters`;
+    // Funds management: Handle both string (legacy) and array formats
+    let fundsManagementArray: Array<{ text: string; timestamp: number }> = [];
+    let rawFundsManagement:
+      | string
+      | Array<{ text: string; timestamp: number }>
+      | null = null;
+
+    // Get funds_management from formData (it might be stringified JSON)
+    if (rawFundsManagementFromForm) {
+      if (typeof rawFundsManagementFromForm === "string") {
+        // Try to parse as JSON if it's a string (might be stringified array)
+        try {
+          const parsed = JSON.parse(rawFundsManagementFromForm);
+          if (Array.isArray(parsed)) {
+            rawFundsManagement = parsed;
+          } else {
+            rawFundsManagement = rawFundsManagementFromForm;
+          }
+        } catch {
+          // Not JSON, treat as plain string (legacy format)
+          rawFundsManagement = rawFundsManagementFromForm;
+        }
+      } else {
+        rawFundsManagement = rawFundsManagementFromForm as any;
+      }
+    }
+
+    if (rawFundsManagement) {
+      // Check if it's already an array (new format)
+      if (Array.isArray(rawFundsManagement)) {
+        // Validate array format
+        for (const entry of rawFundsManagement) {
+          if (typeof entry === "object" && entry !== null && "text" in entry) {
+            const text = String(entry.text || "").trim();
+            if (text.length > 1000) {
+              characterLimitErrors.funds_management = `Funds management entry exceeds maximum of 1000 characters`;
+              break;
+            }
+            fundsManagementArray.push({
+              text,
+              timestamp:
+                typeof entry.timestamp === "number"
+                  ? entry.timestamp
+                  : Date.now(),
+            });
+          }
+        }
+      } else {
+        // It's a string (legacy format) - convert to array
+        const text = String(rawFundsManagement).trim();
+        if (text.length > 1000) {
+          characterLimitErrors.funds_management = `Funds management description exceeds maximum of 1000 characters`;
+        } else if (text) {
+          fundsManagementArray = [
+            {
+              text,
+              timestamp: Date.now(),
+            },
+          ];
+        }
+      }
+    }
+
+    if (!fundsManagementArray.length) {
+      return NextResponse.json(
+        { error: "Funds management description is required" },
+        { status: 400 }
+      );
     }
 
     // Wallet address: 42 characters, EVM format
@@ -415,7 +489,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       transactions: [],
       email: trimString(campaignEntries.email),
       phoneNumber: trimString(campaignEntries.phoneNumber),
-      funds_management: trimString(campaignEntries.funds_management),
+      funds_management: fundsManagementArray,
     };
     console.log(campaign, "campaign");
 

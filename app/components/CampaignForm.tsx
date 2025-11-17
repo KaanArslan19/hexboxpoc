@@ -374,8 +374,24 @@ export default function CampaignForm(props: Props) {
         website,
         linkedIn,
         turnstileToken: formTurnstileToken,
+        funds_management,
         ...rest
       } = values;
+
+      // Convert funds_management string to array format
+      // For new campaigns, create array with single entry
+      const fundsManagementArray =
+        typeof funds_management === "string" && funds_management.trim()
+          ? [
+              {
+                text: funds_management.trim(),
+                timestamp: Date.now(),
+              },
+            ]
+          : Array.isArray(funds_management)
+          ? funds_management
+          : [];
+
       // For Limitless funding type, use a generic far-future deadline if not provided
       let deadlineValue: number;
       if (rest.funding_type === FundingType.Limitless && !values.deadline) {
@@ -392,6 +408,7 @@ export default function CampaignForm(props: Props) {
         logo: logo!,
         deadline: deadlineValue,
         fundAmount: Number(values.fundAmount),
+        funds_management: fundsManagementArray,
         turnstileToken: turnstileToken, // Use state variable for server-side validation
         social_links: {
           discord: discord || "",

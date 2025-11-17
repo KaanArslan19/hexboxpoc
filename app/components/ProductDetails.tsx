@@ -75,6 +75,15 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
   const [localCampaign, setLocalCampaign] = useState(campaign);
   const [isFinalized, setIsFinalized] = useState(false);
 
+  // Check if campaign is 100% funded
+  const isFullyFunded = localCampaign.total_raised >= localCampaign.fund_amount;
+
+  // Check if deadline has passed (for non-limitless campaigns)
+  const deadlinePassed = !isLimitless && Date.now() > campaign.deadline * 1000;
+
+  // Funding should be disabled only if finalized OR deadline passed (for non-limitless)
+  const isFundingDisabled = isFinalized || deadlinePassed;
+
   useEffect(() => {
     setLocalProduct(product);
   }, [product]);
@@ -114,6 +123,28 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     commissionAmount: number;
     finalAmount: number;
   }>({ totalAmount: 0, commissionAmount: 0, finalAmount: 0 });
+
+  // Calculate individual product raised amount (after commission)
+  // Total raised for this product = price.amount * sold_count * (1 - commissionRate)
+  const productRaisedAmount =
+    localProduct.sold_count > 0
+      ? localProduct.price.amount *
+        localProduct.sold_count *
+        (1 - commissionRate)
+      : 0;
+
+  // If supply is 0, it means unlimited supply
+  // Otherwise, remaining = supply - sold_count
+  const isUnlimitedSupply =
+    localProduct.supply === 0 || localProduct.isUnlimitedStock === true;
+  const remainingSupply = isUnlimitedSupply
+    ? Infinity
+    : Math.max(0, localProduct.supply - localProduct.sold_count);
+
+  // Check if supply is exhausted or if requested quantity exceeds available supply
+  const isSupplyExhausted = !isUnlimitedSupply && remainingSupply <= 0;
+  const exceedsAvailableSupply =
+    !isUnlimitedSupply && productQuantity > remainingSupply;
 
   const items = [
     {
@@ -405,6 +436,24 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
 
     if (productQuantity <= 0) {
       toast.warning("Please enter a valid quantity", { autoClose: 4000 });
+      setIsLoading(false);
+      return;
+    }
+
+    // Check supply availability
+    if (isSupplyExhausted) {
+      toast.error("This product is out of stock", { autoClose: 4000 });
+      setIsLoading(false);
+      return;
+    }
+
+    if (exceedsAvailableSupply) {
+      toast.warning(
+        `Only ${remainingSupply} ${
+          remainingSupply === 1 ? "item" : "items"
+        } available. Please reduce your quantity.`,
+        { autoClose: 5000 }
+      );
       setIsLoading(false);
       return;
     }
@@ -820,10 +869,10 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   Funds Pledged
                 </p>
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  ${localCampaign.total_raised}
+                  ${productRaisedAmount.toFixed(2)}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-dark-textMuted">
-                  Pledged of ${localCampaign.fund_amount} campaign goal
+                  Raised from this product (after commission)
                 </p>
               </div>
 
@@ -846,6 +895,117 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
               </div>
 
               <div>
+                {/* Show disclaimer when 100% funded but not finalized */}
+                {isFullyFunded && !isFinalized && (
+                  <div className="mb-4 p-4 bg-gradient-to-r from-yellowColor/20 to-yellowColor/40 dark:from-yellowColor/20 dark:to-orangeColor/20 rounded-lg border border-yellowColorDull/30 dark:border-yellowColorDull/50">
+                    <div className="flex items-center mb-2">
+                      <svg
+                        className="w-5 h-5 text-yellowColor dark:text-yellowColor/80 mr-2 flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="text-orangeColorDull dark:text-yellowColor font-semibold">
+                        Campaign Goal Reached
+                      </span>
+                    </div>
+                    <p className="text-orangeColorDull dark:text-yellowColor/90 text-sm">
+                      This campaign has reached its funding goal. After the
+                      campaign reaches its fund goal, refunds will not be
+                      available.{" "}
+                      {isLimitless
+                        ? "You can still contribute to this campaign."
+                        : "You can still contribute until the deadline."}
+                    </p>
+                  </div>
+                )}
+                {/* Show message when deadline has passed */}
+                {deadlinePassed && !isFinalized && (
+                  <div className="mb-4 p-4 bg-gradient-to-r from-redColor/10 to-orangeColor/10 dark:from-redColor/20 dark:to-orangeColor/20 rounded-lg border border-redColorDull dark:border-redColor">
+                    <div className="flex items-center mb-2">
+                      <svg
+                        className="w-5 h-5 text-redColor dark:text-redColor mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="text-redColor dark:text-redColor font-semibold">
+                        Campaign Deadline Passed
+                      </span>
+                    </div>
+                    <p className="text-redColorDull dark:text-redColor text-sm">
+                      This campaign deadline has passed and is no longer
+                      accepting contributions.
+                    </p>
+                  </div>
+                )}
+                {/* Show supply warning when supply is exhausted or low */}
+                {!isFinalized && !deadlinePassed && (
+                  <>
+                    {isSupplyExhausted && (
+                      <div className="mb-4 p-4 bg-gradient-to-r from-redColor/10 to-orangeColor/10 dark:from-redColor/20 dark:to-orangeColor/20 rounded-lg border border-redColorDull dark:border-redColor">
+                        <div className="flex items-center mb-2">
+                          <svg
+                            className="w-5 h-5 text-redColor dark:text-redColor mr-2"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-redColor dark:text-redColor font-semibold">
+                            Out of Stock
+                          </span>
+                        </div>
+                        <p className="text-redColorDull dark:text-redColor text-sm">
+                          This product has reached its supply limit and is no
+                          longer available for purchase.
+                        </p>
+                      </div>
+                    )}
+                    {!isSupplyExhausted &&
+                      !isUnlimitedSupply &&
+                      remainingSupply <= 5 &&
+                      remainingSupply > 0 && (
+                        <div className="mb-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg border border-yellow-300 dark:border-yellow-700">
+                          <div className="flex items-center mb-2">
+                            <svg
+                              className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2 flex-shrink-0"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <span className="text-yellow-800 dark:text-yellow-300 font-semibold">
+                              Low Stock
+                            </span>
+                          </div>
+                          <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+                            Only {remainingSupply}{" "}
+                            {remainingSupply === 1 ? "item" : "items"}{" "}
+                            remaining. Act fast!
+                          </p>
+                        </div>
+                      )}
+                  </>
+                )}
                 {isFinalized && (
                   <div className="mb-4 p-4 bg-gradient-to-r from-redColor/10 to-orangeColor/10 dark:from-redColor/20 dark:to-orangeColor/20 rounded-lg border border-redColorDull dark:border-redColor">
                     <div className="flex items-center mb-2">
@@ -875,8 +1035,8 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     </p>
                   </div>
                 )}
-                {/* Show input if campaign is not finalized OR if it's AllOrNothing finalized without meeting target and user has tokens */}
-                {(!isFinalized ||
+                {/* Show input if funding is not disabled OR if it's AllOrNothing finalized without meeting target and user has tokens */}
+                {(!isFundingDisabled ||
                   (localCampaign.funding_type === "AllOrNothing" &&
                     isFinalized &&
                     localCampaign.total_raised < localCampaign.fund_amount &&
@@ -885,17 +1045,23 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                     placeholder={
                       isFinalized
                         ? "Enter quantity of items to refund"
+                        : isSupplyExhausted
+                        ? "Out of stock"
+                        : !isUnlimitedSupply && remainingSupply > 0
+                        ? `Max ${remainingSupply} available`
                         : "Enter quantity of items to purchase"
                     }
-                    className="!border-2 !border-gray-300 dark:!border-dark-border bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 dark:placeholder:text-dark-textMuted placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200"
+                    className="!border-2 !border-gray-300 dark:!border-dark-border bg-white dark:bg-dark-surface text-gray-900 dark:text-dark-text shadow-md shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 dark:placeholder:text-dark-textMuted placeholder:opacity-100 focus:!border-blueColor transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     labelProps={{
                       className: "hidden",
                     }}
                     step="1"
                     type="number"
                     min="0"
+                    max={!isUnlimitedSupply ? remainingSupply : undefined}
                     value={productQuantity === 0 ? "" : productQuantity}
                     onChange={handleInputChange}
+                    disabled={isSupplyExhausted}
                   />
                 )}
               </div>
@@ -980,20 +1146,30 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                         isVerifying ||
                         isRefunding ||
                         !acceptTerms ||
-                        isFinalized
+                        isFundingDisabled ||
+                        isSupplyExhausted ||
+                        exceedsAvailableSupply
                       }
                       className={`py-3 md:py-4 hover:bg-blueColor/80 bg-blueColor text-white w-full font-semibold rounded-lg shadow-md transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 ${
                         isLoading ||
                         isApproving ||
                         isVerifying ||
                         !acceptTerms ||
-                        isFinalized
+                        isFundingDisabled ||
+                        isSupplyExhausted ||
+                        exceedsAvailableSupply
                           ? "opacity-50 cursor-not-allowed hover:transform-none"
                           : ""
                       }`}
                     >
-                      {isFinalized
-                        ? "Campaign Finalized"
+                      {isSupplyExhausted
+                        ? "Out of Stock"
+                        : exceedsAvailableSupply
+                        ? `Only ${remainingSupply} Available`
+                        : isFundingDisabled
+                        ? deadlinePassed
+                          ? "Deadline Passed"
+                          : "Campaign Finalized"
                         : isApproving
                         ? "Approving USDC..."
                         : isLoading

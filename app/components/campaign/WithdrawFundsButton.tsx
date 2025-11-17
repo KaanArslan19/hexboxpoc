@@ -440,7 +440,7 @@ export default function WithdrawFundsButton({
     return (
       <CustomButton
         disabled
-        className="py-2 px-6 bg-gray-400 dark:bg-gray-600 text-white dark:text-gray-300 rounded-lg cursor-not-allowed"
+        className="py-2 px-6 bg-textMuted dark:bg-dark-surfaceHover text-white dark:text-dark-text rounded-lg cursor-not-allowed"
       >
         <span className="flex items-center gap-2">
           <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
@@ -461,11 +461,11 @@ export default function WithdrawFundsButton({
       <div className="relative group">
         <CustomButton
           disabled
-          className="py-2 px-6 bg-gray-400 dark:bg-gray-600 text-white dark:text-gray-300 rounded-lg cursor-not-allowed"
+          className="py-2 px-6 bg-textMuted dark:bg-dark-surfaceHover text-white dark:text-dark-text rounded-lg cursor-not-allowed "
         >
           No Funds Available
         </CustomButton>
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-blackColor dark:bg-dark-surface text-white dark:text-dark-text text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 border dark:border-dark-border">
           No funds available in the wallet to withdraw.
         </div>
       </div>
@@ -495,7 +495,7 @@ export default function WithdrawFundsButton({
         )}
       </CustomButton>
       {withdrawableAmount >= MIN_WITHDRAWABLE && (
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-xs text-textMuted dark:text-dark-textMuted">
           Available to withdraw: {formatWithdrawableAmount(withdrawableAmount)}{" "}
           USDC
         </span>

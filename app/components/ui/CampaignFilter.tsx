@@ -53,8 +53,8 @@ export default function CampaignFilter({
             px-4 py-2 rounded-full text-sm font-medium transition-all 
             ${
               selectedStatus === status
-                ? "bg-gradient-to-r from-lightBlueColor to-blueColor/80 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? "bg-gradient-to-r from-lightBlueColor to-blueColor text-white shadow-lg ring-2 ring-blueColor/50 ring-offset-2 scale-105  dark:from-blueColorDull/60 dark:to-blueColor dark:ring-blueColor/70 dark:ring-offset-dark-bg"
+                : "bg-lightBlueColorDull text-white hover:bg-lightBlueColorDull/80 dark:bg-dark-surface dark:text-dark-text dark:hover:bg-dark-surfaceHover"
             }
           `}
           type="button"

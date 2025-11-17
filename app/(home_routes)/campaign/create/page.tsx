@@ -141,7 +141,15 @@ export default function CreateProject() {
       formData.append("one_liner", values.one_liner);
       formData.append("social_links", JSON.stringify(values.social_links));
       formData.append("funding_type", values.funding_type.toString());
-      formData.append("funds_management", values.funds_management);
+      // Handle funds_management: if array, stringify it; if string, use as is
+      if (Array.isArray(values.funds_management)) {
+        formData.append(
+          "funds_management",
+          JSON.stringify(values.funds_management)
+        );
+      } else {
+        formData.append("funds_management", values.funds_management);
+      }
       if (values.turnstileToken) {
         formData.append("turnstileToken", values.turnstileToken);
       }

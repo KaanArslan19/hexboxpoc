@@ -17,7 +17,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
 
   return (
     <li
-      className={`bg-none dark:bg-dark-surface flex flex-col justify-between items-center shadow-sm hover:shadow-xl rounded-2xl overflow-hidden transition-shadow duration-150 m-[10px] border-[1px] border-lightBlueColor dark:border-[0.5px] dark:border-dark-border relative
+      className={`bg-none dark:bg-dark-surface flex flex-col justify-between items-center shadow-sm hover:shadow-lg  hover:shadow-dark-border dark:hover:shadow-textMuted rounded-2xl overflow-hidden transition-shadow duration-150 m-[10px] border-[1px] dark:border-[0.5px] border-dark-border relative
        `}
     >
       <Link className="contents" href={`/campaign?campaignId=${id}`}>

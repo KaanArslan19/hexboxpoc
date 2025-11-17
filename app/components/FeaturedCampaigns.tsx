@@ -201,7 +201,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
                   key={campaign._id}
                   className="flex-[0_0_100%] min-w-0 relative p-6 md:p-10"
                 >
-                  <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-md overflow-hidden relative transform transition-all hover:-translate-y-1 hover:shadow-lg h-[600px] md:h-[400px] border-[1px] border-lightBlueColor dark:border-dark-border">
+                  <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-md overflow-hidden relative  hover:shadow-lg h-[600px] md:h-[400px] border-[1px] border-dark-border">
                     {getBadge(index)}
 
                     <div className="relative flex flex-col md:flex-row h-full">
@@ -280,7 +280,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
                         </div>
 
                         <Link href={`/campaign?campaignId=${campaign._id}`}>
-                          <CustomButton className="w-full custom-button-dynamic py-3 px-6 rounded-xl text-center font-medium transition-all shadow-md hover:shadow-lg">
+                          <CustomButton className="w-full custom-button-dynamic py-3 px-6 rounded-xl text-center font-medium transition-all shadow-md hover:shadow-lg hover:bg-lightBlueColor dark:hover:bg-dark-surfaceHover">
                             View Campaign
                           </CustomButton>
                         </Link>
