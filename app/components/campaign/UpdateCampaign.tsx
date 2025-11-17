@@ -86,7 +86,13 @@ export default function UpdateCampaign({ campaign }: Props) {
       formData.append("wallet_address", values.wallet_address);
 
       formData.append("fund_amount", values.fund_amount.toString());
-      formData.append("funds_management", values.funds_management);
+
+      // Handle funds_management: string or array
+      const fundsManagementValue =
+        typeof values.funds_management === "string"
+          ? values.funds_management
+          : JSON.stringify(values.funds_management);
+      formData.append("funds_management", fundsManagementValue);
 
       if (values.deadline) {
         const deadlineValue =
