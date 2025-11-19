@@ -4,12 +4,11 @@ import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Steps } from "antd";
 import ImageSelector from "../ui/ImageSelector";
-import { FundingType, ProductOrService, CampaignInfoUpdate } from "../../types";
+import { ProductOrService, CampaignInfoUpdate, FundingType } from "../../types";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
 import { TiAttachment } from "react-icons/ti";
 import Image from "next/image";
-import { fundingTypesDisplayNames } from "../../lib/auth/utils/productServiceDisplayNames";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import TurnstileWidget from "../ui/TurnstileWidget";
@@ -29,7 +28,7 @@ export interface InitialCampaignValue {
   one_liner: string;
   fund_amount: number;
   wallet_address: string;
-  funding_type: FundingType;
+  funding_type?: FundingType;
   funds_management: FundsManagement;
   social_links: {
     telegram: string;
@@ -69,14 +68,7 @@ const validationCombinedSchema = Yup.object({
   location: Yup.string().required("Location is required"),
   email: Yup.string().required("Email is required"),
   phoneNumber: Yup.string().required("Phone Number is required"),
-  fund_amount: Yup.number()
-    .typeError("Fund amount must be a number")
-    .required("Fund amount is required")
-    .min(0.0000001, "Fund amount must be greater than 0"),
   wallet_address: Yup.string().required("Wallet address is required"),
-  funding_type: Yup.string()
-    .oneOf(Object.values(FundingType))
-    .required("Please select a funding type"),
   funds_management: Yup.mixed()
     .test(
       "funds-management-format",
@@ -125,11 +117,6 @@ const validationCombinedSchema = Yup.object({
       }
     )
     .required("Funds management description is required"),
-  deadline: Yup.string().when("funding_type", {
-    is: (funding_type: FundingType) => funding_type !== FundingType.Limitless,
-    then: (schema) => schema.required("Deadline is required"),
-    otherwise: (schema) => schema.nullable(),
-  }),
   turnstileToken: Yup.string().required(
     "Please complete the security verification"
   ),
@@ -141,7 +128,6 @@ const defaultValues = {
   phoneNumber: "",
   description: "",
   logo: "",
-  deadline: "",
   location: "",
   one_liner: "",
   telegram: "",
@@ -149,8 +135,6 @@ const defaultValues = {
   website: "",
   linkedIn: "",
   wallet_address: "",
-  fund_amount: 0,
-  funding_type: FundingType.Limitless,
   funds_management: "",
   turnstileToken: "",
 };
@@ -172,9 +156,6 @@ export default function UpdateCampaignForm(props: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
   const [logoSource, setLogoSource] = useState<string[]>();
-  const [selectedFundingType, setSelectedFundingType] = useState<FundingType>(
-    FundingType.Limitless
-  );
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isFormReady, setIsFormReady] = useState(false);
 
@@ -203,41 +184,12 @@ export default function UpdateCampaignForm(props: Props) {
           ? initialValuesProp.logo
           : `${BASE_URL}${initialValuesProp.logo}`
         : "",
-      deadline: (() => {
-        try {
-          if (!initialValuesProp.deadline) return "";
-
-          // Check if it's already a date string (YYYY-MM-DD format)
-          if (
-            typeof initialValuesProp.deadline === "string" &&
-            (initialValuesProp.deadline as string).includes("-")
-          ) {
-            // It's already a date string, validate it
-            const date = new Date(initialValuesProp.deadline);
-            if (isNaN(date.getTime())) return "";
-            return initialValuesProp.deadline;
-          }
-
-          // Otherwise, treat it as a Unix timestamp in seconds
-          const deadlineInSeconds = Number(initialValuesProp.deadline);
-          if (isNaN(deadlineInSeconds) || deadlineInSeconds <= 0) return "";
-          const deadlineInMilliseconds = deadlineInSeconds * 1000;
-          const date = new Date(deadlineInMilliseconds);
-          if (isNaN(date.getTime())) return "";
-          return date.toISOString().split("T")[0];
-        } catch (error) {
-          console.error("Error converting deadline:", error);
-          return "";
-        }
-      })(),
       location: initialValuesProp.location || "",
       one_liner: initialValuesProp.one_liner || "",
       telegram: initialValuesProp.social_links?.telegram || "",
       discord: initialValuesProp.social_links?.discord || "",
       website: initialValuesProp.social_links?.website || "",
       linkedIn: initialValuesProp.social_links?.linkedIn || "",
-      funding_type: initialValuesProp.funding_type || FundingType.Limitless,
-      fund_amount: initialValuesProp.fund_amount || 0,
       wallet_address: initialValuesProp.wallet_address || "",
       funds_management: (() => {
         // Extract the latest entry from array if it's an array, otherwise use string
@@ -367,17 +319,6 @@ export default function UpdateCampaignForm(props: Props) {
         throw new Error("Please complete the security verification");
       }
 
-      // For Limitless funding type, use a generic far-future deadline if not provided
-      let deadlineValue: number;
-      if (values.funding_type === FundingType.Limitless && !values.deadline) {
-        // Set deadline to 100 years from now (generic value for Limitless)
-        const farFutureDate = new Date();
-        farFutureDate.setFullYear(farFutureDate.getFullYear() + 100);
-        deadlineValue = farFutureDate.getTime();
-      } else {
-        deadlineValue = new Date(values.deadline).getTime();
-      }
-
       // Handle funds_management: convert string to array format
       // The API will handle appending to existing history
       const fundsManagementValue =
@@ -394,7 +335,6 @@ export default function UpdateCampaignForm(props: Props) {
         phoneNumber: values.phoneNumber,
         description: values.description,
         logo: logo || values.logo,
-        deadline: deadlineValue,
         location: values.location,
         one_liner: values.one_liner,
         social_links: {
@@ -403,9 +343,7 @@ export default function UpdateCampaignForm(props: Props) {
           website: values.website || "",
           linkedIn: values.linkedIn || "",
         },
-        fund_amount: Number(values.fund_amount),
         wallet_address: values.wallet_address,
-        funding_type: values.funding_type as FundingType,
         funds_management: fundsManagementValue,
         turnstileToken: values.turnstileToken, // Use form field value
       };
@@ -534,18 +472,6 @@ export default function UpdateCampaignForm(props: Props) {
                 component="div"
                 className="text-redColor/80 mb-2"
               />
-              <h3 className="text-xl mb-2">Fund Amount</h3>
-              <Field
-                name="fund_amount"
-                placeholder="Fund Amount"
-                className={inputClass + " mb-4"}
-                value={values.fund_amount}
-              />
-              <ErrorMessage
-                name="fund_amount"
-                component="div"
-                className="text-redColor/80 mb-2"
-              />
 
               <h3 className="text-xl mb-2">Funds Management</h3>
               <Field
@@ -560,52 +486,14 @@ export default function UpdateCampaignForm(props: Props) {
                 component="div"
                 className="text-redColor/80 mb-2"
               />
-
-              <h3 className="text-xl mb-2">Funding Type</h3>
-              <Field
-                as="select"
-                name="funding_type"
-                className={inputClass + " mb-4"}
-                value={values.funding_type}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  const newFundingType = e.target.value as FundingType;
-                  setFieldValue("funding_type", newFundingType);
-                  setSelectedFundingType(newFundingType);
-                  // If Limitless is selected, set a generic far-future deadline
-                  if (newFundingType === FundingType.Limitless) {
-                    const farFutureDate = new Date();
-                    farFutureDate.setFullYear(
-                      farFutureDate.getFullYear() + 100
-                    );
-                    setFieldValue(
-                      "deadline",
-                      farFutureDate.toISOString().split("T")[0]
-                    );
-                  }
-                }}
-              >
-                {Object.entries(fundingTypesDisplayNames).map(
-                  ([enumValue, displayName]) => (
-                    <option key={enumValue} value={enumValue}>
-                      {displayName}
-                    </option>
-                  )
-                )}
-              </Field>
-
-              <ErrorMessage
-                name="funding_type"
-                component="div"
-                className="text-redColor/80 mb-2"
-              />
             </div>
             <div>
               <h2 className="text-2xl mb-2">Details</h2>
               <p className="text-md mb-8 font-thin">
                 Provide the essential details about your campaign including
-                campaign description, location, deadline, and contact
-                information. These details help potential supporters understand
-                your campaign and how to reach you.
+                campaign description, location, and contact information. These
+                details help potential supporters understand your campaign and
+                how to reach you.
               </p>
               <div className="mb-2">
                 <h3 className="text-xl mb-2">Campaigns Description</h3>
@@ -671,34 +559,6 @@ export default function UpdateCampaignForm(props: Props) {
               />
               <ErrorMessage
                 name="phoneNumber"
-                component="div"
-                className="text-redColor/80 mb-2"
-              />
-
-              <h3 className="text-xl mb-2">
-                Deadline
-                {values.funding_type === FundingType.Limitless && (
-                  <span className="text-sm font-normal text-gray-500 ml-2">
-                    (Optional for Limitless funding type)
-                  </span>
-                )}
-              </h3>
-              <Field
-                name="deadline"
-                type="date"
-                className={inputClass + " mb-4"}
-                value={values.deadline}
-                disabled={values.funding_type === FundingType.Limitless}
-              />
-              {values.funding_type === FundingType.Limitless && (
-                <p className="text-sm text-gray-500 mb-4">
-                  Deadline is not required for Limitless funding. Funds are
-                  immediately transferred to your escrow wallet and can be
-                  withdrawn at any time.
-                </p>
-              )}
-              <ErrorMessage
-                name="deadline"
                 component="div"
                 className="text-redColor/80 mb-2"
               />

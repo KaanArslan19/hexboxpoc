@@ -81,11 +81,7 @@ export default function UpdateCampaign({ campaign }: Props) {
       formData.append("description", values.description);
       formData.append("location", values.location);
 
-      formData.append("funding_type", values.funding_type.toString());
-
       formData.append("wallet_address", values.wallet_address);
-
-      formData.append("fund_amount", values.fund_amount.toString());
 
       // Handle funds_management: string or array
       const fundsManagementValue =
@@ -93,16 +89,6 @@ export default function UpdateCampaign({ campaign }: Props) {
           ? values.funds_management
           : JSON.stringify(values.funds_management);
       formData.append("funds_management", fundsManagementValue);
-
-      if (values.deadline) {
-        const deadlineValue =
-          typeof values.deadline === "number"
-            ? values.deadline
-            : new Date(values.deadline).getTime();
-
-        formData.append("deadline", String(deadlineValue));
-        console.log("Deadline being sent:", deadlineValue);
-      }
 
       if (values.one_liner) {
         formData.append("one_liner", values.one_liner);

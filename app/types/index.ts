@@ -185,11 +185,11 @@ export interface CampaignInfoUpdate {
   description: string;
   one_liner: string;
   location: string;
-  deadline: number;
+  deadline?: number; // Not updatable - kept for backward compatibility
   social_links: SocialLinks;
   logo: File | string;
-  fund_amount: number;
-  funding_type: FundingType;
+  fund_amount?: number; // Not updatable - kept for backward compatibility
+  funding_type?: FundingType; // Not updatable - kept for backward compatibility
   wallet_address: string;
   funds_management: FundsManagement;
   turnstileToken?: string; // Optional for backward compatibility

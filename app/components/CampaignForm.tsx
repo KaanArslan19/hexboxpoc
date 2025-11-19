@@ -543,6 +543,18 @@ export default function CampaignForm(props: Props) {
                 {currentStep === 0 && (
                   <div>
                     <h2 className="text-2xl mb-2">Campaign Info</h2>
+                    <div className="mb-8 p-4 bg-yellowColor/10 dark:bg-yellowColor/20 border-l-4 border-yellowColor rounded-r">
+                      <p className="text-md font-medium text-black dark:text-yellowColor mb-2">
+                        <strong>Note on Editable Fields</strong>
+                      </p>
+                      <p className="text-sm text-black dark:text-yellowColor">
+                        Most of your campaign details can be updated later! Just
+                        keep in mind that <strong>Fund Amount</strong>,{" "}
+                        <strong>Funding Type</strong>, and{" "}
+                        <strong>Deadline</strong> will be locked once you
+                        submit.
+                      </p>
+                    </div>
                     <p className="text-md mb-8 font-thin dark:text-dark-text">
                       Enter your campaign`s details. Only the sections marked as
                       optional can be changed after deployment; all other
@@ -694,6 +706,12 @@ export default function CampaignForm(props: Props) {
                 {currentStep === 2 && (
                   <div>
                     <h3 className="text-xl mb-2">Fund Amount</h3>
+                    <div className="mb-4 p-3 bg-orangeColor/10 dark:bg-orangeColor/20 border-l-4 border-orangeColor rounded-r">
+                      <p className="text-sm text-black dark:text-orangeColor">
+                        <strong>Note:</strong> This amount cannot be edited
+                        after submission.
+                      </p>
+                    </div>
                     <Field
                       name="fundAmount"
                       type="text"
@@ -753,6 +771,12 @@ export default function CampaignForm(props: Props) {
                 {currentStep === 3 && (
                   <div>
                     <h2 className="text-2xl mb-2">Choose Your Funding Type</h2>
+                    <div className="mb-6 p-4 bg-orangeColor/10 dark:bg-orangeColor/20 border-l-4 border-orangeColor rounded-r">
+                      <p className="text-sm text-black dark:text-orangeColor mb-2">
+                        <strong>Note:</strong> Your funding type and deadline
+                        are permanent once submitted.
+                      </p>
+                    </div>
                     <p className="text-md mb-8 font-thin dark:text-dark-text">
                       Select the funding model that best fits your campaign`s
                       needs.
@@ -797,6 +821,12 @@ export default function CampaignForm(props: Props) {
                         </span>
                       )}
                     </h3>
+                    <div className="mb-3 p-2 bg-orangeColor/10 dark:bg-orangeColor/20 border-l-4 border-orangeColor rounded-r">
+                      <p className="text-sm text-black dark:text-orangeColor">
+                        <strong>Note:</strong> Cannot be changed after
+                        submission.
+                      </p>
+                    </div>
                     <Field
                       name="deadline"
                       type="date"

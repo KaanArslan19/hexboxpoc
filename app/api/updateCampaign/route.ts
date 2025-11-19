@@ -116,7 +116,6 @@ export async function POST(req: NextRequest) {
     const phoneNumber = (formData.get("phoneNumber") as string)?.trim();
     const description = (formData.get("description") as string)?.trim();
     const location = (formData.get("location") as string)?.trim();
-    const fundAmount = (formData.get("fund_amount") as string)?.trim();
     const rawFundsManagement = formData.get("funds_management");
 
     // Validate required fields
@@ -126,7 +125,6 @@ export async function POST(req: NextRequest) {
       !phoneNumber ||
       !description ||
       !location ||
-      !fundAmount ||
       !rawFundsManagement
     ) {
       return NextResponse.json(
@@ -203,15 +201,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate fund amount
-    const fundAmountNum = parseFloat(fundAmount);
-    if (isNaN(fundAmountNum) || fundAmountNum <= 0) {
-      return NextResponse.json(
-        { error: "Fund amount must be a positive number" },
-        { status: 400 }
-      );
-    }
-
     let updatedFields: any = {};
 
     updatedFields.title = title;
@@ -219,17 +208,11 @@ export async function POST(req: NextRequest) {
     updatedFields.phoneNumber = phoneNumber;
     updatedFields.description = description;
     updatedFields.location = location;
-    updatedFields.fund_amount = fundAmount;
     updatedFields.funds_management = fundsManagementArray;
 
     const oneLiner = (formData.get("one_liner") as string)?.trim();
     if (oneLiner) {
       updatedFields.one_liner = oneLiner;
-    }
-
-    const fundingType = formData.get("funding_type");
-    if (fundingType) {
-      updatedFields.funding_type = fundingType as string;
     }
 
     const productOrService = formData.get("product_or_service");
@@ -249,21 +232,8 @@ export async function POST(req: NextRequest) {
       updatedFields.wallet_address = walletAddress;
     }
 
-    const deadlineStr = formData.get("deadline") as string;
-    if (deadlineStr) {
-      // Convert from milliseconds to seconds for storage
-      const deadlineInMilliseconds = Number(deadlineStr);
-      if (isNaN(deadlineInMilliseconds) || deadlineInMilliseconds <= 0) {
-        return NextResponse.json(
-          { error: "Invalid deadline value" },
-          { status: 400 }
-        );
-      }
-      updatedFields.deadline = Math.floor(deadlineInMilliseconds / 1000);
-      console.log("Deadline stored (seconds):", updatedFields.deadline);
-    } else {
-      updatedFields.deadline = existingCampaign.deadline;
-    }
+    // Note: fund_amount, funding_type, and deadline are not updatable
+    // They remain unchanged from the existing campaign
 
     const socialLinksStr = formData.get("social_links") as string;
     if (socialLinksStr) {
