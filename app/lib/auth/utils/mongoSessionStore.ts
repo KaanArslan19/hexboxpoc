@@ -22,7 +22,7 @@ class MongoSessionStore {
   private async getCollection(): Promise<Collection<MongoSession>> {
     if (!this.collection) {
       await this.client.connect();
-      const db = this.client.db('auth');
+      const db = this.client.db(process.env.HEXBOX_DB);
       this.collection = db.collection<MongoSession>('sessions');
       
       // Create indexes
