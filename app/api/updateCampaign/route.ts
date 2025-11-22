@@ -145,10 +145,12 @@ export async function POST(req: NextRequest) {
       existingFundsManagement.trim()
     ) {
       // Convert legacy string format to array
+      // Use campaign creation timestamp if available, otherwise current time
+      const legacyTimestamp = existingCampaign.timestamp || Date.now();
       fundsManagementArray = [
         {
           text: existingFundsManagement.trim(),
-          timestamp: Date.now(), // Use current time as fallback for legacy entries
+          timestamp: legacyTimestamp,
         },
       ];
     }

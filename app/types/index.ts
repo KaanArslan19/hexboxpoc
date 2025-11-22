@@ -82,6 +82,7 @@ export interface CampaignDetailsProps {
   fundraiser_address: string;
   total_raised: number;
   is_verified: boolean;
+  timestamp: number;
   email: string;
   phoneNumber: string;
   funds_management: FundsManagement;
@@ -109,6 +110,7 @@ export interface CampaignBackendDetails {
   fundraiser_address: string;
   total_raised: number;
   is_verified: boolean;
+  timestamp: number;
   email: string;
   phoneNumber: string;
   funds_management: FundsManagement;

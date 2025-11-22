@@ -43,7 +43,7 @@ const ProductTechDetails = ({
       return [
         {
           text: data,
-          timestamp: Date.now(), // Use current time as fallback for legacy entries
+          timestamp: campaign?.timestamp || Date.now(), // Use campaign creation time if available
         },
       ];
     }
