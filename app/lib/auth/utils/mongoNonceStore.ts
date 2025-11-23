@@ -21,7 +21,7 @@ class MongoNonceStore {
   private async getCollection(): Promise<Collection<NonceDocument>> {
     if (!this.collection) {
       await this.client.connect();
-      const db = this.client.db('auth');
+      const db = this.client.db(process.env.HEXBOX_DB);
       this.collection = db.collection<NonceDocument>('nonces');
       
       // Create indexes for performance and automatic cleanup
