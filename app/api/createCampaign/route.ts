@@ -513,7 +513,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     // Create campaign in DB
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const result = await db.collection("campaigns").insertOne(campaign);
     const campaignId = result.insertedId.toString();
 

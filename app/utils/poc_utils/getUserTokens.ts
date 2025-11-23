@@ -5,7 +5,7 @@ export const getUserTokens = async (user: string, token_address: string): Promis
     try {
   
         const mdbClient = client;
-        const db = mdbClient.db("hexbox_poc");
+        const db = mdbClient.db(process.env.HEXBOX_DB);
         const token = await db
         .collection("tokens")
         .findOne({ 

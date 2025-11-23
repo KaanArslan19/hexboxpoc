@@ -88,7 +88,7 @@ export async function createDonationProduct(formData: FormData) {
 
   // Store in database
   const mdbClient = client;
-  const db = mdbClient.db("hexbox_poc");
+  const db = mdbClient.db(process.env.HEXBOX_DB);
   const result = await db.collection("products").insertOne(donationProduct);
 
   return [

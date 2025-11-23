@@ -175,7 +175,7 @@ export async function syncSingleProductIdWithChain(
 
     // Get product from database
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const product = await db
       .collection("products")
       .findOne({ productId: productId });
@@ -353,7 +353,7 @@ export async function syncProductIdsWithChain(
 
     // Get products from database
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const products = await db
       .collection("products")
       .find({ campaignId: campaignId, status: "draft" })

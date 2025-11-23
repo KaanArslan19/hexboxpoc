@@ -44,7 +44,7 @@ export const GET = async (req: NextRequest) => {
     
     // Connect to MongoDB
     const mongoClient = client as MongoClient;
-    const db = mongoClient.db("hexbox_poc");
+    const db = mongoClient.db(process.env.HEXBOX_DB);
     const draft = await db.collection("campaignDrafts").findOne({ userId });
 
     console.log("Draft fetched successfully:", draft);
@@ -122,7 +122,7 @@ export const PUT = async (req: NextRequest) => {
     
     // Connect to MongoDB
     const mongoClient = client as MongoClient;
-    const db = mongoClient.db("hexbox_poc");
+    const db = mongoClient.db(process.env.HEXBOX_DB);
     const result = await db.collection("campaignDrafts").updateOne(
       { userId },
       {
@@ -180,7 +180,7 @@ export const DELETE = async (req: NextRequest) => {
     
     // Connect to MongoDB
     const mongoClient = client as MongoClient;
-    const db = mongoClient.db("hexbox_poc");
+    const db = mongoClient.db(process.env.HEXBOX_DB);
     await db.collection("campaignDrafts").deleteOne({ userId });
     
     return NextResponse.json({ success: true });

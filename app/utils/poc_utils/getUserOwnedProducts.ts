@@ -25,7 +25,7 @@ export const getUserOwnedProducts = async (
   }
 
   const mdbClient = client;
-  const db = mdbClient.db("hexbox_poc");
+  const db = mdbClient.db(process.env.HEXBOX_DB);
   const userAddressLower = userAddress.toLowerCase();
 
   // Step 1: Find campaigns with transactions from the user

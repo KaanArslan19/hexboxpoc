@@ -148,7 +148,7 @@ export const buyToken = async (campaign_id: string, amount: number) => {
 //     }
 
 //     const updatedToken = await client
-//       .db("hexbox_poc")
+//       .db(process.env.HEXBOX_DB)
 //       .collection("tokens")
 //       .updateOne(
 //         { _id: new ObjectId(token_address) },
@@ -166,7 +166,7 @@ export const buyToken = async (campaign_id: string, amount: number) => {
 
 //     // Update active proposals
 //     const activeProposals = await client
-//       .db("hexbox_poc")
+//       .db(process.env.HEXBOX_DB)
 //       .collection("proposals")
 //       .find({
 //         wallet_address: await getTokenWalletAddress(token_address),
@@ -202,7 +202,7 @@ export const buyToken = async (campaign_id: string, amount: number) => {
 //           proposal.waiting_audit_timestamp = Date.now();
 //         }
 
-//         await client.db("hexbox_poc").collection("proposals").updateOne(
+//         await client.db(process.env.HEXBOX_DB).collection("proposals").updateOne(
 //           { _id: proposal._id },
 //           { $set: proposal }
 //         );
@@ -217,7 +217,7 @@ export const buyToken = async (campaign_id: string, amount: number) => {
 //       return { error: "Wallet not found" };
 //     }
 //     const wallet = await client
-//       .db("hexbox_poc")
+//       .db(process.env.HEXBOX_DB)
 //       .collection("wallets")
 //       .updateOne(
 //         { _id: new ObjectId(walletAddress) },

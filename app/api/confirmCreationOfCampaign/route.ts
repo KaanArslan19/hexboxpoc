@@ -71,7 +71,7 @@ export const POST = async (req: NextRequest) => {
     console.log("userWalletAddress", userWalletAddress);
 
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const result = await db.collection("campaigns").findOne({
       _id: campaignIdObjectId,
       user_id: userWalletAddress,

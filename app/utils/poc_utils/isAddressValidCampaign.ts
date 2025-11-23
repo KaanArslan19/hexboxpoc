@@ -2,7 +2,7 @@ import client from "@/app/utils/mongodb";
 
 export async function isAddressValidCampaign(address: string): Promise<boolean> {
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     try {
         const campaign = await db
             .collection("campaigns")

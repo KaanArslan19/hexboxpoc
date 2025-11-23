@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = async (req: NextRequest) => {
   try {
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
 
     const limit = parseInt(req.nextUrl.searchParams.get("limit") || "10");
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0");

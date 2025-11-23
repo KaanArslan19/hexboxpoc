@@ -9,7 +9,7 @@ export async function deleteCampaign(campaignId: string) {
         }
 
         const mdbClient = client;
-        const db = mdbClient.db("hexbox_poc");
+        const db = mdbClient.db(process.env.HEXBOX_DB);
         const campaign = await db.collection("campaigns").findOne({ _id: new ObjectId(campaignId) });
         if (!campaign) {
             return { success: false, error: "Campaign not found" };

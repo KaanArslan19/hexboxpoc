@@ -2,7 +2,7 @@ import client from "@/app/utils/mongodb";
 
 export async function getAllCampaignFundraisers(): Promise<string[]> {
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     
     // Project only the _id and fundraiser_address fields
     const campaigns = await db.collection("campaigns")

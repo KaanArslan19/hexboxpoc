@@ -60,7 +60,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
 
     // Extract userId from query parameters
     const userId = req.nextUrl.searchParams.get("userId");

@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = client.db("hexbox_poc");
+    const db = client.db(process.env.HEXBOX_DB);
 
     // campaign check
     const existingCampaign = await db

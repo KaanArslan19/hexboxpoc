@@ -213,7 +213,7 @@ export async function createProduct(
     console.log("METADATA", metadata);
 
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const result = await db.collection("products").insertOne(product);
     const productId = result.insertedId.toString();
 

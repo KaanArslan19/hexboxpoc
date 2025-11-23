@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Turnstile verification successful for campaign update");
 
-    const db = client.db("hexbox_poc");
+    const db = client.db(process.env.HEXBOX_DB);
 
     // CRITICAL FIX: Add ownership validation
     const existingCampaign = await db.collection("campaigns").findOne({

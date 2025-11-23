@@ -52,7 +52,7 @@ export const POST = async (req: NextRequest) => {
       // Delete the product from the database only if it's not active
       try {
         const mdbClient = client;
-        const db = mdbClient.db("hexbox_poc");
+        const db = mdbClient.db(process.env.HEXBOX_DB);
         
         // Check product status before deleting
         const product = await db.collection("products").findOne({
@@ -114,7 +114,7 @@ export const POST = async (req: NextRequest) => {
       // Delete the product from the database only if it's not active
       try {
         const mdbClient = client;
-        const db = mdbClient.db("hexbox_poc");
+        const db = mdbClient.db(process.env.HEXBOX_DB);
         
         // Check product status before deleting
         const product = await db.collection("products").findOne({
@@ -167,7 +167,7 @@ export const POST = async (req: NextRequest) => {
 
     // Verify the product was added to the contract
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const product = await db.collection("products").findOne({
       productId: productId,
     });

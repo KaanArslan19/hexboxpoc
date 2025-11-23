@@ -5,7 +5,7 @@ export const createWallet = async (
 ): Promise<string | null> => {
   try {
     const wallet = await client
-      .db("hexbox_poc")
+      .db(process.env.HEXBOX_DB)
       .collection("wallets")
       .insertOne({
         total_funds: 0,

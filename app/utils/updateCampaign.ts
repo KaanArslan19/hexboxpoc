@@ -12,7 +12,7 @@ export async function updateCampaign(campaignId: string, campaignData: any) {
     }
 
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
 
     const existingCampaign = await db
       .collection("campaigns")

@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     // }
 
     // // Update MongoDB for each campaign
-    // const db = client.db("hexbox_poc");
+    // const db = client.db(process.env.HEXBOX_DB);
     // const campaignsCollection = db.collection("campaigns");
 
     // for (const [campaignAddress, txs] of Object.entries(campaignTransactions)) {

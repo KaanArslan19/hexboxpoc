@@ -46,7 +46,7 @@ export const createProposal = async (
     const neededVotes = totalVotingPower * 0.7; // 70% of total voting power needed
 
     const proposal = await client
-      .db("hexbox_poc")
+      .db(process.env.HEXBOX_DB)
       .collection("proposals")
       .insertOne({
         created_timestamp: Date.now(),
