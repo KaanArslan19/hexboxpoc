@@ -16,22 +16,28 @@ export async function POST(req: NextRequest) {
     try {
       parsedBody = await req.json();
     } catch (error) {
-      return NextResponse.json({ 
-        error: "Invalid request body. Please provide a valid JSON payload.",
-        details: error instanceof Error ? error.message : String(error)
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Invalid request body. Please provide a valid JSON payload.",
+          details: error instanceof Error ? error.message : String(error),
+        },
+        { status: 400 }
+      );
     }
-    
+
     // Now that we've safely parsed the body, validate required fields
     const { campaignAddress, productId, quantity } = parsedBody;
-    
+
     if (!campaignAddress || productId === undefined || quantity === undefined) {
-      return NextResponse.json({ 
-        error: "Missing required fields", 
-        details: "Required fields: campaignAddress, productId, quantity" 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Missing required fields",
+          details: "Required fields: campaignAddress, productId, quantity",
+        },
+        { status: 400 }
+      );
     }
-    
+
     // Log the parsed data for debugging
     console.log("Received request data:", parsedBody);
 
@@ -65,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.NEXT_PUBLIC_RPC_URL
     );
 
     // Get the contract instance
@@ -173,7 +179,9 @@ export async function POST(req: NextRequest) {
     //   },
     // });
 
-    const originalProductId = await contract.getOriginalProductId(convertedProductId);
+    const originalProductId = await contract.getOriginalProductId(
+      convertedProductId
+    );
     console.log("Original Product ID:", originalProductId);
     convertedProductId = originalProductId;
     // Try encoding with the converted values

@@ -73,7 +73,7 @@ export default function WithdrawFundsButton({
         setHasFunds(false);
         setWithdrawableAmount(BigInt(0));
         const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+          process.env.NEXT_PUBLIC_RPC_URL
         );
 
         // For Limitless funding, check both contract balance and beneficiaryWallet balance
@@ -225,7 +225,7 @@ export default function WithdrawFundsButton({
       setIsWithdrawing(true);
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const contract = new ethers.Contract(
         fundraiserAddress,

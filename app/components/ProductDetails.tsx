@@ -290,7 +290,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     try {
       const campaignAddress = await getCampaignAddress();
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const contract = new ethers.Contract(
         campaignAddress,
@@ -312,7 +312,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       if (!address) return false;
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const usdcContract = new ethers.Contract(
         CONTRACTS.USDC.fuji,
@@ -339,7 +339,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     try {
       setIsApproving(true);
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
 
       const usdcContract = new ethers.Contract(
@@ -593,7 +593,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       setIsVerifying(true);
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const receipt = await provider.waitForTransaction(hash);
 
@@ -658,7 +658,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     async (campaignAddress: string) => {
       try {
         const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+          process.env.NEXT_PUBLIC_RPC_URL
         );
         const productTokenContract = new ethers.Contract(
           CONTRACTS.ProductToken.fuji,
@@ -704,7 +704,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       }
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const contract = new ethers.Contract(
         campaignAddress,

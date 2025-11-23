@@ -1,5 +1,12 @@
 import { ethers } from "ethers";
-import { S3Client, CopyObjectCommand, DeleteObjectCommand, HeadObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  CopyObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import client from "@/app/utils/mongodb";
 import USDCFundraiserUpgradeable from "@/app/utils/contracts/artifacts/contracts/USDCFundraiserUpgradeable.sol/USDCFundraiserUpgradeable.json";
 
@@ -72,14 +79,16 @@ async function updateMetadataImageUrl(
     // Update the image URL with the new product ID
     const oldLogoFilename = `${oldProductId}.${logoExtension}`;
     const newLogoFilename = `${newProductId}.${logoExtension}`;
-    
+
     if (metadata.image && metadata.image.includes(oldLogoFilename)) {
       metadata.image = metadata.image.replace(oldLogoFilename, newLogoFilename);
     }
 
     // Update the ID attribute if it exists
     if (metadata.attributes && Array.isArray(metadata.attributes)) {
-      const idAttribute = metadata.attributes.find((attr: any) => attr.trait_type === "ID");
+      const idAttribute = metadata.attributes.find(
+        (attr: any) => attr.trait_type === "ID"
+      );
       if (idAttribute) {
         idAttribute.value = newProductId;
       }
@@ -96,13 +105,17 @@ async function updateMetadataImageUrl(
       })
     );
 
-    console.log(`Successfully updated metadata image URL from ${oldLogoFilename} to ${newLogoFilename}`);
+    console.log(
+      `Successfully updated metadata image URL from ${oldLogoFilename} to ${newLogoFilename}`
+    );
     return { success: true };
   } catch (error) {
     console.error(`Error updating metadata image URL:`, error);
     return {
       success: false,
-      error: `Failed to update metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
+      error: `Failed to update metadata: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
     };
   }
 }
@@ -145,7 +158,9 @@ async function renameR2File(
     console.error(`Error renaming file from ${oldKey} to ${newKey}:`, error);
     return {
       success: false,
-      error: `Failed to rename: ${error instanceof Error ? error.message : "Unknown error"}`,
+      error: `Failed to rename: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
     };
   }
 }
@@ -164,7 +179,7 @@ export async function syncSingleProductIdWithChain(
   try {
     // Initialize provider and contract
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.NEXT_PUBLIC_RPC_URL
     );
 
     const fundraiserContract = new ethers.Contract(
@@ -197,9 +212,13 @@ export async function syncSingleProductIdWithChain(
       uniqueProductId = await fundraiserContract.getUniqueProductId(
         BigInt(originalProductId)
       );
-      console.log(`Got unique product ID from chain: ${uniqueProductId.toString()}`);
+      console.log(
+        `Got unique product ID from chain: ${uniqueProductId.toString()}`
+      );
     } catch (error) {
-      const errorMsg = `Failed to get unique product ID for ${originalProductId}: ${error instanceof Error ? error.message : "Unknown error"}`;
+      const errorMsg = `Failed to get unique product ID for ${originalProductId}: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`;
       console.error(errorMsg);
       return {
         success: false,
@@ -221,9 +240,11 @@ export async function syncSingleProductIdWithChain(
     }
 
     const errors: string[] = [];
-    
+
     // Get logo file extension for metadata update
-    const logoExtension = product.logo ? product.logo.split(".").pop() || "" : "";
+    const logoExtension = product.logo
+      ? product.logo.split(".").pop() || ""
+      : "";
 
     // Rename metadata file
     const oldMetadataKey = `product_metadata/${originalProductId}.json`;
@@ -240,7 +261,9 @@ export async function syncSingleProductIdWithChain(
         logoExtension
       );
       if (!metadataUpdateResult.success) {
-        errors.push(`Metadata content update failed: ${metadataUpdateResult.error}`);
+        errors.push(
+          `Metadata content update failed: ${metadataUpdateResult.error}`
+        );
       }
     }
 
@@ -250,7 +273,7 @@ export async function syncSingleProductIdWithChain(
       const fileExtension = logoFileName.split(".").pop();
       const oldLogoKey = `product_logos/${logoFileName}`;
       const newLogoKey = `product_logos/${uniqueProductIdStr}.${fileExtension}`;
-      
+
       const logoResult = await renameR2File(oldLogoKey, newLogoKey);
       if (!logoResult.success) {
         errors.push(`Logo rename failed: ${logoResult.error}`);
@@ -258,13 +281,16 @@ export async function syncSingleProductIdWithChain(
     }
 
     // Rename product images
-    if (product.images?.uploadedFiles && Array.isArray(product.images.uploadedFiles)) {
+    if (
+      product.images?.uploadedFiles &&
+      Array.isArray(product.images.uploadedFiles)
+    ) {
       for (let i = 0; i < product.images.uploadedFiles.length; i++) {
         const imageFileName = product.images.uploadedFiles[i];
         const fileExtension = imageFileName.split(".").pop();
         const oldImageKey = `product_images/${imageFileName}`;
         const newImageKey = `product_images/${uniqueProductIdStr}_${i}.${fileExtension}`;
-        
+
         const imageResult = await renameR2File(oldImageKey, newImageKey);
         if (!imageResult.success) {
           errors.push(`Image ${i} rename failed: ${imageResult.error}`);
@@ -279,7 +305,9 @@ export async function syncSingleProductIdWithChain(
         $set: {
           originalProductId: originalProductId,
           productId: uniqueProductIdStr,
-          logo: product.logo ? `${uniqueProductIdStr}.${product.logo.split(".").pop()}` : product.logo,
+          logo: product.logo
+            ? `${uniqueProductIdStr}.${product.logo.split(".").pop()}`
+            : product.logo,
           status: "available",
           images: product.images?.uploadedFiles
             ? {
@@ -297,7 +325,9 @@ export async function syncSingleProductIdWithChain(
     );
 
     if (updateResult.modifiedCount === 1) {
-      console.log(`Successfully synced product ${originalProductId} -> ${uniqueProductIdStr}`);
+      console.log(
+        `Successfully synced product ${originalProductId} -> ${uniqueProductIdStr}`
+      );
       return {
         success: errors.length === 0,
         productId: originalProductId,
@@ -314,7 +344,9 @@ export async function syncSingleProductIdWithChain(
       };
     }
   } catch (error) {
-    const errorMsg = `Error processing product ${productId}: ${error instanceof Error ? error.message : "Unknown error"}`;
+    const errorMsg = `Error processing product ${productId}: ${
+      error instanceof Error ? error.message : "Unknown error"
+    }`;
     console.error(errorMsg);
     return {
       success: false,
@@ -342,7 +374,7 @@ export async function syncProductIdsWithChain(
   try {
     // Initialize provider and contract
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.NEXT_PUBLIC_RPC_URL
     );
 
     const fundraiserContract = new ethers.Contract(
@@ -368,13 +400,17 @@ export async function syncProductIdsWithChain(
       };
     }
 
-    console.log(`Found ${products.length} products to sync for campaign ${campaignId}`);
+    console.log(
+      `Found ${products.length} products to sync for campaign ${campaignId}`
+    );
 
     // Process each product
     for (const product of products) {
       try {
         const originalProductId = product.productId;
-        console.log(`Processing product with original ID: ${originalProductId}`);
+        console.log(
+          `Processing product with original ID: ${originalProductId}`
+        );
 
         // Get unique product ID from contract
         let uniqueProductId: bigint;
@@ -382,9 +418,13 @@ export async function syncProductIdsWithChain(
           uniqueProductId = await fundraiserContract.getUniqueProductId(
             BigInt(originalProductId)
           );
-          console.log(`Got unique product ID from chain: ${uniqueProductId.toString()}`);
+          console.log(
+            `Got unique product ID from chain: ${uniqueProductId.toString()}`
+          );
         } catch (error) {
-          const errorMsg = `Failed to get unique product ID for ${originalProductId}: ${error instanceof Error ? error.message : "Unknown error"}`;
+          const errorMsg = `Failed to get unique product ID for ${originalProductId}: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`;
           console.error(errorMsg);
           errors.push(errorMsg);
           syncedProducts.push({
@@ -409,14 +449,21 @@ export async function syncProductIdsWithChain(
         }
 
         // Get logo file extension for metadata update
-        const logoExtension = product.logo ? product.logo.split(".").pop() || "" : "";
+        const logoExtension = product.logo
+          ? product.logo.split(".").pop() || ""
+          : "";
 
         // Rename metadata file
         const oldMetadataKey = `product_metadata/${originalProductId}.json`;
         const newMetadataKey = `product_metadata/${uniqueProductIdStr}.json`;
-        const metadataResult = await renameR2File(oldMetadataKey, newMetadataKey);
+        const metadataResult = await renameR2File(
+          oldMetadataKey,
+          newMetadataKey
+        );
         if (!metadataResult.success) {
-          errors.push(`Metadata rename failed for product ${originalProductId}: ${metadataResult.error}`);
+          errors.push(
+            `Metadata rename failed for product ${originalProductId}: ${metadataResult.error}`
+          );
         } else {
           // Update the metadata JSON content with new image URL
           const metadataUpdateResult = await updateMetadataImageUrl(
@@ -426,7 +473,9 @@ export async function syncProductIdsWithChain(
             logoExtension
           );
           if (!metadataUpdateResult.success) {
-            errors.push(`Metadata content update failed for product ${originalProductId}: ${metadataUpdateResult.error}`);
+            errors.push(
+              `Metadata content update failed for product ${originalProductId}: ${metadataUpdateResult.error}`
+            );
           }
         }
 
@@ -436,24 +485,31 @@ export async function syncProductIdsWithChain(
           const fileExtension = logoFileName.split(".").pop();
           const oldLogoKey = `product_logos/${logoFileName}`;
           const newLogoKey = `product_logos/${uniqueProductIdStr}.${fileExtension}`;
-          
+
           const logoResult = await renameR2File(oldLogoKey, newLogoKey);
           if (!logoResult.success) {
-            errors.push(`Logo rename failed for product ${originalProductId}: ${logoResult.error}`);
+            errors.push(
+              `Logo rename failed for product ${originalProductId}: ${logoResult.error}`
+            );
           }
         }
 
         // Rename product images
-        if (product.images?.uploadedFiles && Array.isArray(product.images.uploadedFiles)) {
+        if (
+          product.images?.uploadedFiles &&
+          Array.isArray(product.images.uploadedFiles)
+        ) {
           for (let i = 0; i < product.images.uploadedFiles.length; i++) {
             const imageFileName = product.images.uploadedFiles[i];
             const fileExtension = imageFileName.split(".").pop();
             const oldImageKey = `product_images/${imageFileName}`;
             const newImageKey = `product_images/${uniqueProductIdStr}_${i}.${fileExtension}`;
-            
+
             const imageResult = await renameR2File(oldImageKey, newImageKey);
             if (!imageResult.success) {
-              errors.push(`Image ${i} rename failed for product ${originalProductId}: ${imageResult.error}`);
+              errors.push(
+                `Image ${i} rename failed for product ${originalProductId}: ${imageResult.error}`
+              );
             }
           }
         }
@@ -465,7 +521,9 @@ export async function syncProductIdsWithChain(
             $set: {
               originalProductId: originalProductId,
               productId: uniqueProductIdStr,
-              logo: product.logo ? `${uniqueProductIdStr}.${product.logo.split(".").pop()}` : product.logo,
+              logo: product.logo
+                ? `${uniqueProductIdStr}.${product.logo.split(".").pop()}`
+                : product.logo,
               status: "available",
               images: product.images?.uploadedFiles
                 ? {
@@ -483,7 +541,9 @@ export async function syncProductIdsWithChain(
         );
 
         if (updateResult.modifiedCount === 1) {
-          console.log(`Successfully synced product ${originalProductId} -> ${uniqueProductIdStr}`);
+          console.log(
+            `Successfully synced product ${originalProductId} -> ${uniqueProductIdStr}`
+          );
           syncedProducts.push({
             success: true,
             productId: originalProductId,
@@ -499,7 +559,9 @@ export async function syncProductIdsWithChain(
           });
         }
       } catch (error) {
-        const errorMsg = `Error processing product ${product.productId}: ${error instanceof Error ? error.message : "Unknown error"}`;
+        const errorMsg = `Error processing product ${product.productId}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`;
         console.error(errorMsg);
         errors.push(errorMsg);
         syncedProducts.push({
@@ -521,7 +583,9 @@ export async function syncProductIdsWithChain(
       success: false,
       syncedProducts,
       errors: [
-        `Fatal error: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Fatal error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
       ],
     };
   }
