@@ -168,7 +168,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   className="relative overflow-hidden rounded-lg shadow-md aspect-w-16 aspect-h-9"
                 >
                   <Image
-                    src={`${process.env.R2_BUCKET_URL}/product_images/${image}`}
+                    src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/product_images/${image}`}
                     alt={`Product image ${index + 1}`}
                     width={200}
                     height={200}
@@ -840,7 +840,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
           <div className="md:col-span-2 flex flex-col min-h-0">
             <div className="relative w-full h-96 mb-6 ">
               <Image
-                src={`${process.env.R2_BUCKET_URL}/product_logos/${product.logo}`}
+                src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/product_logos/${product.logo}`}
                 alt={product.name}
                 fill
                 className="object-contain rounded-xl shadow-lg p-2"
