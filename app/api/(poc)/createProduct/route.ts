@@ -282,7 +282,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.NEXT_PUBLIC_RPC_URL
     );
 
     // Get the fundraiser contract
