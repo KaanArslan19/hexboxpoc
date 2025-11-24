@@ -31,7 +31,7 @@ export async function generateMetadata(
       url: url,
       images: [
         {
-          url: `${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`,
+          url: `${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/${campaign.logo}`,
           width: 1200,
           height: 630,
           alt: campaign.title,

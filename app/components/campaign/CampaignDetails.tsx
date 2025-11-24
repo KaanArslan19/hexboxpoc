@@ -161,7 +161,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = async ({
 
           <div className="col-span-1 flex flex-col items-center justify-end ">
             <HexagonImage
-              src={`${process.env.R2_BUCKET_URL}/campaign_logos/` + logo}
+              src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/` + logo}
               alt="demo"
               className="my-4 "
             />

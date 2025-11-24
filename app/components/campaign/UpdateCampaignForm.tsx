@@ -52,7 +52,7 @@ const fileSizeValidator = Yup.mixed().test(
     return false;
   }
 );
-const BASE_URL = `${process.env.R2_BUCKET_URL}/campaign_logos/`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/`;
 
 // Extended validation schema that includes turnstile verification
 const validationCombinedSchema = Yup.object({

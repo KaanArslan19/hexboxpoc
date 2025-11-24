@@ -89,7 +89,7 @@ export default function ThankYou() {
       <div className="max-w-2xl w-full bg-white dark:bg-dark-surface rounded-xl shadow-sm p-8 text-center">
         <div className="relative w-56 h-56 mx-auto mb-6">
           <Image
-            src={`${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`}
+            src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/${campaign.logo}`}
             alt="Campaign Logo"
             fill
             className="object-contain"
