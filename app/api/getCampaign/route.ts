@@ -29,7 +29,7 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         { status: 400 }
       );
     }
-    console.log(`campaignId----getCampaign ${campaignId}`);
+
     const campaign = await getPublicCampaign(campaignId as string);
     if (!campaign) {
       return NextResponse.json(
