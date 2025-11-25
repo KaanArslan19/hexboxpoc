@@ -20,7 +20,7 @@ export async function generateMetadata(
     };
   }
 
-  const url = `${process.env.NEXT_PUBLIC_BASE_URL}/campaign?campaignId=${campaignId}`;
+  const url = `${process.env.BASE_URL}/campaign?campaignId=${campaignId}`;
 
   return {
     title: campaign.title,
@@ -31,7 +31,7 @@ export async function generateMetadata(
       url: url,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/${campaign.logo}`,
+          url: `${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`,
           width: 1200,
           height: 630,
           alt: campaign.title,
@@ -45,7 +45,7 @@ export async function generateMetadata(
       description: campaign.description,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/${campaign.logo}`,
+          url: `${process.env.R2_BUCKET_URL}/campaign_logos/${campaign.logo}`,
           width: 1200,
           height: 630,
           alt: campaign.title,
