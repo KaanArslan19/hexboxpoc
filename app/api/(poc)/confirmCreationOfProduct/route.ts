@@ -110,7 +110,7 @@ export const POST = async (req: NextRequest) => {
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_RPC_URL
+      process.env.RPC_URL
     );
 
     // Wait for transaction receipt

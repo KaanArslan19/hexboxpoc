@@ -314,8 +314,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       const provider = new ethers.JsonRpcProvider(
         process.env.NEXT_PUBLIC_RPC_URL
       );
+      const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
       const usdcContract = new ethers.Contract(
-        CONTRACTS.USDC.fuji,
+        usdcContractAddress,
         ABIS.USDC_ABI,
         provider
       );
@@ -342,8 +343,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         process.env.NEXT_PUBLIC_RPC_URL
       );
 
+      const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
       const usdcContract = new ethers.Contract(
-        CONTRACTS.USDC.fuji,
+        usdcContractAddress,
         ABIS.USDC_ABI,
         provider
       );
@@ -381,7 +383,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       ]);
 
       const hash = await walletClient.sendTransaction({
-        to: CONTRACTS.USDC.fuji as `0x${string}`,
+        to: usdcContractAddress as `0x${string}`,
         data: txData as `0x${string}`,
       });
 
@@ -660,8 +662,9 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
         const provider = new ethers.JsonRpcProvider(
           process.env.NEXT_PUBLIC_RPC_URL
         );
+        const productTokenContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.ProductToken.fuji : CONTRACTS.ProductToken.mainnet
         const productTokenContract = new ethers.Contract(
-          CONTRACTS.ProductToken.fuji,
+          productTokenContractAddress,
           ProductTokenABI.abi,
           provider
         ) as unknown as ProductToken;

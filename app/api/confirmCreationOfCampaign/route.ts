@@ -91,7 +91,7 @@ export const POST = async (req: NextRequest) => {
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_RPC_URL
+      process.env.RPC_URL
     );
 
     // Wait for transaction receipt
@@ -109,7 +109,7 @@ export const POST = async (req: NextRequest) => {
 
     // Get factory contract
     const factoryContract = new ethers.Contract(
-      CONTRACTS.USDCFundraiserFactory.fuji,
+      process.env.SITE_ENV === "development" ? CONTRACTS.USDCFundraiserFactory.fuji : CONTRACTS.USDCFundraiserFactory.mainnet,
       USDCFundraiserFactoryUpgradable.abi,
       provider
     );

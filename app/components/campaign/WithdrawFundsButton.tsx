@@ -112,9 +112,9 @@ export default function WithdrawFundsButton({
           "function balanceOf(address account) view returns (uint256)",
           "function decimals() view returns (uint8)",
         ];
-
+        const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
         const usdcReadContract = new ethers.Contract(
-          CONTRACTS.USDC.fuji,
+          usdcContractAddress,
           ERC20_READ_ABI,
           provider
         );
@@ -272,8 +272,9 @@ export default function WithdrawFundsButton({
         "function balanceOf(address account) view returns (uint256)",
       ];
 
+      const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
       const usdcReadContract = new ethers.Contract(
-        CONTRACTS.USDC.fuji,
+        usdcContractAddress,
         ERC20_READ_ABI,
         provider
       );

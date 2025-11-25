@@ -26,9 +26,9 @@ function formatAmount(amount: string | number, decimals: number = 6): string {
 
 export async function syncExternalData(fundraiserAddress?: string) {
   try {
-    const db = client.db("hexbox_poc");
+    const db = client.db(process.env.HEXBOX_DB);
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_RPC_URL
+      process.env.RPC_URL
     );
 
     // If no specific fundraiser address, get all fundraiser addresses from campaigns

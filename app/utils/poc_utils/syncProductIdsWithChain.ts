@@ -179,7 +179,7 @@ export async function syncSingleProductIdWithChain(
   try {
     // Initialize provider and contract
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_RPC_URL
+      process.env.RPC_URL
     );
 
     const fundraiserContract = new ethers.Contract(
@@ -374,7 +374,7 @@ export async function syncProductIdsWithChain(
   try {
     // Initialize provider and contract
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_RPC_URL
+      process.env.RPC_URL
     );
 
     const fundraiserContract = new ethers.Contract(
