@@ -19,6 +19,7 @@ async function fetchCampaign(campaignId: string, includeSensitive: boolean) {
     console.error("Invalid campaign ID");
     return null;
   }
+  console.log("campaignId----fetch", campaignId);
   const db = client.db(process.env.HEXBOX_DB);
   try {
     const campaign = await db
@@ -38,6 +39,7 @@ async function fetchCampaign(campaignId: string, includeSensitive: boolean) {
 }
 
 export async function getPublicCampaign(campaignId: string) {
+  console.log("campaignId----getPublicCampaign", campaignId);
   return fetchCampaign(campaignId, false);
 }
 
