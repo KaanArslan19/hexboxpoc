@@ -15,6 +15,8 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
       console.log(session.address);
     } */
 
+    console.log("getPublicCampaign | api/getCampaign/route.ts");
+
     if (!req.nextUrl.searchParams.has("campaignId")) {
       return NextResponse.json(
         { error: "Campaign ID is required" },
@@ -23,6 +25,8 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
     }
 
     const campaignId = req.nextUrl.searchParams.get("campaignId");
+    console.log("campaignId | api/getCampaign/route.ts", campaignId);
+
     if (!ObjectId.isValid(campaignId as string)) {
       return NextResponse.json(
         { error: "Campaign ID is invalid" },
@@ -31,6 +35,7 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
     }
 
     const campaign = await getPublicCampaign(campaignId as string);
+    console.log("returned campaign | api/getCampaign/route.ts", campaign);
     if (!campaign) {
       return NextResponse.json(
         { error: "Campaign not found" },

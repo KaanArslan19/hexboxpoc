@@ -84,6 +84,8 @@ export const fetchCampaigns = async (
       cache: "no-store",
     });
 
+    console.log("fetchCampaigns response: ", response);
+
     if (!response.ok) {
       throw new Error("Failed to fetch campaigns | fetchCampaigns | apiHelpers");
     }
@@ -109,9 +111,10 @@ export const fetchCampaignsByUser = async (userId: string): Promise<any> => {
 
 export const fetchSingleCampaign = async (campaignId: string): Promise<any> => {
   console.log("campaignId----fetch", campaignId);
-  Sentry.captureMessage("fetchSingleCampaign");
 
   try {
+    console.log("fetchSingleCampaign | apiHelpers | utils");
+    console.log(`${process.env.NEXTAUTH_URL}/api/getCampaign?campaignId=${campaignId}`);
     const response = await fetch(
       `${process.env.NEXTAUTH_URL}/api/getCampaign?campaignId=${campaignId}`,
       {
