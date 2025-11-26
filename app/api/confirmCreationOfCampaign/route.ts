@@ -107,9 +107,11 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    const factoryContractAddress = process.env.SITE_ENV === "development" ? CONTRACTS.USDCFundraiserFactory.fuji : CONTRACTS.USDCFundraiserFactory.mainnet
+
     // Get factory contract
     const factoryContract = new ethers.Contract(
-      process.env.SITE_ENV === "development" ? CONTRACTS.USDCFundraiserFactory.fuji : CONTRACTS.USDCFundraiserFactory.mainnet,
+      factoryContractAddress,
       USDCFundraiserFactoryUpgradable.abi,
       provider
     );
@@ -119,7 +121,7 @@ export const POST = async (req: NextRequest) => {
       .filter(
         (log) =>
           log.address.toLowerCase() ===
-          CONTRACTS.USDCFundraiserFactory.fuji.toLowerCase()
+          factoryContractAddress.toLowerCase()
       )
       .map((log) => {
         try {

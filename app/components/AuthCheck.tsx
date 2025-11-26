@@ -358,7 +358,7 @@ async function handleReauth(
   try {
     // Get a fresh nonce for authentication
     const nonce = await createNonce();
-
+    const chainID = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? 43113 : 43114;
     // Create the SIWE message for signing
     const message = new SiweMessage({
       domain: window.location.host,
@@ -366,7 +366,7 @@ async function handleReauth(
       statement: "Sign in with Avalanche to the app.",
       uri: window.location.origin,
       version: "1",
-      chainId: 43113,
+      chainId: chainID,
       nonce,
     });
 
