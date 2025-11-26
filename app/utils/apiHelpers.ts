@@ -1,4 +1,3 @@
-import Sentry from "@sentry/nextjs";
 
 export const fetchCampaignsWithCount = async (
   limit: number,
