@@ -85,6 +85,19 @@ export const fetchCampaigns = async (
     });
 
     if (!response.ok) {
+      console.error("fetchCampaigns non-OK response:", {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+
+      try {
+        const errorText = await response.text();
+        console.error("fetchCampaigns error body:", errorText);
+      } catch (readError) {
+        console.error("Failed to read fetchCampaigns error body:", readError);
+      }
+
       throw new Error("Failed to fetch campaigns | fetchCampaigns | apiHelpers");
     }
 
