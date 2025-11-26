@@ -84,14 +84,22 @@ export const fetchCampaigns = async (
       cache: "no-store",
     });
 
-    console.log("fetchCampaigns response: ", response);
-
     if (!response.ok) {
       throw new Error("Failed to fetch campaigns | fetchCampaigns | apiHelpers");
     }
 
     const data = await response.json();
-    return Array.isArray(data) ? data : data.campaigns || [];
+    console.log("fetchCampaigns data:", data);
+
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    if (Array.isArray((data as any).campaigns)) {
+      return (data as any).campaigns;
+    }
+
+    return [];
   } catch (error) {
     console.error("Failed to fetch campaigns:", error);
     return [];
