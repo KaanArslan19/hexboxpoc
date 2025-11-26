@@ -39,3 +39,6 @@ next-env.d.ts
 .windsurfrules
 .windsurf/
 
+
+# Sentry Config File
+.env.sentry-build-plugin

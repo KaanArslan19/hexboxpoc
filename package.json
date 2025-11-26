@@ -21,6 +21,7 @@
     "@material-tailwind/react": "^2.1.9",
     "@rainbow-me/rainbowkit": "^2.1.4",
     "@rainbow-me/rainbowkit-siwe-next-auth": "^0.4.1",
+    "@sentry/nextjs": "^10.27.0",
     "@solana-mobile/wallet-adapter-mobile": "^2.1.2",
     "@solana/actions": "^1.6.5",
     "@solana/wallet-adapter-base": "^0.9.23",
