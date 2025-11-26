@@ -30,7 +30,7 @@ const CampaignItem: React.FC<CampaignItemProps> = ({
         <Image
           className="h-[170px] w-full object-contain object-center p-1"
           loading="lazy"
-          src={`${process.env.R2_BUCKET_URL}/campaign_logos/` + logo}
+          src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/` + logo}
           alt={title}
           width={100}
           height={70}

@@ -10,7 +10,7 @@ export const auditProposal = async (
 ) => {
   try {
     const proposal = await client
-      .db("hexbox_poc")
+      .db(process.env.HEXBOX_DB)
       .collection("proposals")
       .findOne({ _id: new ObjectId(proposalID) });
     if (!proposal) {
@@ -40,7 +40,7 @@ export const auditProposal = async (
     }
 
     const updatedProposal = await client
-      .db("hexbox_poc")
+      .db(process.env.HEXBOX_DB)
       .collection("proposals")
       .updateOne({ _id: new ObjectId(proposalID) }, { $set: proposal });
 

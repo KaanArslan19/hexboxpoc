@@ -11,7 +11,7 @@ export const getCampaignFromProduct = async (productId: string) => {
 
   try {
     const product = await client
-      .db("hexbox_poc")
+      .db(process.env.HEXBOX_DB)
       .collection("products")
       .findOne({ _id: new ObjectId(productId) });
     if (!product) {
@@ -21,7 +21,7 @@ export const getCampaignFromProduct = async (productId: string) => {
     console.log(campaignId);
 
     const campaign = await client
-      .db("hexbox_poc")
+      .db(process.env.HEXBOX_DB)
       .collection("campaigns")
       .findOne({ _id: new ObjectId(campaignId) });
     if (!campaign) {

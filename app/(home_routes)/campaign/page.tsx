@@ -2,6 +2,7 @@ import CampaignDetails from "@/app/components/campaign/CampaignDetails";
 import { fetchSingleCampaign } from "@/app/utils/apiHelpers";
 import { getProducts } from "@/app/utils/poc_utils/getProducts";
 import { Metadata, ResolvingMetadata } from "next";
+import {getPublicCampaign} from "@/app/utils/campaigns";
 
 interface Props {
   searchParams: { campaignId: string };
@@ -12,7 +13,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const campaignId = searchParams.campaignId;
-  const campaign = await fetchSingleCampaign(campaignId);
+  const campaign = await getPublicCampaign(campaignId);
 
   if (!campaign) {
     return {
@@ -20,7 +21,7 @@ export async function generateMetadata(
     };
   }
 
-  const url = `${process.env.NEXT_PUBLIC_BASE_URL}/campaign?campaignId=${campaignId}`;
+  const url = `${process.env.BASE_URL}/campaign?campaignId=${campaignId}`;
 
   return {
     title: campaign.title,
@@ -57,14 +58,18 @@ export async function generateMetadata(
 
 export default async function CampaignPage({ searchParams }: Props) {
   const campaignId = searchParams.campaignId;
-  const campaign = await fetchSingleCampaign(campaignId);
+  const campaign = await getPublicCampaign(campaignId);
 
   if (!campaign) {
     return <div>Campaign not found</div>;
   }
 
+  if (!campaign._id) {
+    return <div>Campaign ID not found {JSON.stringify(campaign)}</div>;
+  }
+
   const plainCampaign = {
-    ...campaign,
+    ...(campaign as any),
     _id: campaign._id.toString(),
     created_timestamp: campaign.created_timestamp?.toISOString(),
   };

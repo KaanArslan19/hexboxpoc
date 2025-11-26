@@ -6,7 +6,7 @@ export const getProducts = async (
   campaignId: string
 ): Promise<ProductFetch[]> => {
   const mdbClient = client;
-  const db = mdbClient.db("hexbox_poc");
+  const db = mdbClient.db(process.env.HEXBOX_DB);
   try {
     const products = await db
       .collection("products")
@@ -131,7 +131,7 @@ export const getProducts = async (
 
 export const getAllProducts = async (): Promise<ProductFetch[]> => {
   const mdbClient = client;
-  const db = mdbClient.db("hexbox_poc");
+  const db = mdbClient.db(process.env.HEXBOX_DB);
   try {
     const products = await db.collection("products").find({}).toArray();
     if (!products.length) {

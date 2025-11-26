@@ -8,10 +8,18 @@ import Providers from "./components/providers/Providers";
 import Notification from "./components/Notification";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
-export const metadata: Metadata = {
-  title: "Hexbox",
-  description: "Create. Support. Make Impact.",
-};
+import * as Sentry from '@sentry/nextjs';
+
+// Add or edit your "generateMetadata" to include the Sentry trace data:
+export function generateMetadata(): Metadata {
+  return {
+    title: "Hexbox",
+    description: "Create. Support. Make Impact.",
+    other: {
+      ...Sentry.getTraceData()
+    }
+  };
+}
 
 export default async function RootLayout({
   children,

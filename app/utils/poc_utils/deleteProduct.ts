@@ -5,7 +5,7 @@ import { deleteMetadata } from "../metadataDelete";
     
 export const deleteProduct = async (productDbId: string) => {
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const product = await db.collection("products").findOne({ _id: new ObjectId(productDbId) });
     if (!product) {
         return { success: false, error: "Product not found" };

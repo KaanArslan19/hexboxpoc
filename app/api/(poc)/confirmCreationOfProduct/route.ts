@@ -18,10 +18,13 @@ export const POST = async (req: NextRequest) => {
     try {
       parsedBody = await req.json();
     } catch (error) {
-      return NextResponse.json({ 
-        error: "Invalid request body. Please provide a valid JSON payload.",
-        details: error instanceof Error ? error.message : String(error)
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Invalid request body. Please provide a valid JSON payload.",
+          details: error instanceof Error ? error.message : String(error),
+        },
+        { status: 400 }
+      );
     }
 
     const { transactionHash, status, productId, campaignId } = parsedBody;
@@ -53,32 +56,34 @@ export const POST = async (req: NextRequest) => {
       try {
         const mdbClient = client;
         const db = mdbClient.db("hexbox_poc");
-        
+
         // Check product status before deleting
         const product = await db.collection("products").findOne({
           productId: productId,
         });
-        
+
         if (!product) {
           return NextResponse.json(
             {
               success: false,
-              error: "Transaction failed on-chain, but product not found in database",
+              error:
+                "Transaction failed on-chain, but product not found in database",
             },
             { status: 404 }
           );
         }
-        
+
         // Only delete if product status is "draft"
         if (product.status === "draft") {
           await db.collection("products").deleteOne({
             productId: productId,
           });
-          
+
           return NextResponse.json(
             {
               success: false,
-              error: "Transaction failed on-chain, draft product deleted from database",
+              error:
+                "Transaction failed on-chain, draft product deleted from database",
             },
             { status: 400 }
           );
@@ -105,7 +110,7 @@ export const POST = async (req: NextRequest) => {
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.RPC_URL
     );
 
     // Wait for transaction receipt
@@ -115,32 +120,34 @@ export const POST = async (req: NextRequest) => {
       try {
         const mdbClient = client;
         const db = mdbClient.db("hexbox_poc");
-        
+
         // Check product status before deleting
         const product = await db.collection("products").findOne({
           productId: productId,
         });
-        
+
         if (!product) {
           return NextResponse.json(
             {
               success: false,
-              error: "Transaction failed or not found, but product not found in database",
+              error:
+                "Transaction failed or not found, but product not found in database",
             },
             { status: 404 }
           );
         }
-        
+
         // Only delete if product status is "draft"
         if (product.status === "draft") {
           await db.collection("products").deleteOne({
             productId: productId,
           });
-          
+
           return NextResponse.json(
             {
               success: false,
-              error: "Transaction failed or not found, draft product deleted from database",
+              error:
+                "Transaction failed or not found, draft product deleted from database",
             },
             { status: 400 }
           );
@@ -167,7 +174,7 @@ export const POST = async (req: NextRequest) => {
 
     // Verify the product was added to the contract
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const product = await db.collection("products").findOne({
       productId: productId,
     });
@@ -206,24 +213,30 @@ export const POST = async (req: NextRequest) => {
     // Check if the product exists in the contract
     try {
       // Get unique product ID from contract first
-      const uniqueProductId = await fundraiserContract.getUniqueProductId(BigInt(product.productId));
-      console.log("Unique product ID from contract:", uniqueProductId.toString());
-      
+      const uniqueProductId = await fundraiserContract.getUniqueProductId(
+        BigInt(product.productId)
+      );
+      console.log(
+        "Unique product ID from contract:",
+        uniqueProductId.toString()
+      );
+
       const productConfig = await fundraiserContract.products(uniqueProductId);
-      
+
       if (productConfig.price.toString() === "0") {
         // Product not found in contract, check status before deleting from database
-        
+
         // Only delete if product status is "draft"
         if (product.status === "draft") {
           await db.collection("products").deleteOne({
             productId: productId,
           });
-          
+
           return NextResponse.json(
             {
               success: false,
-              error: "Product not found in contract, draft product deleted from database",
+              error:
+                "Product not found in contract, draft product deleted from database",
             },
             { status: 400 }
           );
@@ -237,27 +250,33 @@ export const POST = async (req: NextRequest) => {
           );
         }
       }
-      
+
       // // Update product status in database
       // await db.collection("products").updateOne(
       //   { productId: productId },
       //   { $set: { status: "available" } }
       // );
-      
+
       // Sync product ID with on-chain unique product ID
-      console.log("Starting product ID synchronization for product:", productId);
+      console.log(
+        "Starting product ID synchronization for product:",
+        productId
+      );
       const syncResult = await syncSingleProductIdWithChain(
         productId,
         campaign.fundraiser_address
       );
-      
+
       if (!syncResult.success) {
-        console.error("Product ID sync completed with errors:", syncResult.error);
+        console.error(
+          "Product ID sync completed with errors:",
+          syncResult.error
+        );
         // Log error but don't fail the request
       } else {
         console.log("Product ID sync completed successfully:", syncResult);
       }
-      
+
       return NextResponse.json({
         success: true,
         productId: syncResult.uniqueProductId || productId,
@@ -271,12 +290,12 @@ export const POST = async (req: NextRequest) => {
       });
     } catch (error) {
       console.error("Error verifying product in contract:", error);
-      
+
       // Delete the product from the database
       await db.collection("products").deleteOne({
         productId: productId,
       });
-      
+
       return NextResponse.json(
         {
           success: false,

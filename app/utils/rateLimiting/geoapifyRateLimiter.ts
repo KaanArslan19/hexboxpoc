@@ -2,7 +2,7 @@ import client from "@/app/utils/mongodb";
 
 // Configuration
 const DAILY_LIMIT = 2900; // Safe buffer below Geoapify free tier (3,000/day)
-const DB_NAME = "hexbox_poc";
+const DB_NAME = process.env.HEXBOX_DB;
 const COLLECTION_NAME = "geoapify_api_usage";
 
 interface ApiUsageDocument {

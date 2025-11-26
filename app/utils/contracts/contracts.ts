@@ -1,19 +1,19 @@
 export const CONTRACTS = {
     USDCFundraiserFactory: {
       fuji: "0x6bB9651e7b1585BDfDA46ABd5A552e500A2aF7B8",//"0x75266ecc371C3c703a05F1a8959ee01028bb6A1b", //"0x7eeF9e811817B7A5ae2aF986C68b2Fa562f2D5C0",//"0x2BC4F4757c5dDd37409B5d3D90811BBb652a96C4",
-      mainnet: "",
+      mainnet: "0x109AA74104da0f7e9cea96FAb48F1ef661e147f8",
     },
     ProductToken: {
       fuji: "0x737EcA44cd41Fd9F628D3a62Eb740502f10c2259",//"0x49216924D47184954e25940a6352abc4b03AbAeD",
-      mainnet: "",
+      mainnet: "0xCc9a5A56d50E4E2f91704d6127C635eF07842ce3",
     },
     USDC: {
       fuji: "0x5425890298aed601595a70AB815c96711a31Bc65",
-      mainnet: "",
+      mainnet: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
     },
     LINK: {
       fuji: "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846",
-      mainnet: "",
+      mainnet: "0x5947BB275c521040051D82396192181b413227A3",
     }
 };
 

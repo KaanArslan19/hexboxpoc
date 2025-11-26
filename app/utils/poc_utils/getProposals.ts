@@ -5,7 +5,7 @@ import { TokenDetailsProps } from "@/app/types";
 export const getProposals = async (wallet_address: string) => {
   console.log(`Wallet Address: ${wallet_address}`);
   const mdbClient = client;
-  const db = mdbClient.db("hexbox_poc");
+  const db = mdbClient.db(process.env.HEXBOX_DB);
   const proposals = await db
     .collection("proposals")
     .find({ wallet_address: wallet_address })

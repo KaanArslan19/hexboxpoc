@@ -8,7 +8,7 @@ export const createToken = async (name: string, supply: number, fundsToRaise: nu
     const tokenPrice = Number(fundsToRaise) / investorTokens;
     const transitionThreshold = investorTokens * 0.6; // 60% of investor tokens
 
-    const token = await client.db("hexbox_poc").collection("tokens").insertOne({
+    const token = await client.db(process.env.HEXBOX_DB).collection("tokens").insertOne({
       name: name,
       supply: supply,
       available_supply: investorTokens,

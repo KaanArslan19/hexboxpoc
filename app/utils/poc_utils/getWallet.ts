@@ -6,7 +6,7 @@ export const getWallet = async (wallet_address: string): Promise<WalletDetails |
     try {
   
         const mdbClient = client;
-        const db = mdbClient.db("hexbox_poc");
+        const db = mdbClient.db(process.env.HEXBOX_DB);
         const wallet = await db
         .collection("wallets")
         .findOne({ 

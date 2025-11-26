@@ -6,7 +6,7 @@ export const getUserProducts = async (
   userId: string
 ): Promise<ProductFetch[]> => {
   const mdbClient = client;
-  const db = mdbClient.db("hexbox_poc");
+  const db = mdbClient.db(process.env.HEXBOX_DB);
   try {
     const products = await db
       .collection("products")

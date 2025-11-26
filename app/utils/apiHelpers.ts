@@ -1,3 +1,4 @@
+
 export const fetchCampaignsWithCount = async (
   limit: number,
   skip: number,
@@ -7,6 +8,8 @@ export const fetchCampaignsWithCount = async (
   sortOrder: string = "desc"
 ): Promise<{ campaigns: any[]; total: number }> => {
   try {
+    console.log("fetchCampaignsWithCount | apiHelpers | utils");
+    console.log(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
     const url = new URL(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
     url.searchParams.append("limit", limit.toString());
     url.searchParams.append("skip", skip.toString());
@@ -25,7 +28,7 @@ export const fetchCampaignsWithCount = async (
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch campaigns");
+      throw new Error("Failed to fetch campaigns | fetchCampaignsWithCount | apiHelpers");
     }
 
     const data = await response.json();
@@ -60,6 +63,8 @@ export const fetchCampaigns = async (
   sortOrder: string = "desc"
 ): Promise<any> => {
   try {
+    console.log("fetchCampaigns | apiHelpers | utils");
+    console.log(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
     const url = new URL(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
     url.searchParams.append("limit", limit.toString());
     url.searchParams.append("skip", skip.toString());
@@ -79,11 +84,34 @@ export const fetchCampaigns = async (
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch campaigns");
+      console.error("fetchCampaigns non-OK response:", {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+
+      try {
+        const errorText = await response.text();
+        console.error("fetchCampaigns error body:", errorText);
+      } catch (readError) {
+        console.error("Failed to read fetchCampaigns error body:", readError);
+      }
+
+      throw new Error("Failed to fetch campaigns | fetchCampaigns | apiHelpers");
     }
 
     const data = await response.json();
-    return Array.isArray(data) ? data : data.campaigns || [];
+    console.log("fetchCampaigns data:", data);
+
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    if (Array.isArray((data as any).campaigns)) {
+      return (data as any).campaigns;
+    }
+
+    return [];
   } catch (error) {
     console.error("Failed to fetch campaigns:", error);
     return [];
@@ -103,7 +131,10 @@ export const fetchCampaignsByUser = async (userId: string): Promise<any> => {
 
 export const fetchSingleCampaign = async (campaignId: string): Promise<any> => {
   console.log("campaignId----fetch", campaignId);
+
   try {
+    console.log("fetchSingleCampaign | apiHelpers | utils");
+    console.log(`${process.env.NEXTAUTH_URL}/api/getCampaign?campaignId=${campaignId}`);
     const response = await fetch(
       `${process.env.NEXTAUTH_URL}/api/getCampaign?campaignId=${campaignId}`,
       {

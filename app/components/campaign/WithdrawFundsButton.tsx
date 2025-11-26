@@ -73,7 +73,7 @@ export default function WithdrawFundsButton({
         setHasFunds(false);
         setWithdrawableAmount(BigInt(0));
         const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+          process.env.NEXT_PUBLIC_RPC_URL
         );
 
         // For Limitless funding, check both contract balance and beneficiaryWallet balance
@@ -112,9 +112,9 @@ export default function WithdrawFundsButton({
           "function balanceOf(address account) view returns (uint256)",
           "function decimals() view returns (uint8)",
         ];
-
+        const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
         const usdcReadContract = new ethers.Contract(
-          CONTRACTS.USDC.fuji,
+          usdcContractAddress,
           ERC20_READ_ABI,
           provider
         );
@@ -225,7 +225,7 @@ export default function WithdrawFundsButton({
       setIsWithdrawing(true);
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const contract = new ethers.Contract(
         fundraiserAddress,
@@ -272,8 +272,9 @@ export default function WithdrawFundsButton({
         "function balanceOf(address account) view returns (uint256)",
       ];
 
+      const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
       const usdcReadContract = new ethers.Contract(
-        CONTRACTS.USDC.fuji,
+        usdcContractAddress,
         ERC20_READ_ABI,
         provider
       );

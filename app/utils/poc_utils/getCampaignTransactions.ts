@@ -3,7 +3,7 @@ import client from "@/app/utils/mongodb";
 
 async function getCampaignTransactions(campaignId: string) {
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const collection = db.collection("campaigns");
     const campaign = await collection.findOne({ _id: new ObjectId(campaignId) });
     

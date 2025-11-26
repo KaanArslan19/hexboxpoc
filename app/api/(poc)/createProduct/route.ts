@@ -282,7 +282,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.RPC_URL
     );
 
     // Get the fundraiser contract
@@ -302,7 +302,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const transaction = {
       to: campaign.fundraiser_address,
       data: functionData,
-      chainId: 43113, // Avalanche Fuji testnet
+      chainId: process.env.SITE_ENV === "development" ? 43113 : 43114, // Avalanche Fuji testnet
       value: "0x00",
     };
 

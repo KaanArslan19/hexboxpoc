@@ -513,18 +513,18 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     // Create campaign in DB
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const result = await db.collection("campaigns").insertOne(campaign);
     const campaignId = result.insertedId.toString();
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.RPC_URL
     );
 
     // Get factory contract interface
     const factoryContract = new ethers.Contract(
-      CONTRACTS.USDCFundraiserFactory.fuji,
+      process.env.SITE_ENV === "development" ? CONTRACTS.USDCFundraiserFactory.fuji : CONTRACTS.USDCFundraiserFactory.mainnet,
       USDCFundraiserFactoryUpgradable.abi,
       provider
     );
@@ -647,9 +647,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     // Construct the transaction
     const transaction = {
-      to: CONTRACTS.USDCFundraiserFactory.fuji,
+      to: process.env.SITE_ENV === "development" ? CONTRACTS.USDCFundraiserFactory.fuji : CONTRACTS.USDCFundraiserFactory.mainnet,
       data: functionData,
-      chainId: 43113, // Avalanche Fuji testnet
+      chainId: process.env.SITE_ENV === "development" ? 43113 : 43114, // Avalanche Fuji testnet
       value: "0x00",
     };
 

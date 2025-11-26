@@ -46,7 +46,8 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid transaction hash format. Must be a 0x-prefixed 32-byte hex string.",
+          error:
+            "Invalid transaction hash format. Must be a 0x-prefixed 32-byte hex string.",
         },
         { status: 400 }
       );
@@ -71,7 +72,7 @@ export const POST = async (req: NextRequest) => {
     console.log("userWalletAddress", userWalletAddress);
 
     const mdbClient = client;
-    const db = mdbClient.db("hexbox_poc");
+    const db = mdbClient.db(process.env.HEXBOX_DB);
     const result = await db.collection("campaigns").findOne({
       _id: campaignIdObjectId,
       user_id: userWalletAddress,
@@ -90,7 +91,7 @@ export const POST = async (req: NextRequest) => {
 
     // Initialize provider
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+      process.env.RPC_URL
     );
 
     // Wait for transaction receipt
@@ -106,9 +107,11 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    const factoryContractAddress = process.env.SITE_ENV === "development" ? CONTRACTS.USDCFundraiserFactory.fuji : CONTRACTS.USDCFundraiserFactory.mainnet
+
     // Get factory contract
     const factoryContract = new ethers.Contract(
-      CONTRACTS.USDCFundraiserFactory.fuji,
+      factoryContractAddress,
       USDCFundraiserFactoryUpgradable.abi,
       provider
     );
@@ -118,7 +121,7 @@ export const POST = async (req: NextRequest) => {
       .filter(
         (log) =>
           log.address.toLowerCase() ===
-          CONTRACTS.USDCFundraiserFactory.fuji.toLowerCase()
+          factoryContractAddress.toLowerCase()
       )
       .map((log) => {
         try {
@@ -191,13 +194,19 @@ export const POST = async (req: NextRequest) => {
       campaignId,
       fundraiserAddress.toLowerCase()
     );
-    
+
     if (!syncResult.success) {
-      console.error("Product ID sync completed with errors:", syncResult.errors);
+      console.error(
+        "Product ID sync completed with errors:",
+        syncResult.errors
+      );
       // Log errors but don't fail the entire request
       // The campaign is still created successfully
     } else {
-      console.log("Product ID sync completed successfully:", syncResult.syncedProducts);
+      console.log(
+        "Product ID sync completed successfully:",
+        syncResult.syncedProducts
+      );
     }
 
     // const fundraiser = new ethers.Contract(
@@ -283,51 +292,51 @@ export const POST = async (req: NextRequest) => {
     //         ],
     //       ]
     //     );
-        // const estimatedGas = await fundraiser.initializeChainlink.estimateGas(
-        //     registrationParams
-        // );
-        // const gasLimit = (estimatedGas * BigInt(105)) / BigInt(100);
-        // console.log("Estimated gas:", estimatedGas);
-        // console.log("Gas limit:", gasLimit);
-        // const tx = await fundraiser.initializeChainlink(registrationParams, {
-        //   gasLimit: 1000000, //gasLimit
-        // });
-        // console.log("Registration tx sent:", tx.hash);
+    // const estimatedGas = await fundraiser.initializeChainlink.estimateGas(
+    //     registrationParams
+    // );
+    // const gasLimit = (estimatedGas * BigInt(105)) / BigInt(100);
+    // console.log("Estimated gas:", estimatedGas);
+    // console.log("Gas limit:", gasLimit);
+    // const tx = await fundraiser.initializeChainlink(registrationParams, {
+    //   gasLimit: 1000000, //gasLimit
+    // });
+    // console.log("Registration tx sent:", tx.hash);
 
-        // const receipt = await tx.wait(2);
-        // console.log("Transaction status:", receipt?.status);
-        // const upkeepID = await fundraiser.getStationUpkeepID();
-        // console.log("Upkeep ID:", upkeepID);
+    // const receipt = await tx.wait(2);
+    // console.log("Transaction status:", receipt?.status);
+    // const upkeepID = await fundraiser.getStationUpkeepID();
+    // console.log("Upkeep ID:", upkeepID);
 
-        // Update MongoDB
-      // await db.collection("campaigns").updateOne(
-      //   { _id: new ObjectId(campaignId) },
-      //   {
-      //     $set: {
-      //       configured: true,
-      //       //upkeep_id: upkeepID.toString(),
-      //       fundraiser_address: fundraiserAddress.toLowerCase(),
-      //     },
-      //   }
-      // );
-      // console.log("Campaign updated:", result);
-        // Check for events
-        // if (receipt?.logs) {
-        //   for (const log of receipt.logs) {
-        //     try {
-        //       const decodedLog = fundraiser.interface.parseLog(log);
-        //       if (decodedLog) {
-        //         console.log("Event:", decodedLog.name, decodedLog.args);
-        //       }
-        //     } catch (e) {
-        //       // Skip logs that can't be decoded
-        //     }
-        //   }
-        // }
-      // } catch (error: any) {
-      //   console.error("Registration failed:", error.message);
-      //   throw error;
-      // }
+    // Update MongoDB
+    // await db.collection("campaigns").updateOne(
+    //   { _id: new ObjectId(campaignId) },
+    //   {
+    //     $set: {
+    //       configured: true,
+    //       //upkeep_id: upkeepID.toString(),
+    //       fundraiser_address: fundraiserAddress.toLowerCase(),
+    //     },
+    //   }
+    // );
+    // console.log("Campaign updated:", result);
+    // Check for events
+    // if (receipt?.logs) {
+    //   for (const log of receipt.logs) {
+    //     try {
+    //       const decodedLog = fundraiser.interface.parseLog(log);
+    //       if (decodedLog) {
+    //         console.log("Event:", decodedLog.name, decodedLog.args);
+    //       }
+    //     } catch (e) {
+    //       // Skip logs that can't be decoded
+    //     }
+    //   }
+    // }
+    // } catch (error: any) {
+    //   console.error("Registration failed:", error.message);
+    //   throw error;
+    // }
     // } catch (error) {
     //   console.error("Error during deployment:", error);
     //   throw error;

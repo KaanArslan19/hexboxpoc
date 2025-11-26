@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductFetch> = ({
     >
       <div className="relative w-28 h-28 mb-4">
         <Image
-          src={`${process.env.R2_BUCKET_URL}/product_logos/${logo}`}
+          src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/product_logos/${logo}`}
           alt={name}
           fill
           sizes="112px"

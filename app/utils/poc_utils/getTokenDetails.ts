@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 
 export const getTokenDetails = async (token_address: string) => {
   // const mdbClient = client;
-  // const db = mdbClient.db("hexbox_poc");
+  // const db = mdbClient.db(process.env.HEXBOX_DB);
   // const token = await db
   //   .collection("tokens")
   //   .findOne({ _id: new ObjectId(token_address) });

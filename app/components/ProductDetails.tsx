@@ -168,7 +168,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
                   className="relative overflow-hidden rounded-lg shadow-md aspect-w-16 aspect-h-9"
                 >
                   <Image
-                    src={`${process.env.R2_BUCKET_URL}/product_images/${image}`}
+                    src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/product_images/${image}`}
                     alt={`Product image ${index + 1}`}
                     width={200}
                     height={200}
@@ -290,7 +290,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     try {
       const campaignAddress = await getCampaignAddress();
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const contract = new ethers.Contract(
         campaignAddress,
@@ -312,10 +312,11 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       if (!address) return false;
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
+      const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
       const usdcContract = new ethers.Contract(
-        CONTRACTS.USDC.fuji,
+        usdcContractAddress,
         ABIS.USDC_ABI,
         provider
       );
@@ -339,11 +340,12 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     try {
       setIsApproving(true);
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
 
+      const usdcContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.USDC.fuji : CONTRACTS.USDC.mainnet
       const usdcContract = new ethers.Contract(
-        CONTRACTS.USDC.fuji,
+        usdcContractAddress,
         ABIS.USDC_ABI,
         provider
       );
@@ -381,7 +383,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       ]);
 
       const hash = await walletClient.sendTransaction({
-        to: CONTRACTS.USDC.fuji as `0x${string}`,
+        to: usdcContractAddress as `0x${string}`,
         data: txData as `0x${string}`,
       });
 
@@ -593,7 +595,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       setIsVerifying(true);
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const receipt = await provider.waitForTransaction(hash);
 
@@ -658,10 +660,11 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
     async (campaignAddress: string) => {
       try {
         const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+          process.env.NEXT_PUBLIC_RPC_URL
         );
+        const productTokenContractAddress = process.env.NEXT_PUBLIC_SITE_ENV === "development" ? CONTRACTS.ProductToken.fuji : CONTRACTS.ProductToken.mainnet
         const productTokenContract = new ethers.Contract(
-          CONTRACTS.ProductToken.fuji,
+          productTokenContractAddress,
           ProductTokenABI.abi,
           provider
         ) as unknown as ProductToken;
@@ -704,7 +707,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
       }
 
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_TESTNET_RPC_URL
+        process.env.NEXT_PUBLIC_RPC_URL
       );
       const contract = new ethers.Contract(
         campaignAddress,
@@ -840,7 +843,7 @@ const ProductDetails = ({ product, campaign }: CampaignProductsProps) => {
           <div className="md:col-span-2 flex flex-col min-h-0">
             <div className="relative w-full h-96 mb-6 ">
               <Image
-                src={`${process.env.R2_BUCKET_URL}/product_logos/${product.logo}`}
+                src={`${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/product_logos/${product.logo}`}
                 alt={product.name}
                 fill
                 className="object-contain rounded-xl shadow-lg p-2"

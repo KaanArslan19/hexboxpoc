@@ -13,7 +13,7 @@ export const GET = async (req: NextRequest) => {
   //   const tokenAddress = req.nextUrl.searchParams.get("tokenAddress")
 
   //   const mdbClient = client;
-  //   const db = mdbClient.db("hexbox_poc");
+  //   const db = mdbClient.db(process.env.HEXBOX_DB);
 
   //   const token = await db
   //     .collection("tokens")

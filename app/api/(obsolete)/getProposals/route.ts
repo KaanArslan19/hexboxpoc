@@ -13,7 +13,7 @@ export const GET = async (req: NextRequest) => {
   //   const walletAddress = req.nextUrl.searchParams.get("walletAddress")
 
   //   const mdbClient = client;
-  //   const db = mdbClient.db("hexbox_poc");
+  //   const db = mdbClient.db(process.env.HEXBOX_DB);
 
   //   const token = await db
   //     .collection("proposals")

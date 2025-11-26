@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.rainbow.me https://*.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://*.cloudflare.com",
     "style-src 'self' 'unsafe-inline' https://*.rainbow.me",
     "img-src 'self' data: https://*.rainbow.me https://*.google-analytics.com https://pub-7337cfa6ce8741dea70792ea29aa86e7.r2.dev",
-    "connect-src 'self' https://*.rainbow.me https://*.ethereum.org https://*.google-analytics.com https://api.avax-test.network https://api.avax.network https://challenges.cloudflare.com https://*.cloudflare.com https://pub-7337cfa6ce8741dea70792ea29aa86e7.r2.dev https://*.walletconnect.org wss://*.walletconnect.org",
+    "connect-src 'self' https://*.rainbow.me https://*.ethereum.org https://*.google-analytics.com https://api.avax-test.network https://api.avax.network https://challenges.cloudflare.com https://*.cloudflare.com https://pub-7337cfa6ce8741dea70792ea29aa86e7.r2.dev https://*.walletconnect.org wss://*.walletconnect.org https://o4505397221982208.ingest.us.sentry.io",
     "frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com",
     "font-src 'self' data:",
     "object-src 'none'",

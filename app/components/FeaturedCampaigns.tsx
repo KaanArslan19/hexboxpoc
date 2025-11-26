@@ -211,7 +211,7 @@ export default function FeaturedCampaigns({ listings }: CampaignListProps) {
                           className="h-full w-full object-contain object-center p-2"
                           loading="lazy"
                           src={
-                            `${process.env.R2_BUCKET_URL}/campaign_logos/` +
+                            `${process.env.NEXT_PUBLIC_R2_BUCKET_URL}/campaign_logos/` +
                             campaign.logo
                           }
                           alt={campaign.title}

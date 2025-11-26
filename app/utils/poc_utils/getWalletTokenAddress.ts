@@ -5,7 +5,7 @@ export const getWalletTokenAddress = async (
   wallet_address: string
 ): Promise<string | null> => {
   const mdbClient = client;
-  const db = mdbClient.db("hexbox_poc");
+  const db = mdbClient.db(process.env.HEXBOX_DB);
   const wallet = await db
     .collection("wallets")
     .findOne({ _id: new ObjectId(wallet_address) });
