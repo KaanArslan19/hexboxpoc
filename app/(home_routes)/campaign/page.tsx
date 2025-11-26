@@ -64,7 +64,7 @@ export default async function CampaignPage({ searchParams }: Props) {
   }
 
   if (!campaign._id) {
-    return <div>Campaign ID not found {campaign}</div>;
+    return <div>Campaign ID not found {JSON.stringify(campaign)}</div>;
   }
 
   const plainCampaign = {
