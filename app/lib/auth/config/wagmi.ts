@@ -7,12 +7,16 @@ import {
   zkSyncSepoliaTestnet,
   polygonMumbai,
   avalancheFuji,
+  avalanche,
 } from 'viem/chains';
 import { cookieStorage, createConfig, createStorage, http } from 'wagmi';
 
+const isDevelopment = process.env.SITE_ENV === 'development';
+const activeChain = isDevelopment ? avalancheFuji : avalanche;
+
 export default createConfig({
   chains: [
-    avalancheFuji,
+    activeChain,
     // sepolia,
     // baseSepolia,
     // scrollSepolia,
@@ -27,6 +31,7 @@ export default createConfig({
   }),
   transports: {
     [avalancheFuji.id]: http(),
+    [avalanche.id]: http(),
     // [sepolia.id]: http(),
     // [baseSepolia.id]: http(),
     // [scrollSepolia.id]: http(),
