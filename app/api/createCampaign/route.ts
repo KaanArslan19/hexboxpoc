@@ -656,6 +656,17 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     return NextResponse.json({ campaignId, transaction });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: e }, { status: 500 });
+
+    const message =
+      e instanceof Error
+        ? e.message
+        : typeof e === "string"
+        ? e
+        : JSON.stringify(e);
+
+    return NextResponse.json(
+      { error: message },
+      { status: 500 }
+    );
   }
 };
