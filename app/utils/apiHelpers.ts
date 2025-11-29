@@ -9,8 +9,8 @@ export const fetchCampaignsWithCount = async (
 ): Promise<{ campaigns: any[]; total: number }> => {
   try {
     console.log("fetchCampaignsWithCount | apiHelpers | utils");
-    console.log(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
-    const url = new URL(`${process.env.NEXTAUTH_URL}/api/getCampaigns`);
+    console.log(`${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/getCampaigns`);
+    const url = new URL(`${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/getCampaigns`);
     url.searchParams.append("limit", limit.toString());
     url.searchParams.append("skip", skip.toString());
     url.searchParams.append("sortBy", sortBy);
