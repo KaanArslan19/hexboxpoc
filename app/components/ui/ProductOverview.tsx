@@ -17,6 +17,12 @@ export default function ProductOverview({
   product: ProductFetch;
   campaign: CampaignDetailsProps;
 }) {
+  const isDevelopment = process.env.NEXT_PUBLIC_SITE_ENV == "development";
+  const snowtraceURL = isDevelopment 
+    ? `https://testnet.snowtrace.io/nft/${CONTRACTS.ProductToken.fuji}/${product.productId}?chainid=43113&type=erc1155`
+    : `https://snowtrace.io/nft/${CONTRACTS.ProductToken.mainnet}/${product.productId}?chainid=43114&type=erc1155`;
+  
+
   return (
     <div className="p-6 bg-white dark:bg-dark-surface  border-gray-100">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
@@ -71,7 +77,7 @@ export default function ProductOverview({
             Smart Contract
           </span>
           <Link
-            href={`https://testnet.snowtrace.io/nft/${CONTRACTS.ProductToken.fuji}/${product.productId}?chainid=43113&type=erc1155`}
+            href={snowtraceURL}
             target="_blank"
             className="w-full"
           >
