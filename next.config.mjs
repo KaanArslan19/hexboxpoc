@@ -1,4 +1,11 @@
 import {withSentryConfig} from "@sentry/nextjs";
+
+// Derive the image hostname from R2_BUCKET_URL by stripping protocol and trailing slashes
+const bucketUrl = process.env.R2_BUCKET_URL || "";
+const bucketHostname = bucketUrl
+  .replace(/^https?:\/\//, "")
+  .replace(/\/$/, "");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config) => {
@@ -30,7 +37,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "pub-7337cfa6ce8741dea70792ea29aa86e7.r2.dev",
+        hostname: bucketHostname,
       },
     ],
   },
