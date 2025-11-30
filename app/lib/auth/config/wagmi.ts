@@ -11,7 +11,7 @@ import {
 } from 'viem/chains';
 import { cookieStorage, createConfig, createStorage, http } from 'wagmi';
 
-const isDevelopment = process.env.SITE_ENV === 'development';
+const isDevelopment = process.env.NEXT_PUBLIC_SITE_ENV === 'development';
 const activeChain = isDevelopment ? avalancheFuji : avalanche;
 
 export default createConfig({

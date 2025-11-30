@@ -2,7 +2,8 @@ import { ProductFetch } from "@/app/types";
 import React from "react";
 import { getProduct } from "@/app/utils/poc_utils/getProduct";
 import ProductDetails from "@/app/components/ProductDetails";
-import { fetchSingleCampaign } from "@/app/utils/apiHelpers";
+import {getPublicCampaign} from "@/app/utils/campaigns";
+
 interface Props {
   searchParams: { productId: string };
 }
@@ -39,7 +40,7 @@ export default async function ProductDetailsPage({ searchParams }: Props) {
 
   let campaign = null;
   try {
-    campaign = await fetchSingleCampaign(product.campaignId);
+    campaign = await getPublicCampaign(product.campaignId);
   } catch (err) {
     return (
       <div className="text-center text-redColor py-8">
@@ -57,7 +58,7 @@ export default async function ProductDetailsPage({ searchParams }: Props) {
   }
 
   const plainCampaign = {
-    ...campaign,
+    ...(campaign as any),
     _id: campaign._id.toString(),
     created_timestamp: campaign.created_timestamp?.toISOString(),
   };
